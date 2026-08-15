@@ -1,9 +1,9 @@
 import React from 'react';
-import { Shield, ShieldAlert, Smartphone, LayoutDashboard, FileText, Bell, Radio, CheckCircle, Flame } from 'lucide-react';
+import { Shield, ShieldAlert, Smartphone, LayoutDashboard, Bell, Radio, CheckCircle, Flame, Map } from 'lucide-react';
 
 interface NavbarProps {
-  activeTab: 'tourist' | 'admin' | 'architecture';
-  setActiveTab: (tab: 'tourist' | 'admin' | 'architecture') => void;
+  activeTab: 'tourist' | 'admin' | 'guide';
+  setActiveTab: (tab: 'tourist' | 'admin' | 'guide') => void;
   isLiveConnected: boolean;
   activeIncidentsCount: number;
   onQuickSOS: () => void;
@@ -24,13 +24,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Brand & Platform Identity */}
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setActiveTab('tourist')}>
             <div className="w-8 h-8 bg-[#F27D26] rounded-sm flex items-center justify-center font-bold text-black text-xl shadow-md">
-              N
+              S
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-sm tracking-widest uppercase text-white">NAGARJUNA</span>
+                <span className="font-extrabold text-sm tracking-widest uppercase text-white">SafeYatra</span>
                 <span className="text-[10px] text-[#71717A] font-mono bg-[#18181B] px-2 py-0.5 rounded border border-[#27272A]">
-                  v4.2.0-PROACTIVE_SHIELD
+                  v4.2.0-SAFETY_CORE
                 </span>
               </div>
               <p className="text-[11px] text-[#71717A] hidden md:block">Smart Tourist Safety Monitoring & Incident Response System</p>
@@ -69,17 +69,19 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             <button
-              onClick={() => setActiveTab('architecture')}
+              onClick={() => setActiveTab('guide')}
               className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                activeTab === 'architecture'
+                activeTab === 'guide'
                   ? 'bg-[#F27D26] text-black font-bold shadow-md'
                   : 'text-[#71717A] hover:text-white hover:bg-[#18181B]'
               }`}
             >
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Arch Specs</span>
-              <span className="sm:hidden">Specs</span>
+              <Map className="w-4 h-4" />
+              <span className="hidden sm:inline">Guide Dashboard</span>
+              <span className="sm:hidden">Guide</span>
             </button>
+
+
           </nav>
 
           {/* Status & Quick Emergency Actions */}

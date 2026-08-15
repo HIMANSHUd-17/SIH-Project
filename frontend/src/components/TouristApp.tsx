@@ -30,6 +30,8 @@ import { isSirenActive, startSirenSound, stopSirenSound } from '../utils/audioAl
 interface TouristAppProps {
   tourist: TouristProfile;
   setTourist: React.Dispatch<React.SetStateAction<TouristProfile>>;
+  otherTourists: TouristProfile[];
+  onLoginTourist: (touristId: string) => TouristProfile | null;
   geofences: DynamicGeofence[];
   routes: RouteOption[];
   onTriggerSOS: (details?: { description?: string; mediaUrl?: string }) => void;
@@ -38,9 +40,15 @@ interface TouristAppProps {
 export const TouristApp: React.FC<TouristAppProps> = ({
   tourist,
   setTourist,
+  otherTourists,
+  onLoginTourist,
   geofences,
   routes,
-  onTriggerSOS
+  onTriggerSOS,
+  chatLogs,
+  setChatLogs,
+  onSendAdminMessage,
+  incidents
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -50,17 +58,37 @@ export const TouristApp: React.FC<TouristAppProps> = ({
   const [selectedRoute, setSelectedRoute] = useState<RouteOption>(routes[1] || routes[0]);
   const [activeSubTab, setActiveSubTab] = useState<'map' | 'routes' | 'blockchain' | 'sos' | 'assistant'>('map');
 
-  // AI Assistant state
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'assistant'; text: string; time: string }>>([
-    {
-      sender: 'assistant',
-      text: `Namaste ${tourist.name}! I am your NAGARJUNA AI Safety Companion. Your safety score is currently optimal (${tourist.currentRiskScore}/100). How can I assist your trip today?`,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  // Login & Profile Modal States
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showProfileCard, setShowProfileCard] = useState(false);
+  const [loginIdInput, setLoginIdInput] = useState('');
+  const [loginOtpInput, setLoginOtpInput] = useState('0000');
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  // Force login if no tourist is set
+  useEffect(() => {
+    if (!tourist || !tourist.id) {
+      setShowLoginModal(true);
     }
-  ]);
+  }, [tourist]);
+  const [operatorMessage, setOperatorMessage] = useState('');
+
+  // AI Assistant state
+  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'user' | 'assistant'; text: string; time: string }>>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [isAssistantLoading, setIsAssistantLoading] = useState(false);
+
+  // Reset chatbot greetings on user profile switch
+  useEffect(() => {
+    setChatMessages([
+      {
+        sender: 'assistant',
+        text: `Namaste ${tourist.name}! I am your SafeYatra AI Safety Companion. Your safety score is currently optimal (${tourist.currentRiskScore}/100). How can I assist your trip today?`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ]);
+  }, [tourist.id]);
 
   // SOS Fallback Timer
   const [sosCountdown, setSosCountdown] = useState<number | null>(null);
@@ -90,7 +118,7 @@ export const TouristApp: React.FC<TouristAppProps> = ({
       });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors | NAGARJUNA Safety Engine'
+        attribution: '&copy; OpenStreetMap contributors | SafeYatra Safety Engine'
       }).addTo(map);
 
       markersGroupRef.current = L.layerGroup().addTo(map);
@@ -353,14 +381,52 @@ export const TouristApp: React.FC<TouristAppProps> = ({
               <div>
                 <div className="flex items-center space-x-2">
                   <h1 className="text-xl font-bold tracking-tight text-white">{tourist.name}</h1>
-                  <span className="text-[10px] bg-[#09090B] text-[#71717A] px-2 py-0.5 rounded border border-[#27272A] font-mono uppercase">
+                  <span className="text-[10px] bg-[#09090B] text-[#71717A] px-2 py-0.5 rounded border border-[#27272A] font-mono uppercase font-semibold">
                     {tourist.nationality}
                   </span>
                 </div>
-                <p className="text-xs text-[#71717A] flex items-center space-x-1 mt-0.5">
-                  <MapPin className="w-3.5 h-3.5 text-[#F27D26]" />
-                  <span>{tourist.currentLocation.address}</span>
-                </p>
+                
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 mt-1 text-[11px] text-[#71717A] font-medium">
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="w-3 h-3 text-[#F27D26]" />
+                    <span>{tourist.currentLocation.address}</span>
+                  </div>
+                  <span className="text-[#27272A] hidden sm:inline">•</span>
+                  <div className="flex items-center space-x-1">
+                    <span className="text-[10px] bg-[#0A0A0B] text-[#8C8C90] px-1.5 py-0.2 rounded border border-[#27272A] font-mono font-bold uppercase">{tourist.id}</span>
+                  </div>
+                  <span className="text-[#27272A]">•</span>
+                  <button 
+                    onClick={() => setShowProfileCard(true)}
+                    className="text-[#F27D26] hover:text-[#FA9A4B] transition-colors uppercase font-bold tracking-wider text-[9px] cursor-pointer"
+                  >
+                    View Info
+                  </button>
+                  <span className="text-[#27272A]">•</span>
+                  <button 
+                    onClick={() => {
+                      setLoginIdInput('');
+                      setLoginOtpInput('0000');
+                      setLoginError(null);
+                      setShowLoginModal(true);
+                    }}
+                    className="text-[#F27D26] hover:text-[#FA9A4B] transition-colors uppercase font-bold tracking-wider text-[9px] cursor-pointer"
+                  >
+                    Switch Profile
+                  </button>
+                  <span className="text-[#27272A]">•</span>
+                  <button 
+                    onClick={() => {
+                      setTourist({
+                        id: '', name: '', nationality: '', blockchainDid: '', identityHash: '', emergencyContact: '', bloodType: '', safetyStatus: 'SAFE', currentLocation: { lat: 0, lng: 0, address: '' }, lastUpdated: '', batteryLevel: 100, currentRiskScore: 0
+                      });
+                      setShowLoginModal(true);
+                    }}
+                    className="text-red-500 hover:text-red-400 transition-colors uppercase font-bold tracking-wider text-[9px] cursor-pointer"
+                  >
+                    Log Out
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -472,7 +538,17 @@ export const TouristApp: React.FC<TouristAppProps> = ({
           }`}
         >
           <Flame className="w-4 h-4" />
-          <span>Emergency SOS & Incident Report</span>
+          <span>Emergency SOS</span>
+        </button>
+        
+        <button
+          onClick={() => setActiveSubTab('operator')}
+          className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider whitespace-nowrap transition-all ${
+            activeSubTab === 'operator' ? 'bg-[#EF4444] text-white font-bold shadow-md' : 'text-[#71717A] hover:text-white hover:bg-[#18181B]'
+          }`}
+        >
+          <Phone className="w-4 h-4" />
+          <span>Live Operator</span>
         </button>
       </div>
 
@@ -561,6 +637,80 @@ export const TouristApp: React.FC<TouristAppProps> = ({
         </div>
       )}
 
+      {/* SUB-TAB: LIVE OPERATOR CHAT */}
+      {activeSubTab === 'operator' && (
+        <div className="bg-[#18181B] border border-[#27272A] rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[500px]">
+          <div className="bg-[#09090B] p-4 flex items-center justify-between border-b border-[#27272A]">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-[#EF4444]/10 flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-[#EF4444]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-sm">Emergency Operator</h3>
+                <p className="text-[10px] text-[#71717A] flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  Active & Monitoring
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+            {(() => {
+              const activeIncident = incidents?.find(i => i.touristId === tourist.id && i.status !== 'RESOLVED');
+              const logs = activeIncident && chatLogs ? chatLogs[activeIncident.id] : [];
+              return (logs || []).map((msg, i) => (
+                <div key={i} className={`flex ${msg.sender === tourist.name || msg.sender === 'Tourist' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[75%] p-3 rounded-2xl text-sm ${
+                    msg.sender === tourist.name || msg.sender === 'Tourist' 
+                      ? 'bg-[#EF4444] text-white rounded-br-sm' 
+                      : 'bg-[#27272A] text-[#E4E4E7] rounded-bl-sm border border-[#3F3F46]'
+                  }`}>
+                    {msg.sender !== tourist.name && msg.sender !== 'Tourist' && (
+                      <div className="text-[10px] font-bold text-[#A1A1AA] mb-1">{msg.sender}</div>
+                    )}
+                    <div>{msg.text}</div>
+                    <div className="text-[9px] mt-1 opacity-70 text-right">{msg.time}</div>
+                  </div>
+                </div>
+              ));
+            })()}
+            {(!incidents?.find(i => i.touristId === tourist.id && i.status !== 'RESOLVED') || (chatLogs && !chatLogs[incidents.find(i => i.touristId === tourist.id && i.status !== 'RESOLVED')?.id || '']?.length)) && (
+              <div className="text-center text-slate-500 text-xs mt-10">
+                Type a message below to instantly alert an emergency operator.
+              </div>
+            )}
+          </div>
+          <div className="p-4 bg-[#09090B] border-t border-[#27272A]">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={operatorMessage}
+                onChange={e => setOperatorMessage(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && operatorMessage.trim() && onSendAdminMessage) {
+                    onSendAdminMessage(operatorMessage);
+                    setOperatorMessage('');
+                  }
+                }}
+                placeholder="Message emergency operator..."
+                className="flex-1 bg-[#18181B] border border-[#27272A] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#EF4444] text-white"
+              />
+              <button
+                onClick={() => {
+                  if (operatorMessage.trim() && onSendAdminMessage) {
+                    onSendAdminMessage(operatorMessage);
+                    setOperatorMessage('');
+                  }
+                }}
+                className="w-12 h-12 bg-[#EF4444] text-white rounded-xl flex items-center justify-center hover:bg-[#DC2626] transition-colors"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* SUB-TAB 2: AI SAFE ROUTE FINDER */}
       {activeSubTab === 'routes' && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -571,7 +721,7 @@ export const TouristApp: React.FC<TouristAppProps> = ({
                 <span>AI Safe Route Recommender (A* Risk-Weighted Engine)</span>
               </h2>
               <p className="text-xs text-[#71717A] mt-1">
-                Comparing fast direct mountain passes vs. NAGARJUNA safe routes guarded by continuous 5G telemetry and Tourist Kiosks.
+                Comparing fast direct mountain passes vs. SafeYatra safe routes guarded by continuous 5G telemetry and Tourist Kiosks.
               </p>
             </div>
 
@@ -877,7 +1027,7 @@ export const TouristApp: React.FC<TouristAppProps> = ({
                   If cellular internet fails, copy this compressed SMS payload to send via standard SMS to 112:
                 </p>
                 <div className="bg-[#18181B] p-2.5 rounded border border-[#27272A] text-[10px] font-mono text-[#F27D26] select-all">
-                  NAGARJUNA_SOS|DID:{tourist.blockchainDid.slice(0, 16)}|LAT:{tourist.currentLocation.lat}|LNG:{tourist.currentLocation.lng}|RISK:{tourist.currentRiskScore}
+                  SAFEYATRA_SOS|DID:{tourist.blockchainDid.slice(0, 16)}|LAT:{tourist.currentLocation.lat}|LNG:{tourist.currentLocation.lng}|RISK:{tourist.currentRiskScore}
                 </div>
               </div>
             </div>
@@ -886,6 +1036,201 @@ export const TouristApp: React.FC<TouristAppProps> = ({
         </div>
       )}
 
+      {/* 1. Sleek Login/Switch Profile Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-[#09090B]/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+          <div className="bg-[#18181B] border border-[#27272A] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
+            
+            {/* Modal Header */}
+            <div className="bg-[#09090B] border-b border-[#27272A] px-5 py-4 flex items-center justify-between">
+              <span className="font-extrabold text-xs uppercase tracking-widest text-[#E4E4E7]">Tourist Login</span>
+              {tourist && tourist.id !== '' && (
+                <button 
+                  onClick={() => setShowLoginModal(false)}
+                  className="text-[#71717A] hover:text-white transition-colors text-lg font-bold cursor-pointer"
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5 space-y-4">
+              <div className="space-y-1">
+                <label className="block text-[10px] uppercase font-bold text-[#71717A] tracking-wider">Tourist Login ID</label>
+                <div className="flex space-x-2">
+                  <input 
+                    type="text"
+                    value={loginIdInput}
+                    onChange={(e) => {
+                      setLoginIdInput(e.target.value);
+                      setLoginError(null);
+                    }}
+                    placeholder="Tourist ID"
+                    className="flex-1 text-xs border border-[#27272A] bg-[#09090B] focus:bg-transparent focus:outline-none focus:border-[#F27D26] rounded-lg px-3 py-2 text-white font-mono uppercase"
+                  />
+                  <input 
+                    type="password"
+                    value={loginOtpInput}
+                    onChange={(e) => {
+                      setLoginOtpInput(e.target.value);
+                      setLoginError(null);
+                    }}
+                    placeholder="OTP"
+                    className="w-16 text-xs border border-[#27272A] bg-[#09090B] focus:bg-transparent focus:outline-none focus:border-[#F27D26] rounded-lg px-3 py-2 text-center text-white font-mono"
+                    maxLength={4}
+                  />
+                  <button
+                    onClick={() => {
+                      if (!loginIdInput.trim()) {
+                        setLoginError('Tourist ID is required.');
+                        return;
+                      }
+                      if (loginOtpInput !== '0000') {
+                        setLoginError('Invalid OTP. Please use the default OTP (0000).');
+                        return;
+                      }
+                      const res = onLoginTourist(loginIdInput.trim());
+                      if (res) {
+                        setShowLoginModal(false);
+                        setLoginError(null);
+                      } else {
+                        setLoginError('Tourist ID not found. Ensure spelling is correct.');
+                      }
+                    }}
+                    className="bg-[#F27D26] hover:bg-[#FA9A4B] text-black font-bold text-xs px-4 rounded-lg transition-all active:scale-95 cursor-pointer flex items-center justify-center"
+                  >
+                    Login
+                  </button>
+                </div>
+                {loginError && <p className="text-[10px] text-red-500 font-medium pt-1">{loginError}</p>}
+              </div>
+
+              {/* Suggestions / List of Registered Profiles */}
+              <div className="space-y-2 border-t border-[#27272A] pt-3">
+                <span className="block text-[9px] uppercase font-bold text-[#71717A] tracking-wider">Registered Profiles (Click to login)</span>
+                <div className="max-h-40 overflow-y-auto space-y-1.5 scrollbar-thin scrollbar-thumb-[#27272A] pr-1">
+                  {[tourist, ...otherTourists].map((t) => (
+                    <div 
+                      key={t.id}
+                      onClick={() => {
+                        onLoginTourist(t.id);
+                        setShowLoginModal(false);
+                      }}
+                      className={`flex items-center justify-between p-2 rounded-lg border text-xs font-mono transition-all cursor-pointer ${
+                        t.id === tourist.id 
+                          ? 'bg-[#F27D26]/10 border-[#F27D26]/40 text-[#F27D26]' 
+                          : 'bg-[#09090B] border-[#27272A] hover:border-[#F27D26]/30 text-[#71717A] hover:text-white'
+                      }`}
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-sans font-bold text-[11px] text-[#E4E4E7]">{t.name}</span>
+                        <span className="text-[9px] text-[#71717A] pt-0.5">{t.id}</span>
+                      </div>
+                      <div className="flex items-center space-x-1.5 font-sans">
+                        <span className="text-[10px]">{t.nationality}</span>
+                        {t.id === tourist.id && <span className="text-[9px] bg-[#F27D26] text-black px-1 py-0.2 rounded font-bold uppercase">Active</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Sleek Profile Details Modal */}
+      {showProfileCard && (
+        <div className="fixed inset-0 bg-[#09090B]/80 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+          <div className="bg-[#18181B] border border-[#27272A] rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col">
+            
+            {/* Header */}
+            <div className="bg-[#09090B] border-b border-[#27272A] px-5 py-4 flex items-center justify-between">
+              <span className="font-extrabold text-xs uppercase tracking-widest text-[#E4E4E7]">Tourist Profile Credentials</span>
+              <button 
+                onClick={() => setShowProfileCard(false)}
+                className="text-[#71717A] hover:text-white transition-colors text-lg font-bold cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+
+            {/* Profile Info Details Grid */}
+            <div className="p-6 space-y-4">
+              <div className="flex items-center space-x-4 border-b border-[#27272A] pb-4">
+                <div className="w-14 h-14 rounded-full bg-[#09090B] border-2 border-[#F27D26] flex items-center justify-center text-[#F27D26] font-bold text-xl">
+                  {tourist.name.charAt(0)}
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white leading-tight">{tourist.name}</h3>
+                  <span className="text-[9px] bg-[#09090B] text-[#F27D26] px-2 py-0.5 rounded border border-[#F27D26]/30 font-mono font-bold mt-1 inline-block uppercase font-semibold">
+                    {tourist.id}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 text-xs text-[#E4E4E7]">
+                
+                <div>
+                  <span className="block text-[9px] uppercase font-bold text-[#71717A] tracking-wider mb-0.5">Email Address</span>
+                  <span className="font-mono text-[11px] text-[#A1A1AA] break-all">{tourist.email || 'not provided'}</span>
+                </div>
+                
+                <div>
+                  <span className="block text-[9px] uppercase font-bold text-[#71717A] tracking-wider mb-0.5">Mobile / Contact</span>
+                  <span className="font-mono text-[11px] text-[#A1A1AA]">{tourist.mobile || tourist.emergencyContact || 'not provided'}</span>
+                </div>
+
+                <div>
+                  <span className="block text-[9px] uppercase font-bold text-[#71717A] tracking-wider mb-0.5">Nationality (Country)</span>
+                  <span className="text-[#A1A1AA]">{tourist.nationality}</span>
+                </div>
+
+                <div>
+                  <span className="block text-[9px] uppercase font-bold text-[#71717A] tracking-wider mb-0.5">Current City</span>
+                  <span className="text-[#A1A1AA]">{tourist.city || 'Rishikesh'}</span>
+                </div>
+
+                <div>
+                  <span className="block text-[9px] uppercase font-bold text-[#71717A] tracking-wider mb-0.5">Age</span>
+                  <span className="text-[#A1A1AA]">{tourist.age || '25'} years old</span>
+                </div>
+
+                <div>
+                  <span className="block text-[9px] uppercase font-bold text-[#71717A] tracking-wider mb-0.5">Blood Group</span>
+                  <span className="font-bold text-[#EF4444] bg-[#EF4444]/10 border border-[#EF4444]/20 px-2 py-0.5 rounded inline-block text-[10px]">{tourist.bloodType || 'O+'}</span>
+                </div>
+
+                <div className="col-span-2 border-t border-[#27272A] pt-3.5 space-y-2 font-mono text-[10px]">
+                  <div>
+                    <span className="block text-[9px] font-sans uppercase font-bold text-[#71717A] tracking-wider mb-0.5">Decentralized DID</span>
+                    <span className="text-[#71717A] text-[9px] break-all">{tourist.blockchainDid}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-sans uppercase font-bold text-[#71717A] tracking-wider mb-0.5">ZKP Identity Hash</span>
+                    <span className="text-[#71717A] text-[9px] break-all">{tourist.identityHash}</span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-[#27272A]">
+                <button
+                  type="button"
+                  onClick={() => setShowProfileCard(false)}
+                  className="bg-[#27272A] hover:bg-[#3F3F46] text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                >
+                  Close Profile
+                </button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -26,7 +26,7 @@ export const ArchitectureDocs: React.FC = () => {
 
   const MERMAID_DIAGRAM = `
 gantt
-    title NAGARJUNA Platform Data & System Flow
+    title SafeYatra Platform Data & System Flow
     
 %% Data Flow Topology
 graph TD
@@ -50,7 +50,7 @@ graph TD
     end
 
     subgraph Blockchain Anchor Layer (Polygon / Hyperledger)
-        BC1[NagarjunaTouristIdentity.sol]
+        BC1[SafeYatraTouristIdentity.sol]
         BC2[Zero-Knowledge PII Anchor Hash]
         BC3[Emergency Officer Audit Trail]
     end
@@ -78,7 +78,7 @@ graph TD
     AD3 -->|Dispatches Rescue Units| TA2
 `;
 
-  const SQL_SCHEMA = `-- PostgreSQL + PostGIS Schema for NAGARJUNA Safety Platform
+  const SQL_SCHEMA = `-- PostgreSQL + PostGIS Schema for SafeYatra Safety Platform
 
 -- Enable PostGIS spatial extensions
 CREATE EXTENSION IF NOT EXISTS postgis;
@@ -160,11 +160,11 @@ CREATE TABLE verification_audit_logs (
 pragma solidity ^0.8.20;
 
 /**
- * @title NagarjunaTouristIdentity
+ * @title SafeYatraTouristIdentity
  * @notice Privacy-Preserving Blockchain Digital Identity & Emergency Verification Ledger
  * @dev Anchors cryptographic zero-knowledge hashes of tourist identities and tracks emergency officer access.
  */
-contract NagarjunaTouristIdentity {
+contract SafeYatraTouristIdentity {
     
     address public immutable authorityOwner;
 
@@ -262,7 +262,7 @@ contract NagarjunaTouristIdentity {
 }
 `;
 
-  const ALGORITHM_CODE = `// Core Algorithms for NAGARJUNA Safety Platform
+  const ALGORITHM_CODE = `// Core Algorithms for SafeYatra Safety Platform
 
 // 1. Dynamic Risk Score Calculation Logic
 export function calculateDynamicRiskScore(input: {
@@ -322,8 +322,8 @@ export function evaluateDynamicGeofenceBreach(
   const dLat = (geofence.center.lat - touristLoc.lat) * (Math.PI / 180);
   const dLon = (geofence.center.lng - touristLoc.lng) * (Math.PI / 180);
   const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(touristLoc.lat * (Math.PI / 180)) * Math.cos(geofence.center.lat * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+  Math.cos(touristLoc.lat * (Math.PI / 180)) * Math.cos(geofence.center.lat * (Math.PI / 180)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const distMeters = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   // Calculate dynamic expansion multiplier
@@ -341,12 +341,12 @@ export function evaluateDynamicGeofenceBreach(
 }
 `;
 
-  const API_SPECS = `NAGARJUNA REST, PYTHON FASTAPI & SSE API SPECIFICATION
+  const API_SPECS = `SafeYatra REST, PYTHON FASTAPI & SSE API SPECIFICATION
 
 1. REST API Endpoints & Python Microservice
 --------------------------------------------------------------------------------
 GET /api/health
-  - Response: { "status": "ok", "service": "NAGARJUNA Safety Core API", "version": "2.4.0" }
+  - Response: { "status": "ok", "service": "SafeYatra Safety Core API", "version": "2.4.0" }
 
 POST /api/py/risk-score (Invokes Python 3.10 Risk Engine - backend/risk_engine.py)
   - Body: { lat: 30.1410, lng: 78.3210, crowdDensity: 2.5, weatherFactor: "HEAVY_DOWNPOUR" }
@@ -369,7 +369,7 @@ GET /api/safe-route
 
 POST /api/blockchain/register-id
   - Body: { name: "Ananya Sharma", passportOrAadhaar: "XXXX-XXXX-1234", emergencyContact: "+91 9876543210" }
-  - Response: { success: true, did: "did:nagarjuna:polygon:...", record: {...} }
+  - Response: { success: true, did: "did:safeyatra:polygon:...", record: {...} }
 
 GET /api/blockchain/verify-id/:did
   - Response: { isVerified: true, record: { piiHash, blockNumber, txHash, emergencyAccessLog: [...] } }
@@ -407,7 +407,7 @@ GET /api/live-stream
             <Layers className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-white">NAGARJUNA Platform Core Architecture & Specifications</h1>
+            <h1 className="text-xl font-extrabold text-white">SafeYatra Platform Core Architecture & Specifications</h1>
             <p className="text-xs text-[#71717A] mt-1">
               Technical blueprints mapping system topology, PostGIS spatial data schemas, Solidity smart contracts, risk algorithms, and REST APIs.
             </p>
@@ -477,30 +477,30 @@ GET /api/live-stream
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold uppercase tracking-widest text-[#F27D26] flex items-center space-x-2">
                 <Share2 className="w-5 h-5" />
-                <span>Section 1: System Topology & Data Flow Map</span>
+                <span>Section 1: Interactive System Architecture & Data Flow</span>
               </h2>
               <button
                 onClick={() => copyToClipboard(MERMAID_DIAGRAM, 'mermaid')}
                 className="bg-[#09090B] hover:bg-[#27272A] text-xs px-3 py-1.5 rounded-lg flex items-center space-x-1 border border-[#27272A] text-[#E4E4E7] cursor-pointer"
               >
                 {copiedKey === 'mermaid' ? <Check className="w-3.5 h-3.5 text-[#10B981]" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>Copy Mermaid Code</span>
+                <span>Copy Diagram</span>
               </button>
             </div>
-
+            
             <pre className="bg-[#09090B] p-4 rounded-xl border border-[#27272A] text-xs font-mono text-[#F27D26]/90 overflow-x-auto leading-relaxed">
               {MERMAID_DIAGRAM}
             </pre>
           </div>
         )}
 
-        {/* TAB 2: PostGIS DB Schema */}
+        {/* TAB 2: PostGIS Database Schema */}
         {activeTab === 'db' && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold uppercase tracking-widest text-[#F27D26] flex items-center space-x-2">
                 <Database className="w-5 h-5" />
-                <span>Section 2: PostgreSQL + PostGIS Spatial Schema</span>
+                <span>Section 2: Production PostgreSQL + PostGIS Spatial Schema</span>
               </h2>
               <button
                 onClick={() => copyToClipboard(SQL_SCHEMA, 'sql')}
@@ -523,7 +523,7 @@ GET /api/live-stream
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-bold uppercase tracking-widest text-[#F27D26] flex items-center space-x-2">
                 <Code2 className="w-5 h-5" />
-                <span>Section 3: NagarjunaTouristIdentity.sol Smart Contract</span>
+                <span>Section 3: SafeYatraTouristIdentity.sol Smart Contract</span>
               </h2>
               <button
                 onClick={() => copyToClipboard(SOLIDITY_CONTRACT, 'sol')}

@@ -1,5 +1,5 @@
 {
-  "name": "NAGARJUNA Tourist Safety Platform",
+  "name": "SafeYatra Tourist Safety Platform",
   "description": "Smart Tourist Safety Monitoring & Incident Response System with Dynamic AI Geofencing, Blockchain Digital ID, AI Safe Route Engine, and Multi-Authority Admin Dashboard",
   "requestFramePermissions": ["geolocation", "microphone"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

@@ -4,10 +4,17 @@ export interface Location {
   lat: number;
   lng: number;
   address?: string;
+  accuracy?: number;
+  altitude?: number | null;
+  speed?: number | null;
+  heading?: number | null;
+  timestamp?: number;
+  isLiveGps?: boolean;
 }
 
 export interface TouristProfile {
   id: string;
+  guide_id?: string;
   name: string;
   nationality: string;
   blockchainDid: string;
@@ -19,6 +26,10 @@ export interface TouristProfile {
   lastUpdated: string;
   batteryLevel: number;
   currentRiskScore: number;
+  email?: string;
+  mobile?: string;
+  city?: string;
+  age?: number;
 }
 
 export interface DynamicGeofence {
