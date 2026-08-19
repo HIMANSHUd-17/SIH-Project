@@ -86,7 +86,7 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
     <>
       {/* Success Toast */}
       <div
-        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#e6f4ea] text-[#137333] border border-[#ceead6] rounded-xl px-4 py-2 flex items-center gap-2 text-sm font-semibold transition-all duration-300 ${
+        className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-[#e6f4ea] text-[#137333] border border-[#ceead6] rounded-xl px-4 py-2 flex items-center gap-2 text-base font-semibold transition-all duration-300 ${
           showToast ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2 pointer-events-none'
         }`}
       >
@@ -110,7 +110,7 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
               {/* Textarea */}
               <div className="bg-st-surface-white rounded-xl p-4 border border-st-outline-variant">
                 <label
-                  className="block text-sm font-semibold text-st-on-surface mb-2 leading-5"
+                  className="block text-base font-semibold text-st-on-surface mb-2 leading-5"
                   htmlFor="incident_desc"
                 >
                   What happened
@@ -129,7 +129,7 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Severity */}
                 <div className="bg-st-surface-white rounded-xl p-4 border border-st-outline-variant flex flex-col justify-between">
-                  <label className="block text-sm font-semibold text-st-on-surface mb-2 leading-5">
+                  <label className="block text-base font-semibold text-st-on-surface mb-2 leading-5">
                     Severity
                   </label>
                   <div className="flex gap-2">
@@ -138,7 +138,7 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
                         key={opt.value}
                         type="button"
                         onClick={() => setSeverity(opt.value)}
-                        className={`flex-1 py-2 text-center rounded-lg text-xs font-medium transition-colors cursor-pointer leading-4 ${
+                        className={`flex-1 py-2 text-center rounded-lg text-sm font-medium transition-colors cursor-pointer leading-4 ${
                           severity === opt.value
                             ? opt.value === 'HIGH'
                               ? 'border-2 border-st-error bg-[#fff1f0] text-st-error font-bold'
@@ -154,7 +154,7 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
 
                 {/* Sent to */}
                 <div className="bg-st-surface-white rounded-xl p-4 border border-st-outline-variant flex flex-col justify-between">
-                  <label className="block text-sm font-semibold text-st-on-surface mb-2 leading-5">
+                  <label className="block text-base font-semibold text-st-on-surface mb-2 leading-5">
                     Sent to
                   </label>
                   <div className="flex items-center gap-2 p-2 bg-st-surface-container-low rounded-lg border border-st-outline-variant">
@@ -170,7 +170,7 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
               <button
                 type="button"
                 onClick={handleSubmit}
-                className="w-full bg-st-primary text-st-on-primary text-sm font-semibold py-4 rounded-xl hover:bg-st-primary-container transition-colors flex justify-center items-center gap-2 mt-2 cursor-pointer leading-5"
+                className="w-full bg-st-primary text-st-on-primary text-base font-semibold py-4 rounded-xl hover:bg-st-primary-container transition-colors flex justify-center items-center gap-2 mt-2 cursor-pointer leading-5"
               >
                 <span className="material-symbols-outlined">send</span>
                 Submit report
@@ -181,8 +181,8 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
             <div className="flex flex-col gap-4 h-full">
               <div className="bg-st-surface-white rounded-xl p-4 border border-st-outline-variant flex flex-col h-full min-h-[400px]">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-sm font-semibold text-st-on-surface leading-5">Live photo evidence</h2>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium leading-4 ${
+                  <h2 className="text-base font-semibold text-st-on-surface leading-5">Live photo evidence</h2>
+                  <span className={`px-2 py-1 rounded-full text-sm font-medium leading-4 ${
                     capturedImage ? 'bg-emerald-100 text-emerald-800' : 'bg-st-surface-container-high text-st-on-surface-variant'
                   }`}>
                     {capturedImage ? 'Captured ✓' : 'Optional Photo'}
@@ -212,7 +212,7 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
                       className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow hover:bg-red-700 transition-colors"
                       title="Remove image"
                     >
-                      <span className="material-symbols-outlined text-sm">delete</span>
+                      <span className="material-symbols-outlined text-base">delete</span>
                     </button>
                   </div>
                 ) : (
@@ -225,10 +225,10 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
                         photo_camera
                       </span>
                     </div>
-                    <p className="text-sm font-semibold text-st-on-surface mb-1 leading-5">
+                    <p className="text-base font-semibold text-st-on-surface mb-1 leading-5">
                       Tap to open camera / upload photo
                     </p>
-                    <p className="text-xs font-medium text-st-on-surface-variant leading-4">
+                    <p className="text-sm font-medium text-st-on-surface-variant leading-4">
                       Attach photo evidence for rescue teams
                     </p>
                   </div>
@@ -237,13 +237,13 @@ export const TouristReportIncident: React.FC<TouristReportIncidentProps> = ({
                 {/* Geo-tag Telemetry Info */}
                 <div className="mt-4 flex items-start gap-2.5 bg-blue-50/80 p-3 rounded-lg border border-blue-200">
                   <span className="material-symbols-outlined text-blue-600 text-lg">location_on</span>
-                  <div className="text-xs text-blue-900 leading-4">
+                  <div className="text-sm text-blue-900 leading-4">
                     <div className="font-semibold">Live GPS Telemetry Attached:</div>
                     <div className="font-mono mt-0.5 text-blue-700">
                       {tourist.currentLocation.lat.toFixed(5)}°N, {tourist.currentLocation.lng.toFixed(5)}°E
                       {tourist.currentLocation.accuracy ? ` (±${tourist.currentLocation.accuracy}m)` : ''}
                     </div>
-                    <div className="text-[11px] text-blue-600 mt-0.5 truncate">
+                    <div className="text-sm text-blue-600 mt-0.5 truncate">
                       {tourist.currentLocation.address || 'Real-time location'}
                     </div>
                   </div>

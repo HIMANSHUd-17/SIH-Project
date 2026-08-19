@@ -5,7 +5,7 @@ import {
   Flame, LogOut, Search, Bell, Settings,
   Activity, ShieldAlert, X, Megaphone, Send, CheckCircle,
   Phone, Mail, Globe, User, Edit2, Save, Mic, MicOff,
-  SlidersHorizontal
+  SlidersHorizontal, Menu
 } from 'lucide-react';
 import { TouristProfile, DynamicGeofence, IncidentReport, EmergencyService } from '../../types';
 import { GuideOverview } from './GuideOverview';
@@ -93,6 +93,9 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
   const [broadcastText, setBroadcastText] = useState('');
   const [broadcastSent, setBroadcastSent] = useState(false);
 
+  // ── Sidebar state ──
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   useEffect(() => {
     const fetchGuide = async () => {
       const token = sessionStorage.getItem('guide_token') || sessionStorage.getItem('guideToken') || localStorage.getItem('guide_token') || localStorage.getItem('guideToken');
@@ -149,7 +152,7 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
 
   if (loadingGuide) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-gd-bg text-gd-primary font-guide text-sm font-bold tracking-widest uppercase">
+      <div className="flex h-screen w-full items-center justify-center bg-gd-bg text-gd-primary font-guide text-base font-bold tracking-widest uppercase">
         Loading Guide Portal...
       </div>
     );
@@ -165,16 +168,16 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
   // Filter tourists for this logged-in guide
   const guideTourists = currentGuide
     ? tourists.filter(t => {
-        if (t.guide_id) return t.guide_id === currentGuide.guide_id;
-        if (t.id && t.id.startsWith('T-')) {
-          const parts = t.id.split('-');
-          if (parts.length >= 2 && !isNaN(Number(parts[1]))) {
-            return `G-${parts[1]}` === currentGuide.guide_id;
-          }
+      if (t.guide_id) return t.guide_id === currentGuide.guide_id;
+      if (t.id && t.id.startsWith('T-')) {
+        const parts = t.id.split('-');
+        if (parts.length >= 2 && !isNaN(Number(parts[1]))) {
+          return `G-${parts[1]}` === currentGuide.guide_id;
         }
-        return true;
-      })
-    : tourists;
+      }
+      return false;
+    })
+    : [];
 
   // ── Guide SOS Handler ──
   const handleStartGuideSOS = () => {
@@ -286,20 +289,36 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
 
   return (
     <div className="guide-dashboard flex h-screen w-full bg-gd-bg text-gd-on-bg font-guide antialiased overflow-hidden">
+      {/* Mobile Sidebar Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* ═══════════════════════════════════════════════ */}
       {/* SideNavBar (Original SIH-Project Layout)        */}
       {/* ═══════════════════════════════════════════════ */}
-      <nav className="bg-gd-surface text-gd-primary fixed left-0 top-0 h-full w-[280px] border-r border-gd-outline-var flex flex-col py-4 px-2 gap-4 z-30">
+      <nav className={`bg-gd-surface text-gd-primary fixed left-0 top-0 h-full w-64 border-r border-gd-outline-var flex flex-col py-4 px-2 gap-4 z-50 transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         {/* Header */}
         <div className="flex flex-col gap-2 px-2 mb-2">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-gd-primary flex items-center justify-center text-white font-bold text-xl border border-gd-outline-var shadow-sm">
-              {currentGuide ? currentGuide.full_name.charAt(0).toUpperCase() : 'G'}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gd-primary flex items-center justify-center text-white font-bold text-xl border border-gd-outline-var shadow-sm shrink-0">
+                {currentGuide ? (currentGuide.full_name || currentGuide.name || 'G').charAt(0).toUpperCase() : 'G'}
+              </div>
+              <div className="min-w-0">
+                <h2 className="text-base font-black text-gd-primary font-guide truncate">{currentGuide ? (currentGuide.full_name || currentGuide.name || 'Tour Guide') : 'Tour Guide'}</h2>
+                <p className="text-base font-medium text-gd-on-surface-var">ID: {currentGuide ? (currentGuide.guide_id || currentGuide.id) : '...'}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h2 className="text-base font-black text-gd-primary font-guide truncate">{currentGuide ? currentGuide.full_name : 'Tour Guide'}</h2>
-              <p className="text-[11px] font-medium text-gd-on-surface-var">ID: {currentGuide ? currentGuide.guide_id : '...'}</p>
-            </div>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="md:hidden text-gd-on-surface-var hover:text-gd-primary"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
@@ -312,11 +331,10 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
               <button
                 key={item.id}
                 onClick={() => navigate(`/guide/${item.id === 'overview' ? 'dashboard' : item.id}`)}
-                className={`flex items-center gap-3.5 px-4 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 w-full text-left cursor-pointer ${
-                  isActive
-                    ? 'bg-gd-secondary-ctr text-gd-on-secondary-ctr font-bold scale-[0.98] shadow-sm'
-                    : 'text-gd-on-surface-var hover:bg-gd-surface-low'
-                }`}
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 w-full text-left cursor-pointer ${isActive
+                  ? 'bg-gd-secondary-ctr text-gd-on-secondary-ctr font-bold scale-[0.98] shadow-sm'
+                  : 'text-gd-on-surface-var hover:bg-gd-surface-low'
+                  }`}
               >
                 <IconComp className={`w-5 h-5 ${isActive ? 'fill-current text-gd-primary' : ''}`} />
                 <span>{item.label}</span>
@@ -329,7 +347,7 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
         <div className="px-2 mt-auto mb-2">
           <button
             onClick={handleStartGuideSOS}
-            className="w-full bg-[#C62828] hover:bg-[#B71C1C] text-white py-2.5 rounded-lg flex items-center justify-center gap-2 text-sm font-bold transition-all shadow-md active:scale-98 cursor-pointer font-guide uppercase tracking-wider"
+            className="w-full bg-[#C62828] hover:bg-[#B71C1C] text-white py-2.5 rounded-lg flex items-center justify-center gap-2 text-base font-bold transition-all shadow-md active:scale-98 cursor-pointer font-guide uppercase tracking-wider"
           >
             <Flame className="w-4 h-4" />
             Emergency SOS
@@ -356,26 +374,33 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
       {/* ═══════════════════════════════════════════════ */}
       {/* Main Content Area                               */}
       {/* ═══════════════════════════════════════════════ */}
-      <main className="flex-1 flex flex-col ml-[280px] h-screen relative">
+      <main className="flex-1 flex flex-col md:ml-64 h-screen relative">
         {/* TopNavBar */}
-        <header className="bg-gd-primary-ctr text-gd-on-primary-ctr flex justify-between items-center w-full px-6 h-16 border-b border-gd-outline-var shrink-0 z-20">
+        <header className="bg-white text-slate-800 flex justify-between items-center w-full px-4 md:px-6 h-20 border-b border-st-outline-variant shrink-0 z-20 shadow-sm">
           {/* Brand */}
-          <div className="text-base font-black text-gd-secondary font-guide uppercase tracking-wider flex items-center gap-2">
-            <span>🛡️ SafeYatra Guide Portal</span>
-            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase">Live</span>
+          <div className="text-lg font-black text-st-primary font-guide uppercase tracking-wider flex items-center gap-2">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-slate-500 hover:text-st-primary mr-2"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <span className="hidden sm:inline">🛡️ SafeYatra Guide Portal</span>
+            <span className="sm:hidden">🛡️ SafeYatra</span>
+            <span className="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase hidden sm:inline ml-1">Live</span>
           </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
             {/* Search */}
             <div className="relative hidden lg:block">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gd-on-surface-var" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search tourists or alerts..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="bg-gd-surface-mid text-gd-on-surface pl-9 pr-3 py-1.5 rounded-full border border-gd-outline-var text-xs w-56 placeholder:text-gd-on-surface-var focus:outline-none focus:ring-2 focus:ring-gd-secondary"
+                className="bg-slate-100 text-slate-800 pl-9 pr-3 py-2 rounded-full border border-transparent hover:border-slate-300 focus:border-st-primary text-base w-64 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-st-primary/20 transition-all"
               />
             </div>
 
@@ -386,12 +411,12 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
                 setShowSettings(false);
                 setShowProfile(false);
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gd-surface-variant/20 transition-colors text-gd-on-primary-ctr relative cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-600 relative cursor-pointer"
               title="Notifications"
             >
-              <Bell className="w-4 h-4" />
+              <Bell className="w-5 h-5" />
               {pendingAlerts > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               )}
             </button>
 
@@ -402,10 +427,10 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
                 setShowNotifications(false);
                 setShowProfile(false);
               }}
-              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gd-surface-variant/20 transition-colors text-gd-on-primary-ctr cursor-pointer"
+              className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-600 cursor-pointer"
               title="Settings"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-5 h-5" />
             </button>
 
             {/* Guide Avatar Profile Button */}
@@ -415,11 +440,11 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
                 setShowNotifications(false);
                 setShowSettings(false);
               }}
-              className="flex items-center gap-2 cursor-pointer p-1 rounded-lg hover:bg-gd-surface-variant/20 transition-colors ml-1"
+              className="flex items-center gap-2 cursor-pointer p-1 rounded-lg hover:bg-slate-50 transition-colors ml-1"
               title="Guide Profile"
             >
-              <div className="w-8 h-8 rounded-full bg-gd-primary text-white flex items-center justify-center text-xs font-bold border border-gd-outline-var shadow-sm">
-                {currentGuide ? currentGuide.full_name.charAt(0).toUpperCase() : 'G'}
+              <div className="w-10 h-10 rounded-full bg-st-primary text-white flex items-center justify-center text-lg font-bold shadow-md">
+                {currentGuide ? (currentGuide.full_name || currentGuide.name || 'G').charAt(0).toUpperCase() : 'G'}
               </div>
             </button>
           </div>
@@ -446,8 +471,8 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
             />
           )}
           {activeSubTab === 'chat' && (
-            <GuideChat 
-              tourists={guideTourists} 
+            <GuideChat
+              tourists={guideTourists}
               currentGuide={currentGuide}
               chatLogs={chatLogs}
               setChatLogs={setChatLogs}
@@ -472,13 +497,13 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
               </button>
             </div>
 
-            <p className="text-xs text-slate-500 mb-3">Quick Preset Announcements:</p>
+            <p className="text-base text-slate-500 mb-3">Quick Preset Announcements:</p>
             <div className="flex flex-wrap gap-1.5 mb-4">
               {broadcastTemplates.map((t, idx) => (
                 <button
                   key={idx}
                   onClick={() => setBroadcastText(t.text)}
-                  className="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200 font-medium transition-colors cursor-pointer"
+                  className="text-base bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200 font-medium transition-colors cursor-pointer"
                 >
                   {t.label}
                 </button>
@@ -490,20 +515,20 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
               value={broadcastText}
               onChange={e => setBroadcastText(e.target.value)}
               placeholder="Type your message to broadcast to all group members..."
-              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-800 focus:outline-none focus:border-amber-500 mb-4"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-base text-slate-800 focus:outline-none focus:border-amber-500 mb-4"
             />
 
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowBroadcast(false)}
-                className="px-4 py-2 text-xs font-semibold text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer"
+                className="px-4 py-2 text-base font-semibold text-slate-500 hover:bg-slate-100 rounded-lg cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSendBroadcast}
                 disabled={!broadcastText.trim()}
-                className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-sm"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-lg text-base font-bold transition-all flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-sm"
               >
                 {broadcastSent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />}
                 <span>{broadcastSent ? 'Broadcast Sent!' : 'Send Broadcast'}</span>
@@ -519,22 +544,22 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
       {showNotifications && (
         <div className="fixed top-16 right-6 w-96 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden max-h-[80vh]">
           <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-            <span className="font-bold text-xs uppercase tracking-widest text-slate-700">Guide Notifications</span>
+            <span className="font-bold text-base uppercase tracking-widest text-slate-700">Guide Notifications</span>
             <button onClick={() => setShowNotifications(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-4 h-4" />
             </button>
           </div>
           <div className="p-4 space-y-2.5 overflow-y-auto">
             {incidents.length === 0 ? (
-              <p className="text-xs text-slate-400 text-center py-6">All group safety parameters nominal.</p>
+              <p className="text-base text-slate-400 text-center py-6">All group safety parameters nominal.</p>
             ) : (
               incidents.map(inc => (
-                <div key={inc.id} className="p-3 bg-red-50/70 border border-red-200 rounded-xl text-xs">
+                <div key={inc.id} className="p-3 bg-red-50/70 border border-red-200 rounded-xl text-base">
                   <div className="flex justify-between items-center font-bold text-red-800 mb-1">
                     <span>{inc.type} Incident</span>
-                    <span className="text-[10px] text-red-600">{inc.severity}</span>
+                    <span className="text-sm text-red-600">{inc.severity}</span>
                   </div>
-                  <p className="text-slate-600 text-[11px]">{inc.description}</p>
+                  <p className="text-slate-600 text-base">{inc.description}</p>
                 </div>
               ))
             )}
@@ -548,12 +573,12 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
       {showSettings && (
         <div className="fixed top-16 right-6 w-84 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden">
           <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-            <span className="font-bold text-xs uppercase tracking-widest text-slate-700">Guide Settings</span>
+            <span className="font-bold text-base uppercase tracking-widest text-slate-700">Guide Settings</span>
             <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="p-5 space-y-4 text-xs">
+          <div className="p-5 space-y-4 text-base">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="text-slate-700 font-medium">Critical SOS Audio Alerts</span>
               <input
@@ -573,8 +598,8 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
               />
             </label>
             <div className="border-t border-slate-100 pt-3">
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">Language</p>
-              <LanguageSelector role="guide" showLabel={false} selectClassName="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs" />
+              <p className="text-sm text-slate-400 font-bold uppercase tracking-wider mb-2">Language</p>
+              <LanguageSelector role="guide" showLabel={false} selectClassName="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-base" />
             </div>
           </div>
         </div>
@@ -586,40 +611,40 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
       {showProfile && (
         <div className="fixed top-16 right-6 w-88 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden max-h-[85vh]">
           <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-            <span className="font-bold text-xs uppercase tracking-widest text-slate-700">Guide Profile</span>
+            <span className="font-bold text-base uppercase tracking-widest text-slate-700">Guide Profile</span>
             <button onClick={() => setShowProfile(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="p-5 space-y-4 overflow-y-auto text-xs">
+          <div className="p-5 space-y-4 overflow-y-auto text-base">
             <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
               <div className="w-12 h-12 rounded-full bg-gd-primary text-white flex items-center justify-center font-bold text-lg">
                 {currentGuide?.full_name?.charAt(0) || 'G'}
               </div>
               <div>
                 <p className="font-bold text-slate-800">{currentGuide?.full_name}</p>
-                <p className="text-[10px] text-slate-400 font-mono">ID: {currentGuide?.guide_id}</p>
+                <p className="text-sm text-slate-400 font-mono">ID: {currentGuide?.guide_id}</p>
               </div>
             </div>
 
             {editingProfile ? (
               <div className="space-y-3">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Full Name</label>
+                  <label className="text-sm font-bold text-slate-500 uppercase">Full Name</label>
                   <input
                     type="text"
                     value={profileForm.full_name || ''}
                     onChange={e => setProfileForm(f => ({ ...f, full_name: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-base"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase">Phone Number</label>
+                  <label className="text-sm font-bold text-slate-500 uppercase">Phone Number</label>
                   <input
                     type="text"
                     value={profileForm.phone || ''}
                     onChange={e => setProfileForm(f => ({ ...f, phone: e.target.value }))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-base"
                   />
                 </div>
                 <div className="flex gap-2 pt-2">
@@ -630,7 +655,7 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="space-y-2 text-[11px] text-slate-600">
+              <div className="space-y-2 text-base text-slate-600">
                 <p><b className="text-slate-700">License:</b> {currentGuide?.license_no || currentGuide?.license_number || 'Official Verified'}</p>
                 <p><b className="text-slate-700">Phone:</b> {currentGuide?.mobile_number || currentGuide?.phone || '+91 98765 43210'}</p>
                 <p><b className="text-slate-700">Languages:</b> {currentGuide?.languages || 'English, Hindi'}</p>
@@ -661,12 +686,12 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
 
             <div>
               <h3 className="text-xl font-black text-red-500 uppercase tracking-wide">Guide Emergency SOS</h3>
-              <p className="text-xs text-slate-400 mt-1">Transmitting group hazard beacon to NDRF / SDRF Control Center</p>
+              <p className="text-base text-slate-400 mt-1">Transmitting group hazard beacon to NDRF / SDRF Control Center</p>
             </div>
 
             {guideSOSStep === 'TRANSMITTING' && (
               <div className="bg-red-950/50 border border-red-800/50 p-4 rounded-xl">
-                <p className="text-xs text-red-300 font-semibold mb-1">Auto-Dispatching in:</p>
+                <p className="text-base text-red-300 font-semibold mb-1">Auto-Dispatching in:</p>
                 <span className="text-4xl font-black font-mono text-red-400">{guideSOSCountdown}s</span>
               </div>
             )}
@@ -674,14 +699,14 @@ export const GuideDashboard: React.FC<GuideDashboardProps> = ({
             {guideSOSStep === 'SUBMITTED' && (
               <div className="bg-emerald-950/50 border border-emerald-800/50 p-4 rounded-xl">
                 <CheckCircle className="w-8 h-8 text-emerald-400 mx-auto mb-1" />
-                <p className="text-sm font-bold text-emerald-400">Emergency Dispatched</p>
-                <p className="text-xs text-slate-400">Audio stream and telemetry locked to central dispatch.</p>
+                <p className="text-base font-bold text-emerald-400">Emergency Dispatched</p>
+                <p className="text-base text-slate-400">Audio stream and telemetry locked to central dispatch.</p>
               </div>
             )}
 
             <button
               onClick={handleCancelGuideSOS}
-              className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all cursor-pointer text-xs uppercase tracking-wider"
+              className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-all cursor-pointer text-base uppercase tracking-wider"
             >
               {guideSOSStep === 'SUBMITTED' ? 'Close Emergency Screen' : 'Abort SOS'}
             </button>

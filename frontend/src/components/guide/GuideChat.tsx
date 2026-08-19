@@ -39,11 +39,11 @@ const broadcastTemplates = [
   { label: '🏛️ Arrival', text: 'We have arrived at our next destination. Please stay together.' },
 ];
 
-export const GuideChat: React.FC<GuideChatProps> = ({ 
-  tourists, 
+export const GuideChat: React.FC<GuideChatProps> = ({
+  tourists,
   currentGuide,
   chatLogs = {},
-  setChatLogs 
+  setChatLogs
 }) => {
   const [activeChannel, setActiveChannel] = useState<string>('ch-admin');
   const [inputText, setInputText] = useState('');
@@ -151,6 +151,9 @@ export const GuideChat: React.FC<GuideChatProps> = ({
       ];
       const seen = new Set();
       const filtered = adminMsgs.filter(m => {
+        if (m.senderRole === 'tourist') return false;
+        if (m.channel === 'guide' || m.channel === 'guide_group') return false;
+
         const key = (m.id && String(m.id).trim()) ? String(m.id).trim() : `${m.sender || ''}-${m.text || ''}-${m.time || ''}`;
         if (seen.has(key)) return false;
         seen.add(key);
@@ -162,12 +165,12 @@ export const GuideChat: React.FC<GuideChatProps> = ({
         ...(chatLogs[`group_${currentGuideId}`] || []),
         ...(chatLogs['guide_group'] || []),
         ...(chatLogs['global'] || [])
-      ].filter((m: any) => 
-        m.channel === 'group' || 
-        m.channel === 'guide_group' || 
-        m.recipientRole === 'all' || 
-        m.recipientRole === 'guide_group' || 
-        m.senderRole === 'guide' || 
+      ].filter((m: any) =>
+        m.channel === 'group' ||
+        m.channel === 'guide_group' ||
+        m.recipientRole === 'all' ||
+        m.recipientRole === 'guide_group' ||
+        m.senderRole === 'guide' ||
         m.senderRole === 'tourist'
       );
 
@@ -348,7 +351,7 @@ export const GuideChat: React.FC<GuideChatProps> = ({
                 placeholder="Search conversations..."
                 value={searchText}
                 onChange={e => setSearchText(e.target.value)}
-                className="bg-transparent border-none outline-none text-sm text-gd-on-surface placeholder:text-gd-outline w-full focus:ring-0 p-0"
+                className="bg-transparent border-none outline-none text-base text-gd-on-surface placeholder:text-gd-outline w-full focus:ring-0 p-0"
               />
             </div>
           </div>
@@ -359,29 +362,26 @@ export const GuideChat: React.FC<GuideChatProps> = ({
               <button
                 key={channel.id}
                 onClick={() => setActiveChannel(channel.id)}
-                className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gd-outline-var/30 transition-colors ${
-                  activeChannel === channel.id
-                    ? (channel.type === 'admin' ? 'bg-[#061E34]/20 border-l-2 border-l-amber-500' : 'bg-gd-secondary-ctr/30 border-l-2 border-l-gd-secondary')
-                    : 'hover:bg-gd-surface-mid'
-                }`}
+                className={`w-full text-left px-4 py-3 flex items-start gap-3 border-b border-gd-outline-var/30 transition-colors ${activeChannel === channel.id
+                  ? (channel.type === 'admin' ? 'bg-[#061E34]/20 border-l-2 border-l-amber-500' : 'bg-gd-secondary-ctr/30 border-l-2 border-l-gd-secondary')
+                  : 'hover:bg-gd-surface-mid'
+                  }`}
               >
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                  channel.type === 'admin' ? 'bg-[#061E34] text-amber-400 border border-amber-500/40 shadow-xs' :
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${channel.type === 'admin' ? 'bg-[#061E34] text-amber-400 border border-amber-500/40 shadow-xs' :
                   channel.type === 'group' ? 'bg-gd-secondary-ctr text-gd-on-secondary-ctr' :
-                  channel.type === 'broadcast' ? 'bg-gd-warn text-gd-warn-ctr' :
-                  'bg-gd-surface-high text-gd-on-surface-var font-bold'
-                }`}>
-                  {channel.type === 'direct' 
-                    ? (channel.name.slice(0, 2).toUpperCase()) 
+                    channel.type === 'broadcast' ? 'bg-gd-warn text-gd-warn-ctr' :
+                      'bg-gd-surface-high text-gd-on-surface-var font-bold'
+                  }`}>
+                  {channel.type === 'direct'
+                    ? (channel.name.slice(0, 2).toUpperCase())
                     : getChannelIcon(channel.type)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start">
-                    <span className={`text-sm font-semibold truncate flex items-center gap-1.5 ${
-                      activeChannel === channel.id 
-                        ? (channel.type === 'admin' ? 'text-amber-400 font-bold' : 'text-gd-on-secondary-ctr') 
-                        : 'text-gd-on-surface'
-                    }`}>
+                    <span className={`text-base font-semibold truncate flex items-center gap-1.5 ${activeChannel === channel.id
+                      ? (channel.type === 'admin' ? 'text-amber-400 font-bold' : 'text-gd-on-secondary-ctr')
+                      : 'text-gd-on-surface'
+                      }`}>
                       {channel.name}
                       {channel.type === 'admin' && (
                         <span className="px-1 py-0.2 text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded font-mono font-bold">
@@ -389,7 +389,7 @@ export const GuideChat: React.FC<GuideChatProps> = ({
                         </span>
                       )}
                     </span>
-                    <span className="text-[11px] text-gd-on-surface-var font-guide-mono ml-2 shrink-0">
+                    <span className="text-sm text-gd-on-surface-var font-guide-mono ml-2 shrink-0">
                       {channel.lastMessageTime}
                     </span>
                   </div>
@@ -398,7 +398,7 @@ export const GuideChat: React.FC<GuideChatProps> = ({
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     {channel.memberCount && (
-                      <span className="text-[11px] text-gd-outline font-guide-mono">
+                      <span className="text-sm text-gd-outline font-guide-mono">
                         {channel.type === 'admin' ? 'Authority Control Desk' : channel.type === 'direct' ? 'Direct message' : `${channel.memberCount} members`}
                       </span>
                     )}
@@ -414,29 +414,28 @@ export const GuideChat: React.FC<GuideChatProps> = ({
           {/* Chat Header */}
           <div className="px-4 py-3 border-b border-gd-outline-var bg-gd-surface-bright flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                activeChannelData?.type === 'admin' ? 'bg-[#061E34] text-amber-400 border border-amber-500/40 shadow-xs' :
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activeChannelData?.type === 'admin' ? 'bg-[#061E34] text-amber-400 border border-amber-500/40 shadow-xs' :
                 activeChannelData?.type === 'group' ? 'bg-gd-secondary-ctr text-gd-on-secondary-ctr' :
-                activeChannelData?.type === 'broadcast' ? 'bg-gd-warn text-gd-warn-ctr' :
-                'bg-gd-surface-high text-gd-on-surface-var font-bold'
-              }`}>
-                {activeChannelData?.type === 'direct' 
-                  ? (activeChannelData.name.slice(0, 2).toUpperCase()) 
+                  activeChannelData?.type === 'broadcast' ? 'bg-gd-warn text-gd-warn-ctr' :
+                    'bg-gd-surface-high text-gd-on-surface-var font-bold'
+                }`}>
+                {activeChannelData?.type === 'direct'
+                  ? (activeChannelData.name.slice(0, 2).toUpperCase())
                   : (activeChannelData && getChannelIcon(activeChannelData.type))}
               </div>
               <div>
                 <h3 className="text-base font-semibold text-gd-primary font-guide flex items-center gap-2">
                   <span>{activeChannelData?.name || 'Select a conversation'}</span>
                   {activeChannelData?.type === 'admin' && (
-                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/40 font-mono font-bold">
+                    <span className="px-1.5 py-0.5 rounded text-xs bg-amber-500/20 text-amber-400 border border-amber-500/40 font-mono font-bold">
                       OFFICIAL DESK
                     </span>
                   )}
                 </h3>
                 <p className="text-[12px] text-gd-on-surface-var font-guide-mono">
                   {activeChannelData?.type === 'admin' ? 'Official Dedicated Secure Line to Tourism Authority Command Center' :
-                   activeChannelData?.type === 'group' ? `${tourists.length} team members · Live Two-Way Team Chat` :
-                   `Direct conversation with ${activeChannelData?.name}`}
+                    activeChannelData?.type === 'group' ? `${tourists.length} team members · Live Two-Way Team Chat` :
+                      `Direct conversation with ${activeChannelData?.name}`}
                 </p>
               </div>
             </div>
@@ -480,7 +479,7 @@ export const GuideChat: React.FC<GuideChatProps> = ({
           {/* Messages Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gd-bg">
             {channelMessages.length === 0 && (
-              <div className="flex items-center justify-center h-full text-gd-on-surface-var text-sm">
+              <div className="flex items-center justify-center h-full text-gd-on-surface-var text-base">
                 No messages yet. Send a message to start communicating!
               </div>
             )}
@@ -494,18 +493,17 @@ export const GuideChat: React.FC<GuideChatProps> = ({
                   <div className={`max-w-[70%] ${isGuide ? 'order-2' : 'order-1'}`}>
                     {/* Sender name for non-guide */}
                     {!isGuide && (
-                      <p className="text-[11px] font-semibold text-gd-on-surface-var mb-1 ml-1">
+                      <p className="text-sm font-semibold text-gd-on-surface-var mb-1 ml-1">
                         {msg.sender || 'Tourist'}
                       </p>
                     )}
-                    <div className={`px-4 py-2.5 rounded-2xl ${
-                      isGuide
-                        ? 'bg-gd-primary-ctr text-gd-on-primary-ctr rounded-br-md shadow-sm'
-                        : 'bg-gd-surface border border-gd-outline-var text-gd-on-surface rounded-bl-md shadow-sm'
-                    }`}>
-                      <p className="text-sm leading-relaxed">{msg.text}</p>
+                    <div className={`px-4 py-2.5 rounded-2xl ${isGuide
+                      ? 'bg-gd-primary-ctr text-gd-on-primary-ctr rounded-br-md shadow-sm'
+                      : 'bg-gd-surface border border-gd-outline-var text-gd-on-surface rounded-bl-md shadow-sm'
+                      }`}>
+                      <p className="text-lg leading-relaxed">{msg.text}</p>
                     </div>
-                    <p className={`text-[10px] font-guide-mono text-gd-outline mt-1 ${isGuide ? 'text-right mr-1' : 'ml-1'}`}>
+                    <p className={`text-xs font-guide-mono text-gd-outline mt-1 ${isGuide ? 'text-right mr-1' : 'ml-1'}`}>
                       {msg.time || msg.timestamp || 'Just now'}
                       {isGuide && ' ✓✓'}
                     </p>
@@ -549,7 +547,7 @@ export const GuideChat: React.FC<GuideChatProps> = ({
                 }}
                 placeholder={`Message ${activeChannelData?.name || 'group'}...`}
                 rows={1}
-                className="w-full bg-gd-surface-low border border-gd-outline-var rounded-xl px-4 py-2.5 text-sm text-gd-on-surface placeholder:text-gd-outline resize-none focus:outline-none focus:ring-2 focus:ring-gd-secondary/50 focus:border-gd-secondary transition-colors"
+                className="w-full bg-gd-surface-low border border-gd-outline-var rounded-xl px-4 py-2.5 text-base text-gd-on-surface placeholder:text-gd-outline resize-none focus:outline-none focus:ring-2 focus:ring-gd-secondary/50 focus:border-gd-secondary transition-colors"
               />
             </div>
             <button className="p-2 text-gd-outline hover:text-gd-primary hover:bg-gd-surface-low rounded-lg transition-colors shrink-0">

@@ -66,7 +66,7 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
             </div>
             <div>
               <h2 className="text-lg font-bold text-st-on-surface">Tourist Safety Settings</h2>
-              <p className="text-xs text-st-on-surface-variant">Preferences &amp; Emergency Telemetry</p>
+              <p className="text-sm text-st-on-surface-variant">Preferences &amp; Emergency Telemetry</p>
             </div>
           </div>
           <button
@@ -81,7 +81,7 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-st-on-surface">
           {/* 1. Language Preference */}
           <div>
-            <label className="text-xs font-bold text-st-primary uppercase tracking-wider block mb-2">
+            <label className="text-sm font-bold text-st-primary uppercase tracking-wider block mb-2">
               Language / भाषा
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -90,14 +90,14 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
                   key={l.code}
                   type="button"
                   onClick={() => setLanguage(l.code as LanguageCode)}
-                  className={`p-2.5 rounded-xl border text-left transition-all text-xs cursor-pointer flex flex-col justify-between ${
+                  className={`p-2.5 rounded-xl border text-left transition-all text-sm cursor-pointer flex flex-col justify-between ${
                     lang === l.code
                       ? 'border-st-primary bg-st-primary-fixed/40 text-st-primary font-bold shadow-xs'
                       : 'border-st-outline-variant/60 hover:bg-st-surface-container-low text-st-on-surface'
                   }`}
                 >
                   <span className="font-semibold">{l.label}</span>
-                  <span className="text-[10px] text-st-outline mt-0.5">{l.labelEn}</span>
+                  <span className="text-xs text-st-outline mt-0.5">{l.labelEn}</span>
                 </button>
               ))}
             </div>
@@ -107,7 +107,7 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
 
           {/* 2. Safety & Alert Toggles */}
           <div className="space-y-4">
-            <label className="text-xs font-bold text-st-primary uppercase tracking-wider block">
+            <label className="text-sm font-bold text-st-primary uppercase tracking-wider block">
               Safety &amp; Audio Alerts
             </label>
 
@@ -116,8 +116,8 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-xl text-st-primary">volume_up</span>
                 <div>
-                  <div className="text-sm font-semibold text-st-on-surface">Hazard Geofence Audio Siren</div>
-                  <div className="text-xs text-st-on-surface-variant">Play audio alarm when entering landslide / flood danger zones</div>
+                  <div className="text-base font-semibold text-st-on-surface">Hazard Geofence Audio Siren</div>
+                  <div className="text-sm text-st-on-surface-variant">Play audio alarm when entering landslide / flood danger zones</div>
                 </div>
               </div>
               <input
@@ -133,8 +133,8 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-xl text-st-error">sos</span>
                 <div>
-                  <div className="text-sm font-semibold text-st-on-surface">Emergency SOS Confirmation Sound</div>
-                  <div className="text-xs text-st-on-surface-variant">Vibrate and beep loudly upon 1-tap SOS trigger</div>
+                  <div className="text-base font-semibold text-st-on-surface">Emergency SOS Confirmation Sound</div>
+                  <div className="text-sm text-st-on-surface-variant">Vibrate and beep loudly upon 1-tap SOS trigger</div>
                 </div>
               </div>
               <input
@@ -150,8 +150,8 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-xl text-st-secondary">battery_saver</span>
                 <div>
-                  <div className="text-sm font-semibold text-st-on-surface">Battery Optimization Mode</div>
-                  <div className="text-xs text-st-on-surface-variant">Throttles GPS sync when device battery is under 20%</div>
+                  <div className="text-base font-semibold text-st-on-surface">Battery Optimization Mode</div>
+                  <div className="text-sm text-st-on-surface-variant">Throttles GPS sync when device battery is under 20%</div>
                 </div>
               </div>
               <input
@@ -167,7 +167,7 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
 
           {/* 3. Live GPS Telemetry Sync Frequency */}
           <div>
-            <label className="text-xs font-bold text-st-primary uppercase tracking-wider block mb-2">
+            <label className="text-sm font-bold text-st-primary uppercase tracking-wider block mb-2">
               Live GPS Sync Frequency
             </label>
             <div className="grid grid-cols-3 gap-2.5">
@@ -186,8 +186,8 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
                       : 'border-st-outline-variant/60 bg-st-surface-container-low hover:bg-st-surface-container text-st-on-surface'
                   }`}
                 >
-                  <div className="text-sm font-bold">{opt.label}</div>
-                  <div className={`text-[10px] mt-0.5 ${gpsInterval === opt.id ? 'text-white/80' : 'text-st-on-surface-variant'}`}>
+                  <div className="text-base font-bold">{opt.label}</div>
+                  <div className={`text-xs mt-0.5 ${gpsInterval === opt.id ? 'text-white/80' : 'text-st-on-surface-variant'}`}>
                     {opt.desc}
                   </div>
                 </button>
@@ -200,16 +200,16 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
           {/* 4. Active Tourist & Identity Info */}
           <div className="p-3.5 rounded-xl bg-st-surface-container border border-st-outline-variant/50 space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-st-primary">SafeYatra Digital Pass ID</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+              <span className="text-sm font-bold text-st-primary">SafeYatra Digital Pass ID</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
                 ✓ Verified
               </span>
             </div>
-            <div className="text-xs font-mono text-st-on-surface-variant break-all">
+            <div className="text-sm font-mono text-st-on-surface-variant break-all">
               {tourist?.id ? `did:safeyatra:${tourist.id}` : 'did:safeyatra:anonymous'}
             </div>
-            <div className="text-[11px] text-st-outline flex items-center gap-1.5 pt-1">
-              <span className="material-symbols-outlined text-sm text-st-secondary">verified_user</span>
+            <div className="text-sm text-st-outline flex items-center gap-1.5 pt-1">
+              <span className="material-symbols-outlined text-base text-st-secondary">verified_user</span>
               <span>Anchored to Polygon DID Registry &bull; Emergency Hash Validated</span>
             </div>
           </div>
@@ -217,19 +217,19 @@ export const TouristSettingsModal: React.FC<TouristSettingsModalProps> = ({
 
         {/* Modal Footer */}
         <div className="px-6 py-4 bg-st-surface-container flex items-center justify-between border-t border-st-outline-variant/50 shrink-0">
-          <span className="text-xs text-st-on-surface-variant">
+          <span className="text-sm text-st-on-surface-variant">
             {savedToast ? '✅ Settings saved successfully!' : 'SafeYatra Sentinel v1.0'}
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-semibold text-st-on-surface hover:bg-st-surface-container-high transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-st-on-surface hover:bg-st-surface-container-high transition-colors cursor-pointer"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
-              className="px-5 py-2 rounded-xl bg-st-primary hover:bg-st-primary-container text-white text-xs font-bold shadow-sm transition-all cursor-pointer"
+              className="px-5 py-2 rounded-xl bg-st-primary hover:bg-st-primary-container text-white text-sm font-bold shadow-sm transition-all cursor-pointer"
             >
               Save Preferences
             </button>

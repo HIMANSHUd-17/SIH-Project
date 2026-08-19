@@ -81,8 +81,17 @@ export const TouristLogin: React.FC<TouristLoginProps> = ({ onLoginTourist, onRe
   };
 
   return (
-    <div className="min-h-screen bg-st-surface text-st-on-surface flex items-center justify-center font-[Inter,sans-serif] p-4">
-      <div className="bg-white p-8 rounded-2xl shadow-xl border border-st-outline-variant/30 w-full max-w-md">
+    <div
+      className="min-h-screen text-st-on-surface flex items-center justify-center font-[Inter,sans-serif] p-4 relative overflow-hidden bg-slate-900"
+      style={{
+        backgroundImage: 'linear-gradient(rgba(0, 26, 77, 0.4), rgba(0, 26, 77, 0.8)), url("https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=2000&q=80")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+
+      <div className="bg-white p-8 rounded-2xl shadow-xl shadow-[#001a4d]/5 border border-st-outline-variant/40 w-full max-w-md relative z-10 transition-transform duration-300 transform">
         <div className="flex items-center gap-3 mb-6 justify-center">
           <div className="w-12 h-12 bg-st-primary rounded-xl flex items-center justify-center shadow-md">
             <span className="material-symbols-outlined text-white text-2xl">lock</span>
@@ -143,7 +152,7 @@ export const TouristLogin: React.FC<TouristLoginProps> = ({ onLoginTourist, onRe
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-st-primary hover:bg-st-primary/90 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2 mt-2"
+            className="w-full py-3 bg-st-primary hover:bg-st-primary/90 text-white font-bold text-sm rounded-xl shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2 mt-2 hover-scale ripple-target"
           >
             {loading ? (
               <>
@@ -164,7 +173,7 @@ export const TouristLogin: React.FC<TouristLoginProps> = ({ onLoginTourist, onRe
           <button
             type="button"
             onClick={() => setIsRegisterOpen(true)}
-            className="w-full py-2.5 bg-st-surface-container hover:bg-st-surface-container-high text-st-primary font-bold text-xs rounded-xl border border-st-outline-variant/50 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full py-2.5 bg-st-surface-container hover:bg-st-surface-container-high text-st-primary font-bold text-xs rounded-xl border border-st-outline-variant/50 transition-all flex items-center justify-center gap-2 cursor-pointer hover-scale-subtle ripple-target"
           >
             <span className="material-symbols-outlined text-base">person_add</span>
             Register Solo / Team Profile

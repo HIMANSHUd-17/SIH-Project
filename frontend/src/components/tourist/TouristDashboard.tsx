@@ -332,16 +332,16 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
           <div className="lg:col-span-2 bg-st-surface-white rounded-xl border border-st-outline-variant p-4 flex flex-col shadow-sm">
             <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-st-on-surface uppercase tracking-wider">Live Safety Map</h2>
+                <h2 className="text-base font-bold text-st-on-surface uppercase tracking-wider">Live Safety Map</h2>
                 {isLive ? (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-base font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                     GPS Live (±{coords?.accuracy || tourist.currentLocation.accuracy || 10}m)
                   </span>
                 ) : (
                   <button
                     onClick={onRequestPermission}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-300 cursor-pointer transition-colors"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-base font-semibold bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-300 cursor-pointer transition-colors"
                   >
                     <span className="material-symbols-outlined text-[14px]">near_me</span>
                     Enable Live GPS
@@ -350,7 +350,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-xs font-medium text-st-on-surface-variant bg-st-surface-container px-2.5 py-1 rounded leading-4 font-mono">
+                <span className="text-base font-medium text-st-on-surface-variant bg-st-surface-container px-2.5 py-1 rounded leading-4 font-mono">
                   ID: {tourist.id}
                 </span>
               </div>
@@ -372,18 +372,18 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
               </div>
 
               {/* Bottom Map Status Bar */}
-              <div className="absolute bottom-2 left-2 right-2 z-20 bg-slate-950/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-xs flex items-center justify-between pointer-events-none">
+              <div className="absolute bottom-2 left-2 right-2 z-20 bg-slate-950/80 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-base flex items-center justify-between pointer-events-none">
                 <span className="font-mono">
                   {tourist.currentLocation.lat.toFixed(5)}°N, {tourist.currentLocation.lng.toFixed(5)}°E
                 </span>
-                <span className="text-slate-300 text-[11px]">
+                <span className="text-slate-300 text-base">
                   Updated: {tourist.lastUpdated || 'Just now'}
                 </span>
               </div>
             </div>
 
             {/* Address & Telemetry Bar */}
-            <div className="mt-3.5 flex items-center justify-between text-st-on-surface-variant text-sm gap-2">
+            <div className="mt-3.5 flex items-center justify-between text-st-on-surface-variant text-base gap-2">
               <div className="flex items-center gap-2 truncate">
                 <span className="material-symbols-outlined text-st-secondary text-lg shrink-0">location_on</span>
                 <span className="font-medium text-st-on-surface truncate">
@@ -392,7 +392,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
               </div>
 
               {coords?.speed !== null && coords?.speed !== undefined && coords?.speed > 0 && (
-                <span className="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono shrink-0">
+                <span className="text-base bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono shrink-0">
                   {coords.speed} km/h
                 </span>
               )}
@@ -408,7 +408,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
               </div>
               <div className="flex flex-col min-w-0">
                 <div className="text-lg font-bold text-st-on-surface truncate">{tourist.name}</div>
-                <div className="flex flex-col mt-1 space-y-0.5 text-xs text-st-on-surface-variant">
+                <div className="flex flex-col mt-1 space-y-0.5 text-base text-st-on-surface-variant">
                   <div className="flex items-center gap-1.5">
                     <span>Age: <b>{tourist.age || 28}</b></span>
                     <span>&middot;</span>
@@ -419,7 +419,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                       📞 {tourist.mobile}
                     </div>
                   )}
-                  <div className="flex items-center gap-1 text-[11px] text-slate-500 font-mono mt-1">
+                  <div className="flex items-center gap-1 text-base text-slate-500 font-mono mt-1">
                     <span>DID:</span>
                     <span className="truncate">{maskDid(tourist.blockchainDid)}</span>
                   </div>
@@ -430,7 +430,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
             {/* Quick Safety Health Tile */}
             <div className="bg-st-surface-white rounded-xl border border-st-outline-variant p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-st-on-surface uppercase tracking-wider">Safety Status</span>
+                <span className="text-base font-bold text-st-on-surface uppercase tracking-wider">Safety Status</span>
                 {(() => {
                   const score = typeof tourist.currentRiskScore === 'number' ? tourist.currentRiskScore : 10;
                   let label = 'LOW';
@@ -451,7 +451,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                   }
 
                   return (
-                    <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${badgeClass}`}>
+                    <span className={`text-base font-bold px-2.5 py-0.5 rounded-full ${badgeClass}`}>
                       {label}
                     </span>
                   );
@@ -471,7 +471,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                   style={{ width: `${Math.min(100, tourist.currentRiskScore || 10)}%` }}
                 />
               </div>
-              <div className="flex justify-between text-[11px] text-slate-500 mt-1">
+              <div className="flex justify-between text-base text-slate-500 mt-1">
                 <span>Calculated Risk: {tourist.currentRiskScore || 10}/100</span>
                 <span>Battery: {tourist.batteryLevel || 100}%</span>
               </div>
@@ -480,12 +480,12 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
             {/* Phase 3 Behavioral Anomaly Detection Tile */}
             <div className="bg-st-surface-white rounded-xl border border-st-outline-variant p-4 shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-st-on-surface uppercase tracking-wider">Anomaly Status</span>
+                <span className="text-base font-bold text-st-on-surface uppercase tracking-wider">Anomaly Status</span>
                 {(() => {
                   const isDetected = Boolean(tourist.anomaly?.anomaly_detected);
                   return (
                     <span
-                      className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${
+                      className={`text-base font-bold px-2.5 py-0.5 rounded-full border ${
                         isDetected
                           ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
                           : 'bg-emerald-100 text-emerald-800 border-emerald-300'
@@ -497,7 +497,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 })()}
               </div>
 
-              <div className="space-y-1.5 text-xs">
+              <div className="space-y-1.5 text-base">
                 <div className="flex justify-between text-slate-600">
                   <span className="font-medium">Anomaly Score:</span>
                   <span className="font-mono font-semibold text-slate-800">
@@ -543,10 +543,10 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 <span className="material-symbols-outlined">{isSoloTourist ? 'shield_person' : 'person'}</span>
               </div>
               <div>
-                <div className="text-xs font-medium text-st-on-surface-variant leading-4">
+                <div className="text-base font-medium text-st-on-surface-variant leading-4">
                   {isSoloTourist ? 'Traveler Protection' : 'Assigned Guide'}
                 </div>
-                <div className="text-sm font-semibold text-st-on-surface leading-5">
+                <div className="text-base font-semibold text-st-on-surface leading-5">
                   {isSoloTourist ? (
                     <>Solo Explorer <span className="text-emerald-600 font-normal">(Direct Admin Monitored)</span></>
                   ) : (
@@ -561,8 +561,8 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 <span className="material-symbols-outlined">schedule</span>
               </div>
               <div>
-                <div className="text-xs font-medium text-st-on-surface-variant leading-4">Trip Schedule</div>
-                <div className="text-sm font-semibold text-st-on-surface leading-5">
+                <div className="text-base font-medium text-st-on-surface-variant leading-4">Trip Schedule</div>
+                <div className="text-base font-semibold text-st-on-surface leading-5">
                   {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} · 18:00
                 </div>
               </div>
@@ -573,8 +573,8 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 <span className="material-symbols-outlined text-red-600">contact_phone</span>
               </div>
               <div>
-                <div className="text-xs font-medium text-st-on-surface-variant leading-4">Emergency Contact (Admin)</div>
-                <a href="tel:18001234567" className="text-sm font-extrabold text-red-600 hover:underline leading-5">
+                <div className="text-base font-medium text-st-on-surface-variant leading-4">Emergency Contact (Admin)</div>
+                <a href="tel:18001234567" className="text-base font-extrabold text-red-600 hover:underline leading-5">
                   1800-123-4567
                 </a>
               </div>
@@ -597,11 +597,11 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h2 className="text-xl font-black text-white tracking-tight uppercase">Emergency SOS State Active</h2>
-                      <span className="bg-white text-red-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      <span className="bg-white text-red-800 text-sm font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                         LIVE DISPATCH
                       </span>
                     </div>
-                    <p className="text-xs text-red-100 max-w-lg mt-1 leading-relaxed">
+                    <p className="text-base text-red-100 max-w-lg mt-1 leading-relaxed">
                       Emergency telemetry active with Police, SDRF, and Assigned Guide ({assignedGuide?.full_name || 'Rama Patile'}). Press <b>“Stop SOS”</b> beside Emergency SOS to resolve alert.
                     </p>
                   </div>
@@ -610,7 +610,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 <div className="flex items-center gap-3 shrink-0 flex-wrap justify-center">
                   <button
                     onClick={handleTriggerSOS}
-                    className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider px-5 py-3 rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer border border-red-400"
+                    className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-base sm:text-base uppercase tracking-wider px-5 py-3 rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer border border-red-400"
                   >
                     <span className="material-symbols-outlined text-lg animate-pulse">crisis_alert</span>
                     Emergency SOS
@@ -618,7 +618,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
 
                   <button
                     onClick={handleStopActiveSOS}
-                    className="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider px-6 py-3 rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-2 border-emerald-300 hover:border-white"
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold text-base sm:text-base uppercase tracking-wider px-6 py-3 rounded-xl shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 cursor-pointer border-2 border-emerald-300 hover:border-white"
                   >
                     <span className="material-symbols-outlined text-xl">check_circle</span>
                     Stop SOS
@@ -636,7 +636,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                   </div>
                   <div>
                     <h2 className="text-lg font-bold text-white">Elevated Caution Zone (High Risk: {score}/100)</h2>
-                    <p className="text-xs text-orange-100 max-w-md mt-0.5 leading-relaxed">
+                    <p className="text-base text-orange-100 max-w-md mt-0.5 leading-relaxed">
                       You are in or approaching a high-hazard area. Please stay vigilant, remain on designated paths, or follow guide instructions.
                     </p>
                   </div>
@@ -645,14 +645,14 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 <div className="flex items-center gap-3 shrink-0 flex-wrap">
                   <button
                     onClick={handleTriggerSOS}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-orange-400"
+                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-base sm:text-base px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-orange-400"
                   >
                     <span className="material-symbols-outlined text-lg">crisis_alert</span>
                     Emergency SOS
                   </button>
                   <button
                     onClick={handleStopActiveSOS}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-emerald-500"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-base sm:text-base px-5 py-3 rounded-xl shadow-md transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-emerald-500"
                   >
                     <span className="material-symbols-outlined text-lg">check_circle</span>
                     Stop SOS
@@ -670,7 +670,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-amber-950">Advisory Notice (Moderate Risk: {score}/100)</h2>
-                    <p className="text-xs text-amber-800 max-w-md mt-0.5 leading-relaxed">
+                    <p className="text-base text-amber-800 max-w-md mt-0.5 leading-relaxed">
                       Terrain elevation or moderate environmental factors present. Safe travel corridor active.
                     </p>
                   </div>
@@ -679,14 +679,14 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
                   <button
                     onClick={handleTriggerSOS}
-                    className="bg-white hover:bg-amber-100 text-amber-900 font-semibold text-xs px-4 py-2.5 rounded-lg border border-amber-300 shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="bg-white hover:bg-amber-100 text-amber-900 font-semibold text-base px-4 py-2.5 rounded-lg border border-amber-300 shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-base text-red-500">sos</span>
                     Emergency SOS
                   </button>
                   <button
                     onClick={handleStopActiveSOS}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-emerald-500"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-base px-4 py-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-emerald-500"
                   >
                     <span className="material-symbols-outlined text-base text-white">check_circle</span>
                     Stop SOS
@@ -704,7 +704,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                   </div>
                   <div>
                     <h2 className="text-base font-bold text-emerald-950">Safe Corridor Active (Low Risk: {score}/100)</h2>
-                    <p className="text-xs text-emerald-800 max-w-md mt-0.5 leading-relaxed">
+                    <p className="text-base text-emerald-800 max-w-md mt-0.5 leading-relaxed">
                       You are in a fully monitored safe tourist corridor with nominal hazard parameters.
                     </p>
                   </div>
@@ -713,14 +713,14 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
                   <button
                     onClick={handleTriggerSOS}
-                    className="bg-white hover:bg-emerald-100 text-emerald-900 font-semibold text-xs px-4 py-2.5 rounded-lg border border-emerald-300 shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                    className="bg-white hover:bg-emerald-100 text-emerald-900 font-semibold text-base px-4 py-2.5 rounded-lg border border-emerald-300 shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer"
                   >
                     <span className="material-symbols-outlined text-base text-red-500">sos</span>
                     Emergency SOS
                   </button>
                   <button
                     onClick={handleStopActiveSOS}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-emerald-500"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-base px-4 py-2.5 rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5 cursor-pointer border border-emerald-500"
                   >
                     <span className="material-symbols-outlined text-base text-white">check_circle</span>
                     Stop SOS
@@ -754,7 +754,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
             <h2 className="text-2xl font-bold text-slate-900 mb-1.5">
               {sosSentService ? 'Emergency Signal Transmitted!' : 'Transmitting SOS Alert...'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mb-5 px-2">
+            <p className="text-base sm:text-base text-slate-600 mb-5 px-2">
               {sosSentService ? (
                 <span className="text-emerald-700 font-semibold">
                   High-priority dispatch sent for <b>{
@@ -782,7 +782,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 }`}
               >
                 <span className="material-symbols-outlined text-blue-600 text-2xl mb-1">local_police</span>
-                <span className="text-xs font-bold text-slate-800">Police 112</span>
+                <span className="text-base font-bold text-slate-800">Police 112</span>
                 <span className={`text-[9px] mt-1 font-bold px-1.5 py-0.2 rounded-full ${
                   selectedSosService === 'POLICE' ? 'bg-blue-600 text-white' : 'text-slate-400'
                 }`}>
@@ -804,7 +804,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 }`}
               >
                 <span className="material-symbols-outlined text-amber-600 text-2xl mb-1">fire_truck</span>
-                <span className="text-xs font-bold text-slate-800">SDRF</span>
+                <span className="text-base font-bold text-slate-800">SDRF</span>
                 <span className={`text-[9px] mt-1 font-bold px-1.5 py-0.2 rounded-full ${
                   selectedSosService === 'SDRF' ? 'bg-amber-600 text-white' : 'text-slate-400'
                 }`}>
@@ -826,7 +826,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
                 }`}
               >
                 <span className="material-symbols-outlined text-red-600 text-2xl mb-1">ambulance</span>
-                <span className="text-xs font-bold text-slate-800">Trauma ICU</span>
+                <span className="text-base font-bold text-slate-800">Trauma ICU</span>
                 <span className={`text-[9px] mt-1 font-bold px-1.5 py-0.2 rounded-full ${
                   selectedSosService === 'MEDICAL' ? 'bg-red-600 text-white' : 'text-slate-400'
                 }`}>
@@ -840,7 +840,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => dispatchSOSNow()}
-                className="w-full bg-[#C62828] hover:bg-[#B71C1C] text-white text-xs font-bold py-3 rounded-xl transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
+                className="w-full bg-[#C62828] hover:bg-[#B71C1C] text-white text-base font-bold py-3 rounded-xl transition-all shadow-md active:scale-98 flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider"
               >
                 <span className="material-symbols-outlined text-base">emergency_share</span>
                 <span>Send {selectedSosService ? (selectedSosService === 'POLICE' ? 'Police 112 SOS Now' : selectedSosService === 'SDRF' ? 'SDRF Rescue SOS Now' : 'Trauma ICU SOS Now') : 'SOS Alert Now'}</span>
@@ -849,7 +849,7 @@ export const TouristDashboard: React.FC<TouristDashboardProps> = ({
               <button
                 type="button"
                 onClick={handleCancelSOS}
-                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold py-2.5 rounded-xl transition-colors active:scale-98 cursor-pointer"
+                className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-base font-semibold py-2.5 rounded-xl transition-colors active:scale-98 cursor-pointer"
               >
                 Cancel Alert
               </button>

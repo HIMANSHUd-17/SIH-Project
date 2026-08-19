@@ -99,7 +99,7 @@ export const GuideGroupTable: React.FC<GuideGroupTableProps> = ({ tourists, guid
         <div className="flex gap-3">
           <button
             onClick={() => setShowRegisterModal(true)}
-            className="flex items-center justify-center gap-2 bg-gd-primary-ctr text-gd-on-primary-ctr px-5 py-2 rounded-full text-sm font-semibold hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap font-guide border border-gd-outline-var"
+            className="flex items-center justify-center gap-2 bg-gd-primary-ctr text-gd-on-primary-ctr px-5 py-2 rounded-full text-base font-semibold hover:opacity-90 transition-opacity shadow-sm whitespace-nowrap font-guide border border-gd-outline-var"
           >
             <UserPlus className="w-4 h-4" />
             Add Tourist
@@ -120,7 +120,7 @@ export const GuideGroupTable: React.FC<GuideGroupTableProps> = ({ tourists, guid
           </div>
           <div className="flex items-end gap-2">
             <span className="text-[32px] leading-[40px] font-bold text-gd-primary">{presentCount}</span>
-            <span className="text-sm text-gd-outline mb-1">/ {tourists.length}</span>
+            <span className="text-base text-gd-outline mb-1">/ {tourists.length}</span>
           </div>
         </div>
         <div className="bg-gd-surface border border-gd-outline-var rounded-xl p-4 shadow-sm">
@@ -132,7 +132,7 @@ export const GuideGroupTable: React.FC<GuideGroupTableProps> = ({ tourists, guid
             <span className={`text-[32px] leading-[40px] font-bold ${alertCount > 0 ? 'text-gd-error' : 'text-gd-primary'}`}>
               {alertCount}
             </span>
-            <span className="text-sm text-gd-outline mb-1">{alertCount > 0 ? 'Needs attention' : 'All clear'}</span>
+            <span className="text-base text-gd-outline mb-1">{alertCount > 0 ? 'Needs attention' : 'All clear'}</span>
           </div>
         </div>
         <div className="bg-gd-surface border border-gd-outline-var rounded-xl p-4 shadow-sm">
@@ -219,15 +219,15 @@ export const GuideGroupTable: React.FC<GuideGroupTableProps> = ({ tourists, guid
                           {getInitials(tourist.name)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gd-on-bg">{tourist.name}</p>
-                          <p className="text-[11px] font-guide-mono text-gd-outline">{tourist.id.toUpperCase()}</p>
+                          <p className="text-base font-medium text-gd-on-bg">{tourist.name}</p>
+                          <p className="text-base font-guide-mono text-gd-outline">{tourist.id.toUpperCase()}</p>
                         </div>
                       </div>
                     </td>
 
                     {/* Location Zone */}
                     <td className="px-4 py-1.5">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full ${location.bgColor} ${location.textColor} text-[11px] font-guide-mono font-medium`}>
+                      <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full ${location.bgColor} ${location.textColor} text-base font-guide-mono font-medium`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${location.dotColor} ${isAtRisk ? 'animate-pulse' : ''}`} />
                         {location.label}
                       </span>
@@ -259,7 +259,7 @@ export const GuideGroupTable: React.FC<GuideGroupTableProps> = ({ tourists, guid
                       <div className={`flex items-center justify-end gap-1.5 transition-opacity ${isAtRisk ? 'opacity-100' : 'opacity-90 group-hover:opacity-100'}`}>
                         <button
                           onClick={() => navigate('/guide/dashboard')}
-                          className="px-2 py-1 bg-gd-primary-ctr text-gd-on-primary-ctr hover:opacity-90 rounded text-[11px] font-bold flex items-center gap-1 shadow-xs cursor-pointer border border-gd-outline-var"
+                          className="px-2 py-1 bg-gd-primary-ctr text-gd-on-primary-ctr hover:opacity-90 rounded text-base font-bold flex items-center gap-1 shadow-xs cursor-pointer border border-gd-outline-var"
                           title="View Live on Group Map"
                         >
                           <MapPin className="w-3.5 h-3.5 text-gd-primary" />

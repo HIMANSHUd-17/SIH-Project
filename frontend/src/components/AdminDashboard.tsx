@@ -41,7 +41,8 @@ import {
   KeyRound,
   Globe,
   Lock,
-  FileText
+  FileText,
+  Menu
 } from 'lucide-react';
 import { DynamicGeofence, EmergencyService, IncidentReport, TouristProfile } from '../types';
 import { useLanguage, LanguageSelector } from '../utils/LanguageContext';
@@ -193,7 +194,7 @@ const OverviewMap: React.FC<{
         html: `
           <div style="display: flex; flex-direction: column; align-items: center; cursor: pointer;">
             <div style="
-              background: #061E34; color: #ffffff; padding: 2px 7px; border-radius: 10px;
+              background: #ffffff; color: #0f172a; padding: 2px 7px; border-radius: 10px;
               font-size: 10px; font-weight: 700; border: 1.5px solid ${pinColor};
               box-shadow: 0 2px 6px rgba(0,0,0,0.35); white-space: nowrap; margin-bottom: 2px;
               display: flex; align-items: center; gap: 4px;
@@ -217,23 +218,23 @@ const OverviewMap: React.FC<{
       });
 
       const popupHtml = `
-        <div style="font-family: Inter, sans-serif; font-size: 12px; min-width: 220px; line-height: 1.5; color: #1e293b;">
-          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 6px;">
+        <div style="font-family: Inter, sans-serif; font-size: 12px; min-width: 220px; line-height: 1.5; color: #f1f5f9;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 6px;">
             <div>
-              <strong style="font-size: 14px; color: #0f172a;">${t.name}</strong>
-              <div style="font-size: 10px; color: #64748b; font-family: monospace;">ID: ${t.id}</div>
+              <strong style="font-size: 14px; color: #ffffff;">${t.name}</strong>
+              <div style="font-size: 10px; color: #94a3b8; font-family: monospace;">ID: ${t.id}</div>
             </div>
             <span style="background: ${pinColor}20; color: ${pinColor}; border: 1px solid ${pinColor}40; padding: 2px 6px; border-radius: 999px; font-weight: 700; font-size: 10px;">
               ${t.safetyStatus}
             </span>
           </div>
 
-          <div style="margin-bottom: 4px; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 4px;">
+          <div style="margin-bottom: 4px; font-weight: 600; color: #cbd5e1; display: flex; align-items: center; gap: 4px;">
             <span>📍</span>
             <span>${t.currentLocation.address || 'Live Telemetry Location'}</span>
           </div>
 
-          <div style="font-size: 11px; color: #64748b; font-family: monospace; margin-bottom: 6px; background: #f8fafc; padding: 4px 6px; border-radius: 6px;">
+          <div style="font-size: 11px; color: #94a3b8; font-family: monospace; margin-bottom: 6px; background: #0f172a; padding: 4px 6px; border-radius: 6px; border: 1px solid #1e293b;">
             GPS: ${t.currentLocation.lat.toFixed(5)}° N, ${t.currentLocation.lng.toFixed(5)}° E
           </div>
 
@@ -297,7 +298,7 @@ const OverviewMap: React.FC<{
       <div className="absolute top-3 left-3 right-3 z-[1000] flex flex-wrap items-center justify-between gap-2 pointer-events-none">
         <div className="flex items-center gap-2 pointer-events-auto bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-lg shadow-md border border-slate-200">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="text-xs font-bold text-slate-800">
+          <span className="text-base font-bold text-slate-800">
             📍 {tourists.length} Live Tourists Tracked
           </span>
         </div>
@@ -307,7 +308,7 @@ const OverviewMap: React.FC<{
           <select
             value={selectedId}
             onChange={(e) => focusTourist(e.target.value)}
-            className="bg-white/95 backdrop-blur-md border border-slate-200 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg shadow-md focus:outline-none hover:bg-slate-50 cursor-pointer"
+            className="bg-white/95 backdrop-blur-md border border-slate-200 text-slate-800 text-base font-semibold px-3 py-1.5 rounded-lg shadow-md focus:outline-none hover:bg-slate-50 cursor-pointer"
           >
             <option value="">🎯 Locate Tourist on Map...</option>
             {tourists.map((t) => (
@@ -320,7 +321,7 @@ const OverviewMap: React.FC<{
           {/* Fit All Button */}
           <button
             onClick={fitAllTourists}
-            className="bg-[#061E34] hover:bg-[#0A2640] text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
+            className="bg-[#061E34] hover:bg-[#0A2640] text-white text-base font-bold px-3 py-1.5 rounded-lg shadow-md transition-all flex items-center gap-1.5 cursor-pointer uppercase tracking-wider"
           >
             <span>Fit All</span>
           </button>
@@ -521,7 +522,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       }
 
       const data = await response.json();
-      
+
       setCreatedGuide({
         id: data.guide_id,
         fullName: data.full_name,
@@ -660,32 +661,49 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const activeSOSCount = localTourists.filter(t => t.safetyStatus === 'EMERGENCY_SOS').length;
   const pendingIncidentsCount = incidents.filter(i => i.status === 'PENDING').length;
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#F4F7FA] text-slate-800 font-sans">
-      
+
+      {/* Mobile Sidebar Backdrop */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/50 z-40 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* 1. Left Sidebar Navigation Panel */}
-      <aside className="w-64 bg-[#061E34] text-white flex flex-col justify-between flex-shrink-0 border-r border-[#0A2640]">
+      <aside className={`absolute z-50 md:relative w-64 h-full bg-[#003d9b] text-white flex flex-col justify-between flex-shrink-0 border-r border-[#002d72] transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col">
           {/* Logo & Platform Info Header */}
-          <div className="p-6 flex items-center space-x-3 border-b border-[#0C2A47]">
-            <div className="w-10 h-10 rounded-full bg-[#1C3D5A] flex items-center justify-center border border-[#2A5278] shadow-inner text-white font-bold">
-              🛡️
+          <div className="p-6 flex items-center justify-between border-b border-[#002d72]">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-[#ffffff20] flex items-center justify-center border border-[#ffffff40] shadow-inner text-white font-bold">
+                🛡️
+              </div>
+              <div>
+                <h2 className="font-extrabold text-base tracking-wide text-white uppercase leading-none">SafeYatra</h2>
+                <span className="text-sm text-[#8FA5C0] font-medium tracking-widest uppercase mt-1 inline-block">Command Center</span>
+              </div>
             </div>
-            <div>
-              <h2 className="font-extrabold text-sm tracking-wide text-white uppercase leading-none">SafeYatra</h2>
-              <span className="text-[10px] text-[#8FA5C0] font-medium tracking-widest uppercase mt-1 inline-block">Command Center</span>
-            </div>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="md:hidden text-slate-300 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Navigation Links */}
           <nav className="p-4 space-y-1.5 flex-1">
             <button
               onClick={() => navigate('/admin/dashboard')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                adminTab === 'overview'
-                  ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
-                  : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-semibold uppercase tracking-wider transition-all duration-200 ${adminTab === 'overview'
+                ? 'bg-[#002d72] text-white border-l-4 border-white shadow-md'
+                : 'text-[#b2c5ff] hover:text-white hover:bg-[#002d72]'
+                }`}
             >
               <LayoutGrid className="w-4 h-4" />
               <span>Overview</span>
@@ -693,11 +711,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               onClick={() => navigate('/admin/tourists')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                adminTab === 'tourists'
-                  ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
-                  : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-semibold uppercase tracking-wider transition-all duration-200 ${adminTab === 'tourists'
+                ? 'bg-[#002d72] text-white border-l-4 border-white shadow-md'
+                : 'text-[#b2c5ff] hover:text-white hover:bg-[#002d72]'
+                }`}
             >
               <Users className="w-4 h-4" />
               <span>Tourists</span>
@@ -705,13 +722,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               onClick={() => navigate('/admin/ai-monitoring')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 relative ${
-                adminTab === 'ai-monitoring'
-                  ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
-                  : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-semibold uppercase tracking-wider transition-all duration-200 relative ${adminTab === 'ai-monitoring'
+                ? 'bg-[#002d72] text-white border-l-4 border-white shadow-md'
+                : 'text-[#b2c5ff] hover:text-white hover:bg-[#002d72]'
+                }`}
             >
-              <Activity className="w-4 h-4 text-[#2CD3C3]" />
+              <Activity className="w-4 h-4" />
               <span>AI Risk Monitor</span>
               {localTourists.some(t => t.safetyStatus === 'EMERGENCY_SOS' || (Boolean(t.anomaly?.anomaly_detected) && t.safetyStatus !== 'SAFE')) && (
                 <span className="absolute right-3 w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
@@ -720,11 +736,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               onClick={() => navigate('/admin/inbox')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 relative ${
-                adminTab === 'inbox'
-                  ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
-                  : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-semibold uppercase tracking-wider transition-all duration-200 relative ${adminTab === 'inbox'
+                ? 'bg-[#002d72] text-white border-l-4 border-white shadow-md'
+                : 'text-[#b2c5ff] hover:text-white hover:bg-[#002d72]'
+                }`}
             >
               <MessageSquare className="w-4 h-4" />
               <span>Inbox</span>
@@ -737,11 +752,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               onClick={() => navigate('/admin/guides')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                adminTab === 'guides'
-                  ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
-                  : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-semibold uppercase tracking-wider transition-all duration-200 ${adminTab === 'guides'
+                ? 'bg-[#002d72] text-white border-l-4 border-white shadow-md'
+                : 'text-[#b2c5ff] hover:text-white hover:bg-[#002d72]'
+                }`}
             >
               <UserPlus className="w-4 h-4" />
               <span>Guides</span>
@@ -749,11 +763,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               onClick={() => navigate('/admin/efir')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                adminTab === 'efir'
-                  ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
-                  : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-semibold uppercase tracking-wider transition-all duration-200 ${adminTab === 'efir'
+                ? 'bg-[#002d72] text-white border-l-4 border-white shadow-md'
+                : 'text-[#b2c5ff] hover:text-white hover:bg-[#002d72]'
+                }`}
             >
               <FileText className="w-4 h-4 text-[#2CD3C3]" />
               <span>E-FIR</span>
@@ -761,11 +774,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               onClick={() => navigate('/admin/trust-vault')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 ${
-                adminTab === 'trust-vault'
-                  ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
-                  : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
-              }`}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-base font-semibold uppercase tracking-wider transition-all duration-200 ${adminTab === 'trust-vault'
+                ? 'bg-[#0D2E4D] text-[#2CD3C3] border-l-4 border-[#2CD3C3] shadow-md'
+                : 'text-[#A0B6CD] hover:text-white hover:bg-[#0A253F]'
+                }`}
             >
               <Lock className="w-4 h-4 text-[#2CD3C3]" />
               <span>Trust Vault</span>
@@ -777,7 +789,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <div className="p-4 border-t border-[#0C2A47] space-y-2">
           <button
             onClick={onExitAdmin}
-            className="w-full flex items-center justify-center space-x-2 py-2 rounded-lg text-[10px] uppercase tracking-widest text-[#8FA5C0] hover:text-white hover:bg-[#0A253F] transition-all font-bold cursor-pointer"
+            className="w-full flex items-center justify-center space-x-2 py-2 rounded-lg text-sm uppercase tracking-widest text-[#8FA5C0] hover:text-white hover:bg-[#0A253F] transition-all font-bold cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Exit Admin</span>
@@ -788,7 +800,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               navigate('/admin/inbox');
               if (incidents.length > 0) setSelectedIncident(incidents[0]);
             }}
-            className="w-full bg-[#C62828] hover:bg-[#B71C1C] text-white font-bold py-3.5 rounded-lg text-xs flex items-center justify-center space-x-2 transition-all shadow-md uppercase tracking-wider active:scale-98 cursor-pointer"
+            className="w-full bg-[#C62828] hover:bg-[#B71C1C] text-white font-bold py-3.5 rounded-lg text-base flex items-center justify-center space-x-2 transition-all shadow-md uppercase tracking-wider active:scale-98 cursor-pointer"
           >
             <AlertOctagon className="w-4 h-4" />
             <span>Emergency Dispatch</span>
@@ -798,11 +810,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* 2. Main Content Window Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        
+
         {/* Top Header Bar */}
-        <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between flex-shrink-0">
+        <header className="h-20 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center space-x-4">
-            <h1 className="text-lg font-bold text-slate-800 tracking-tight">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden text-slate-500 hover:text-slate-700"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <h1 className="text-lg font-bold text-slate-800 tracking-tight hidden sm:block">
               {adminTab === 'overview' && 'SafeGuard Command'}
               {adminTab === 'tourists' && 'Tourist Directory'}
               {adminTab === 'inbox' && 'Incident Inbox'}
@@ -810,7 +828,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {adminTab === 'trust-vault' && 'Cryptographic Trust Vault'}
               {adminTab === 'efir' && 'E-FIR Incident Records'}
             </h1>
-            <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase">
+            <div className="flex items-center space-x-1.5 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full text-sm font-bold tracking-wider uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>System Nominal</span>
             </div>
@@ -828,7 +846,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Locate Tourist ID..."
-                className="bg-[#EAF0F6] hover:bg-[#DFE7EE] text-slate-700 placeholder-slate-400 pl-9 pr-4 py-1.5 w-60 rounded-full text-xs font-medium focus:outline-none focus:ring-1 focus:ring-[#061E34]/30 focus:bg-white transition-all border border-transparent focus:border-slate-300"
+                className="bg-[#EAF0F6] hover:bg-[#DFE7EE] text-slate-700 placeholder-slate-400 pl-9 pr-4 py-1.5 w-60 rounded-full text-base font-medium focus:outline-none focus:ring-1 focus:ring-[#061E34]/30 focus:bg-white transition-all border border-transparent focus:border-slate-300"
               />
             </div>
 
@@ -870,7 +888,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               className="flex items-center space-x-2 cursor-pointer p-1 rounded-lg hover:bg-slate-100 transition-colors"
               title="Admin Profile"
             >
-              <div className="w-8 h-8 rounded-full bg-[#061E34] text-white flex items-center justify-center text-xs font-bold border border-[#2CD3C3] shadow-sm">
+              <div className="w-8 h-8 rounded-full bg-[#061E34] text-white flex items-center justify-center text-base font-bold border border-[#2CD3C3] shadow-sm">
                 {adminDisplayName ? adminDisplayName.slice(0, 2).toUpperCase() : 'AD'}
               </div>
             </button>
@@ -895,7 +913,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   />
 
                   {/* Map Pin Legend (Bottom-Left overlay) */}
-                  <div className="absolute bottom-4 left-4 bg-white px-3 py-2 rounded-lg shadow-md z-[1000] border border-slate-200 flex items-center space-x-4 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <div className="absolute bottom-4 left-4 bg-white px-3 py-2 rounded-lg shadow-md z-[1000] border border-slate-200 flex items-center space-x-4 text-sm font-bold uppercase tracking-wider text-slate-500">
                     <span className="flex items-center">
                       <span className="w-2 h-2 rounded-full bg-[#10B981] mr-1.5"></span>
                       Safe
@@ -916,20 +934,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="w-80 flex flex-col space-y-6 flex-shrink-0 overflow-y-auto">
                 <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Real-Time Overview</h3>
+                    <h3 className="text-base font-extrabold uppercase tracking-wider text-slate-500">Real-Time Overview</h3>
                     <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Update: Live Feed</span>
                   </div>
 
                   {/* 1. Total Monitored Card — BUG-019 fix: dynamic count */}
                   <div className="bg-[#EAF0F6] border border-[#D9E3ED] rounded-xl p-4 flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Total Monitored</span>
+                      <span className="text-sm text-slate-500 uppercase tracking-widest font-bold">Total Monitored</span>
                       <div className="flex items-end space-x-2 mt-1">
                         <span className="text-3xl font-bold text-slate-800 font-mono">{localTourists.length}</span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="text-[10px] text-emerald-600 font-bold flex items-center">
+                      <span className="text-sm text-emerald-600 font-bold flex items-center">
                         <TrendingUp className="w-3 h-3 mr-0.5" /> Live
                       </span>
                       <span className="text-[9px] text-slate-400 mt-1 uppercase font-semibold">Live stream</span>
@@ -961,8 +979,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <Activity className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold tracking-wider text-[#8FA5C0]">AI Risk Sentinel</div>
-                        <div className="text-xs font-bold text-white flex items-center gap-1.5 mt-0.5">
+                        <div className="text-sm uppercase font-bold tracking-wider text-[#8FA5C0]">AI Risk Sentinel</div>
+                        <div className="text-base font-bold text-white flex items-center gap-1.5 mt-0.5">
                           <span>{localTourists.filter(t => t.anomaly?.anomaly_detected).length} Anomalies</span>
                           <span className="text-[#8FA5C0]">•</span>
                           <span>{localTourists.filter(t => (t.currentRiskScore || 0) > 50).length} High Risk</span>
@@ -976,19 +994,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {/* 3. Recent Alerts Mini-Table Card */}
                 <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex-1 flex flex-col">
                   <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Recent Alerts</h3>
+                    <h3 className="text-base font-extrabold uppercase tracking-wider text-slate-500">Recent Alerts</h3>
                     <button
                       onClick={() => navigate('/admin/inbox')}
-                      className="text-[10px] font-bold text-sky-600 hover:text-sky-700 uppercase tracking-wider cursor-pointer"
+                      className="text-sm font-bold text-sky-600 hover:text-sky-700 uppercase tracking-wider cursor-pointer"
                     >
                       View All
                     </button>
                   </div>
 
                   <div className="flex-1 overflow-y-auto min-h-0">
-                    <table className="w-full text-[11px] font-medium text-slate-600">
+                    <table className="w-full text-base font-medium text-slate-600">
                       <thead>
-                        <tr className="border-b border-slate-100 text-slate-400 text-[10px] uppercase font-bold tracking-wider text-left">
+                        <tr className="border-b border-slate-100 text-slate-400 text-sm uppercase font-bold tracking-wider text-left">
                           <th className="pb-2">ID</th>
                           <th className="pb-2">Status</th>
                           <th className="pb-2 text-right">Time</th>
@@ -1035,15 +1053,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <div className="flex justify-between items-center mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-slate-800">Tourist Directory</h2>
-                  <p className="text-xs text-slate-500 mt-1">Manage and register active visitors within municipal boundaries.</p>
+                  <p className="text-base text-slate-500 mt-1">Manage and register active visitors within municipal boundaries.</p>
                 </div>
               </div>
 
               {/* Filtering Controls Row */}
-              <div className="bg-white border border-slate-200 rounded-t-xl p-4 flex items-center justify-between text-xs font-semibold text-slate-600 border-b-0 shadow-sm">
+              <div className="bg-white border border-slate-200 rounded-t-xl p-4 flex items-center justify-between text-base font-semibold text-slate-600 border-b-0 shadow-sm">
                 <div className="flex items-center space-x-3">
-                  <select 
-                    value={statusFilter} 
+                  <select
+                    value={statusFilter}
                     onChange={e => setStatusFilter(e.target.value as any)}
                     className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none hover:bg-slate-100 cursor-pointer"
                   >
@@ -1056,8 +1074,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <span className="font-bold text-slate-500">
                   Showing: {
                     localTourists.filter(t => {
-                      const matchesSearch = !searchQuery.trim() || 
-                        t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                      const matchesSearch = !searchQuery.trim() ||
+                        t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         t.nationality.toLowerCase().includes(searchQuery.toLowerCase());
                       const matchesStatus = statusFilter === 'ALL' || t.safetyStatus === statusFilter || (statusFilter === 'AT_RISK' && (t.safetyStatus === 'EMERGENCY_SOS' || t.safetyStatus === 'AT_RISK'));
@@ -1070,9 +1088,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Table Body Container */}
               <div className="flex-1 bg-white border border-slate-200 rounded-b-xl shadow-sm overflow-hidden flex flex-col justify-between">
                 <div className="overflow-x-auto min-h-0">
-                  <table className="w-full text-left text-xs font-medium text-slate-600 border-collapse">
+                  <table className="w-full text-left text-base font-medium text-slate-600 border-collapse">
                     <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] uppercase font-bold tracking-wider">
+                      <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase font-bold tracking-wider">
                         <th className="px-6 py-3.5">Tourist ID</th>
                         <th className="px-6 py-3.5">Name</th>
                         <th className="px-6 py-3.5">Nationality</th>
@@ -1084,91 +1102,91 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <tbody className="divide-y divide-slate-100">
                       {localTourists
                         .filter(t => {
-                          const matchesSearch = !searchQuery.trim() || 
-                            t.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          const matchesSearch = !searchQuery.trim() ||
+                            t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             t.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             t.nationality.toLowerCase().includes(searchQuery.toLowerCase());
                           const matchesStatus = statusFilter === 'ALL' || t.safetyStatus === statusFilter || (statusFilter === 'AT_RISK' && (t.safetyStatus === 'EMERGENCY_SOS' || t.safetyStatus === 'AT_RISK'));
                           return matchesSearch && matchesStatus;
                         })
                         .map((t) => {
-                        let badgeBg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                        let badgeDot = 'bg-emerald-500';
-                        if (t.safetyStatus === 'EMERGENCY_SOS' || t.safetyStatus === 'AT_RISK') {
-                          badgeBg = 'bg-red-50 text-red-700 border-red-200';
-                          badgeDot = 'bg-red-500';
-                        } else if (t.safetyStatus === 'CAUTION') {
-                          badgeBg = 'bg-amber-50 text-amber-700 border-amber-200';
-                          badgeDot = 'bg-amber-500';
-                        }
+                          let badgeBg = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                          let badgeDot = 'bg-emerald-500';
+                          if (t.safetyStatus === 'EMERGENCY_SOS' || t.safetyStatus === 'AT_RISK') {
+                            badgeBg = 'bg-red-50 text-red-700 border-red-200';
+                            badgeDot = 'bg-red-500';
+                          } else if (t.safetyStatus === 'CAUTION') {
+                            badgeBg = 'bg-amber-50 text-amber-700 border-amber-200';
+                            badgeDot = 'bg-amber-500';
+                          }
 
-                        return (
-                          <tr 
-                            key={t.id} 
-                            onClick={(e) => {
-                              if ((e.target as HTMLElement).closest('button')) return;
-                              setSelectedInspectorTourist(t);
-                            }}
-                            className="hover:bg-slate-100/70 transition-colors cursor-pointer"
-                          >
-                            <td className="px-6 py-4 font-mono font-bold text-slate-800 uppercase">{t.id}</td>
-                            <td className="px-6 py-4 font-bold text-slate-800">{t.name}</td>
-                            <td className="px-6 py-4 text-slate-500">{t.nationality}</td>
-                            <td className="px-6 py-4">
-                              <span className={`inline-flex items-center space-x-1 border px-2 py-0.5 rounded-full text-[10px] font-bold ${badgeBg}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${badgeDot}`}></span>
-                                <span>{t.safetyStatus}</span>
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              {t.isSolo || t.id?.startsWith('S-') || !t.guide_id ? (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                                  Solo Explorer
+                          return (
+                            <tr
+                              key={t.id}
+                              onClick={(e) => {
+                                if ((e.target as HTMLElement).closest('button')) return;
+                                setSelectedInspectorTourist(t);
+                              }}
+                              className="hover:bg-slate-100/70 transition-colors cursor-pointer"
+                            >
+                              <td className="px-6 py-4 font-mono font-bold text-slate-800 uppercase">{t.id}</td>
+                              <td className="px-6 py-4 font-bold text-slate-800">{t.name}</td>
+                              <td className="px-6 py-4 text-slate-500">{t.nationality}</td>
+                              <td className="px-6 py-4">
+                                <span className={`inline-flex items-center space-x-1 border px-2 py-0.5 rounded-full text-sm font-bold ${badgeBg}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${badgeDot}`}></span>
+                                  <span>{t.safetyStatus}</span>
                                 </span>
-                              ) : (
-                                <span className="text-slate-600 font-mono font-semibold text-xs">{t.guide_id}</span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-right flex items-center justify-end space-x-2">
-                              <button
-                                onClick={() => {
-                                  setFocusedTouristId(t.id);
-                                  navigate('/admin/dashboard');
-                                }}
-                                className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 cursor-pointer shadow-xs"
-                                title="Locate Live on Map"
-                              >
-                                <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-                                <span>Live Map</span>
-                              </button>
-                              <button 
-                                onClick={() => setSelectedInspectorTourist(t)}
-                                className="text-slate-400 hover:text-[#F27D26] transition-colors p-1.5 rounded hover:bg-orange-50 cursor-pointer"
-                                title="View Details"
-                              >
-                                <Eye className="w-4 h-4 inline-block" />
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  if (window.confirm(`Are you sure you want to delete tourist ${t.name}?`)) {
-                                    onDeleteTourist(t.id);
-                                  }
-                                }}
-                                className="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded hover:bg-red-50 cursor-pointer"
-                                title="Delete Tourist"
-                              >
-                                <Trash2 className="w-4 h-4 inline-block" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
+                              </td>
+                              <td className="px-6 py-4">
+                                {t.isSolo || t.id?.startsWith('S-') || !t.guide_id ? (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                    Solo Explorer
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-600 font-mono font-semibold text-base">{t.guide_id}</span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4 text-right flex items-center justify-end space-x-2">
+                                <button
+                                  onClick={() => {
+                                    setFocusedTouristId(t.id);
+                                    navigate('/admin/dashboard');
+                                  }}
+                                  className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors px-2.5 py-1 rounded-md text-base font-bold flex items-center gap-1 cursor-pointer shadow-xs"
+                                  title="Locate Live on Map"
+                                >
+                                  <MapPin className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span>Live Map</span>
+                                </button>
+                                <button
+                                  onClick={() => setSelectedInspectorTourist(t)}
+                                  className="text-slate-400 hover:text-[#F27D26] transition-colors p-1.5 rounded hover:bg-orange-50 cursor-pointer"
+                                  title="View Details"
+                                >
+                                  <Eye className="w-4 h-4 inline-block" />
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    if (window.confirm(`Are you sure you want to delete tourist ${t.name}?`)) {
+                                      onDeleteTourist(t.id);
+                                    }
+                                  }}
+                                  className="text-slate-400 hover:text-red-500 transition-colors p-1.5 rounded hover:bg-red-50 cursor-pointer"
+                                  title="Delete Tourist"
+                                >
+                                  <Trash2 className="w-4 h-4 inline-block" />
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>
 
                 {/* Table Footer Pagination */}
-                <div className="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between text-xs text-slate-500 font-semibold rounded-b-xl">
+                <div className="bg-slate-50 border-t border-slate-200 px-6 py-3 flex items-center justify-between text-base text-slate-500 font-semibold rounded-b-xl">
                   <span>Showing 1-{localTourists.length} of {localTourists.length}</span>
                   <div className="flex space-x-2">
                     <button className="p-1 border border-slate-300 rounded hover:bg-white text-slate-400 hover:text-slate-600">
@@ -1195,67 +1213,67 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </div>
                     <h2 className="text-2xl font-bold text-slate-800">AI Risk & Behavioral Anomaly Monitor</h2>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-base text-slate-500 mt-1">
                     Live multi-signal safety surveillance powered by Phase 1 XGBoost Situational Risk and Phase 3 Isolation Forest Anomaly Detection.
                   </p>
                 </div>
                 <div className="flex items-center space-x-2 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-xs self-start md:self-auto">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-[11px] font-mono font-bold text-slate-700 uppercase tracking-wider">FastAPI Sentinel AI Live</span>
+                  <span className="text-base font-mono font-bold text-slate-700 uppercase tracking-wider">FastAPI Sentinel AI Live</span>
                 </div>
               </div>
 
               {/* Summary KPI Cards Row */}
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 flex-shrink-0">
                 <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs">
-                  <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Total Active</div>
+                  <div className="text-sm uppercase font-bold text-slate-400 tracking-wider">Total Active</div>
                   <div className="text-2xl font-bold text-slate-800 font-mono mt-0.5">{localTourists.length}</div>
-                  <div className="text-[10px] text-slate-500 mt-0.5">Monitored Visitors</div>
+                  <div className="text-sm text-slate-500 mt-0.5">Monitored Visitors</div>
                 </div>
 
                 <div className="bg-emerald-50/70 border border-emerald-200/80 rounded-xl p-3.5 shadow-xs">
-                  <div className="text-[10px] uppercase font-bold text-emerald-700 tracking-wider">Nominal Safety</div>
+                  <div className="text-sm uppercase font-bold text-emerald-700 tracking-wider">Nominal Safety</div>
                   <div className="text-2xl font-bold text-emerald-800 font-mono mt-0.5">
                     {localTourists.filter(t => (t.currentRiskScore || 0) <= 25 && !t.anomaly?.anomaly_detected).length}
                   </div>
-                  <div className="text-[10px] text-emerald-600 mt-0.5">Low Risk & No Anomaly</div>
+                  <div className="text-sm text-emerald-600 mt-0.5">Low Risk & No Anomaly</div>
                 </div>
 
                 <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-3.5 shadow-xs">
-                  <div className="text-[10px] uppercase font-bold text-amber-700 tracking-wider">Moderate / Advisory</div>
+                  <div className="text-sm uppercase font-bold text-amber-700 tracking-wider">Moderate / Advisory</div>
                   <div className="text-2xl font-bold text-amber-800 font-mono mt-0.5">
                     {localTourists.filter(t => (t.currentRiskScore || 0) > 25 && (t.currentRiskScore || 0) <= 50).length}
                   </div>
-                  <div className="text-[10px] text-amber-600 mt-0.5">Elevated Caution</div>
+                  <div className="text-sm text-amber-600 mt-0.5">Elevated Caution</div>
                 </div>
 
                 <div className="bg-orange-50/70 border border-orange-200/80 rounded-xl p-3.5 shadow-xs">
-                  <div className="text-[10px] uppercase font-bold text-orange-700 tracking-wider">Anomalies Flagged</div>
+                  <div className="text-sm uppercase font-bold text-orange-700 tracking-wider">Anomalies Flagged</div>
                   <div className="text-2xl font-bold text-orange-800 font-mono mt-0.5 flex items-center gap-1">
                     <span>{localTourists.filter(t => t.anomaly?.anomaly_detected).length}</span>
                     {localTourists.some(t => t.anomaly?.anomaly_detected) && (
                       <AlertTriangle className="w-4 h-4 text-orange-600 animate-pulse" />
                     )}
                   </div>
-                  <div className="text-[10px] text-orange-600 mt-0.5">Phase 3 Outliers</div>
+                  <div className="text-sm text-orange-600 mt-0.5">Phase 3 Outliers</div>
                 </div>
 
                 <div className="bg-red-50/70 border border-red-200/80 rounded-xl p-3.5 shadow-xs col-span-2 md:col-span-1">
-                  <div className="text-[10px] uppercase font-bold text-red-700 tracking-wider">Active SOS / Critical</div>
+                  <div className="text-sm uppercase font-bold text-red-700 tracking-wider">Active SOS / Critical</div>
                   <div className="text-2xl font-bold text-red-800 font-mono mt-0.5 flex items-center gap-1">
                     <span>{localTourists.filter(t => t.safetyStatus === 'EMERGENCY_SOS' || t.sosTriggered || (t.currentRiskScore || 0) > 75).length}</span>
                     {localTourists.some(t => t.safetyStatus === 'EMERGENCY_SOS' || t.sosTriggered) && (
                       <Flame className="w-4 h-4 text-red-600 animate-bounce" />
                     )}
                   </div>
-                  <div className="text-[10px] text-red-600 mt-0.5">Emergency Triggers</div>
+                  <div className="text-sm text-red-600 mt-0.5">Emergency Triggers</div>
                 </div>
               </div>
 
               {/* Table Body Container */}
               <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden flex flex-col min-h-0">
                 {/* Filtering Controls Row */}
-                <div className="bg-slate-50 border-b border-slate-200 p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs font-semibold text-slate-600">
+                <div className="bg-slate-50 border-b border-slate-200 p-3.5 flex flex-wrap items-center justify-between gap-3 text-base font-semibold text-slate-600">
                   <div className="flex flex-wrap items-center gap-2.5">
                     {/* Search */}
                     <div className="relative">
@@ -1265,7 +1283,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
                         placeholder="Search Name, ID, City..."
-                        className="bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#061E34]/30 w-48"
+                        className="bg-white border border-slate-200 rounded-lg pl-8 pr-3 py-1.5 text-base text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#061E34]/30 w-48"
                       />
                     </div>
 
@@ -1273,7 +1291,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <select
                       value={aiRiskFilter}
                       onChange={e => setAiRiskFilter(e.target.value as any)}
-                      className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none hover:bg-slate-50 cursor-pointer text-xs"
+                      className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none hover:bg-slate-50 cursor-pointer text-base"
                     >
                       <option value="ALL">All Risk Tiers</option>
                       <option value="LOW">Low Risk (0–25)</option>
@@ -1286,7 +1304,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <select
                       value={aiAnomalyFilter}
                       onChange={e => setAiAnomalyFilter(e.target.value as any)}
-                      className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none hover:bg-slate-50 cursor-pointer text-xs"
+                      className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none hover:bg-slate-50 cursor-pointer text-base"
                     >
                       <option value="ALL">All Anomaly States</option>
                       <option value="DETECTED">Anomaly Detected Only</option>
@@ -1297,14 +1315,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <select
                       value={aiSosFilter}
                       onChange={e => setAiSosFilter(e.target.value as any)}
-                      className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none hover:bg-slate-50 cursor-pointer text-xs"
+                      className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none hover:bg-slate-50 cursor-pointer text-base"
                     >
                       <option value="ALL">All SOS States</option>
                       <option value="SOS_ONLY">Active SOS Only</option>
                     </select>
                   </div>
 
-                  <span className="text-[11px] font-mono font-bold text-slate-500">
+                  <span className="text-base font-mono font-bold text-slate-500">
                     Live Stream: {
                       localTourists.filter(t => {
                         const q = searchQuery.toLowerCase().trim();
@@ -1332,8 +1350,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 {/* Table */}
                 <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0">
-                  <table className="w-full min-w-[1400px] text-left text-xs font-medium text-slate-600 border-collapse">
-                    <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-500 text-[10px] uppercase font-bold tracking-wider z-10 shadow-2xs">
+                  <table className="w-full min-w-[1400px] text-left text-base font-medium text-slate-600 border-collapse">
+                    <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-slate-500 text-sm uppercase font-bold tracking-wider z-10 shadow-2xs">
                       <tr>
                         <th className="px-4 py-3.5 min-w-[180px]">Tourist Name</th>
                         <th className="px-4 py-3.5 min-w-[200px]">Current GPS Location</th>
@@ -1425,22 +1443,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {/* Tourist Name */}
                               <td className="px-4 py-3.5 whitespace-nowrap">
                                 <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                                  <span className="text-sm font-bold text-slate-900">{t.name}</span>
+                                  <span className="text-base font-bold text-slate-900">{t.name}</span>
                                   {isSosActive && (
                                     <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" title="Active SOS"></span>
                                   )}
                                 </div>
                                 {t.nationality && (
-                                  <span className="text-[10px] text-slate-400 font-medium">{t.nationality}</span>
+                                  <span className="text-sm text-slate-400 font-medium">{t.nationality}</span>
                                 )}
                               </td>
 
                               {/* Current GPS Location */}
                               <td className="px-4 py-3.5">
-                                <div className="font-mono text-[11px] text-slate-700 font-semibold">
+                                <div className="font-mono text-base text-slate-700 font-semibold">
                                   {t.currentLocation ? `${t.currentLocation.lat.toFixed(4)}°, ${t.currentLocation.lng.toFixed(4)}°` : '0.0000°, 0.0000°'}
                                 </div>
-                                <div className="text-[10px] text-slate-400 truncate max-w-[170px]" title={t.currentLocation?.address || 'Live Location'}>
+                                <div className="text-sm text-slate-400 truncate max-w-[170px]" title={t.currentLocation?.address || 'Live Location'}>
                                   {t.currentLocation?.address || 'Live Location'}
                                 </div>
                               </td>
@@ -1448,7 +1466,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {/* Risk Score (0-100, 1 decimal) */}
                               <td className="px-4 py-3.5">
                                 <div className="flex items-center space-x-2">
-                                  <span className="font-mono font-bold text-slate-800 text-xs w-12">
+                                  <span className="font-mono font-bold text-slate-800 text-base w-12">
                                     {score.toFixed(1)}/100
                                   </span>
                                   <div className="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden border border-slate-200">
@@ -1462,7 +1480,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                               {/* Risk Level */}
                               <td className="px-4 py-3.5">
-                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border ${riskBadgeStyle}`}>
+                                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-sm font-bold border ${riskBadgeStyle}`}>
                                   {riskLevel}
                                 </span>
                               </td>
@@ -1470,11 +1488,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               {/* Anomaly Status */}
                               <td className="px-4 py-3.5">
                                 <span
-                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                                    isAnomaly
-                                      ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
-                                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                  }`}
+                                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-sm font-bold border ${isAnomaly
+                                    ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
+                                    : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    }`}
                                 >
                                   {isAnomaly && <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>}
                                   {isAnomaly ? 'DETECTED' : 'NORMAL'}
@@ -1482,31 +1499,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </td>
 
                               {/* Anomaly Score (0-1) */}
-                              <td className="px-4 py-3.5 font-mono text-[11px] font-semibold text-slate-700">
+                              <td className="px-4 py-3.5 font-mono text-base font-semibold text-slate-700">
                                 {anomalyScore.toFixed(4)}
                               </td>
 
                               {/* Anomaly Type */}
                               <td className="px-4 py-3.5 min-w-[250px]">
-                                <span className={`font-mono text-[10px] px-2 py-1 rounded border inline-block ${
-                                  anomalyType !== 'NONE'
-                                    ? 'bg-slate-100 text-slate-800 font-bold border-slate-300 shadow-2xs'
-                                    : 'text-slate-400 border-transparent'
-                                }`}>
+                                <span className={`font-mono text-sm px-2 py-1 rounded border inline-block ${anomalyType !== 'NONE'
+                                  ? 'bg-slate-100 text-slate-800 font-bold border-slate-300 shadow-2xs'
+                                  : 'text-slate-400 border-transparent'
+                                  }`}>
                                   {anomalyType}
                                 </span>
                               </td>
 
                               {/* Anomaly Severity */}
                               <td className="px-4 py-3.5">
-                                <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold border ${severityStyle}`}>
+                                <span className={`inline-flex px-2 py-0.5 rounded-full text-sm font-semibold border ${severityStyle}`}>
                                   {anomalySeverity}
                                 </span>
                               </td>
 
                               {/* Safety Status */}
                               <td className="px-4 py-3.5">
-                                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${safetyBadgeStyle}`}>
+                                <span className={`inline-flex px-2.5 py-0.5 rounded-full text-sm font-bold border ${safetyBadgeStyle}`}>
                                   {safetyStatus}
                                 </span>
                               </td>
@@ -1519,14 +1535,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     ACTIVE SOS
                                   </span>
                                 ) : (
-                                  <span className="inline-flex text-[10px] text-slate-400 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full font-medium">
+                                  <span className="inline-flex text-sm text-slate-400 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full font-medium">
                                     INACTIVE
                                   </span>
                                 )}
                               </td>
 
                               {/* Last Updated */}
-                              <td className="px-4 py-3.5 text-slate-400 font-mono text-[10px] whitespace-nowrap">
+                              <td className="px-4 py-3.5 text-slate-400 font-mono text-sm whitespace-nowrap">
                                 {t.lastUpdated || (t.currentLocation?.timestamp ? new Date(t.currentLocation.timestamp).toLocaleTimeString() : 'Live')}
                               </td>
 
@@ -1538,7 +1554,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       setFocusedTouristId(t.id);
                                       navigate('/admin/dashboard');
                                     }}
-                                    className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer shadow-2xs"
+                                    className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors px-2 py-1 rounded text-base font-bold flex items-center gap-1 cursor-pointer shadow-2xs"
                                     title="Locate Live on Map"
                                   >
                                     <MapPin className="w-3 h-3 text-emerald-600" />
@@ -1561,11 +1577,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 {/* Table Footer */}
-                <div className="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center justify-between text-xs text-slate-500 font-semibold">
-                  <span className="text-[11px] font-mono">
+                <div className="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center justify-between text-base text-slate-500 font-semibold">
+                  <span className="text-base font-mono">
                     Monitoring {localTourists.length} live telemetry streams • Real-Time AI Inference Active
                   </span>
-                  <div className="flex items-center space-x-2 text-[10px] text-slate-400">
+                  <div className="flex items-center space-x-2 text-sm text-slate-400">
                     <span>Phase 1 XGBoost</span>
                     <span>•</span>
                     <span>Phase 3 Isolation Forest</span>
@@ -1578,55 +1594,52 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {/* C. INBOX INCIDENT & TOURIST CHAT TRIAGE SPLIT VIEW */}
           {adminTab === 'inbox' && (
             <div className="h-full flex overflow-hidden">
-              
+
               {/* Left Column: Dual Mode Feeds (Incidents vs Direct Tourist Chats) */}
               <div className="w-80 bg-white border-r border-slate-200 flex flex-col flex-shrink-0 h-full">
                 {/* Mode Selector Tabs */}
                 <div className="p-2.5 border-b border-slate-200 bg-slate-50 flex items-center gap-1.5">
                   <button
                     onClick={() => { setInboxTab('incidents'); setSelectedChatGuide(null); if (incidents.length > 0 && !selectedIncident) setSelectedIncident(incidents[0]); }}
-                    className={`flex-1 py-1.5 px-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
-                      inboxTab === 'incidents'
-                        ? 'bg-[#061E34] text-white shadow-xs'
-                        : 'bg-slate-200/70 text-slate-600 hover:bg-slate-300/70'
-                    }`}
+                    className={`flex-1 py-1.5 px-1.5 rounded-lg text-base font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${inboxTab === 'incidents'
+                      ? 'bg-[#061E34] text-white shadow-xs'
+                      : 'bg-slate-200/70 text-slate-600 hover:bg-slate-300/70'
+                      }`}
                   >
                     <span>🚨 Incidents</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${inboxTab === 'incidents' ? 'bg-red-500 text-white' : 'bg-slate-300 text-slate-700'}`}>
+                    <span className={`text-sm px-1.5 py-0.2 rounded-full font-extrabold ${inboxTab === 'incidents' ? 'bg-red-500 text-white' : 'bg-slate-300 text-slate-700'}`}>
                       {incidents.length}
                     </span>
                   </button>
 
                   <button
                     onClick={() => { setInboxTab('tourists'); setSelectedChatGuide(null); if (localTourists.length > 0 && !selectedChatTourist) setSelectedChatTourist(localTourists[0]); }}
-                    className={`flex-1 py-1.5 px-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
-                      inboxTab === 'tourists'
-                        ? 'bg-[#061E34] text-white shadow-xs'
-                        : 'bg-slate-200/70 text-slate-600 hover:bg-slate-300/70'
-                    }`}
+                    className={`flex-1 py-1.5 px-1.5 rounded-lg text-base font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${inboxTab === 'tourists'
+                      ? 'bg-[#061E34] text-white shadow-xs'
+                      : 'bg-slate-200/70 text-slate-600 hover:bg-slate-300/70'
+                      }`}
                   >
                     <span>💬 Tourists</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${inboxTab === 'tourists' ? 'bg-emerald-500 text-white' : 'bg-slate-300 text-slate-700'}`}>
+                    <span className={`text-sm px-1.5 py-0.2 rounded-full font-extrabold ${inboxTab === 'tourists' ? 'bg-emerald-500 text-white' : 'bg-slate-300 text-slate-700'}`}>
                       {localTourists.length}
                     </span>
                   </button>
 
                   <button
-                    onClick={() => { 
-                      setInboxTab('guides'); 
-                      setSelectedChatTourist(null); 
+                    onClick={() => {
+                      setInboxTab('guides');
+                      setSelectedChatTourist(null);
                       setSelectedIncident(null);
                       const defaultGuides = guideList.length > 0 ? guideList : [{ guide_id: 'G-1001', full_name: 'Vishal Kadam', mobile_number: '+91 94111 12985', status: 'ACTIVE' }];
                       if (!selectedChatGuide) setSelectedChatGuide(defaultGuides[0]);
                     }}
-                    className={`flex-1 py-1.5 px-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
-                      inboxTab === 'guides'
-                        ? 'bg-[#061E34] text-white shadow-xs'
-                        : 'bg-slate-200/70 text-slate-600 hover:bg-slate-300/70'
-                    }`}
+                    className={`flex-1 py-1.5 px-1.5 rounded-lg text-base font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${inboxTab === 'guides'
+                      ? 'bg-[#061E34] text-white shadow-xs'
+                      : 'bg-slate-200/70 text-slate-600 hover:bg-slate-300/70'
+                      }`}
                   >
                     <span>🛡️ Guides</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${inboxTab === 'guides' ? 'bg-amber-500 text-white' : 'bg-slate-300 text-slate-700'}`}>
+                    <span className={`text-sm px-1.5 py-0.2 rounded-full font-extrabold ${inboxTab === 'guides' ? 'bg-amber-500 text-white' : 'bg-slate-300 text-slate-700'}`}>
                       {guideList.length || 1}
                     </span>
                   </button>
@@ -1636,7 +1649,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="flex-1 overflow-y-auto divide-y divide-slate-100">
                   {inboxTab === 'incidents' ? (
                     incidents.length === 0 ? (
-                      <div className="p-6 text-center text-slate-400 text-xs font-semibold">
+                      <div className="p-6 text-center text-slate-400 text-base font-semibold">
                         No active incidents in queue
                       </div>
                     ) : (
@@ -1649,12 +1662,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <div
                             key={inc.id}
                             onClick={() => { setSelectedIncident(inc); setSelectedChatTourist(null); setSelectedChatGuide(null); }}
-                            className={`p-4 cursor-pointer transition-all hover:bg-slate-50 flex flex-col space-y-1 relative border-l-4 ${
-                              isSelected ? 'bg-slate-50 border-l-[#C62828]' : 'border-l-transparent'
-                            }`}
+                            className={`p-4 cursor-pointer transition-all hover:bg-slate-50 flex flex-col space-y-1 relative border-l-4 ${isSelected ? 'bg-slate-50 border-l-[#C62828]' : 'border-l-transparent'
+                              }`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-xs text-slate-800 flex items-center gap-1.5 truncate">
+                              <span className="font-bold text-base text-slate-800 flex items-center gap-1.5 truncate">
                                 {isGuideIncident && (
                                   <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#C62828] text-white font-bold tracking-wide shrink-0">
                                     GUIDE SOS
@@ -1664,16 +1676,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </span>
                               <span className="text-[9px] font-bold text-slate-400 font-mono">{inc.timestamp || 'Just now'}</span>
                             </div>
-                            <div className="text-[11px] text-slate-400 truncate">{inc.location.address || 'Unknown Location'}</div>
-                            <p className="text-[11px] text-slate-500 line-clamp-2 mt-1 leading-snug">
-                              {isGuideIncident 
-                                ? '🚨 Guide Team SOS Triggered. Immediate rescue dispatched for tour team...' 
+                            <div className="text-base text-slate-400 truncate">{inc.location.address || 'Unknown Location'}</div>
+                            <p className="text-base text-slate-500 line-clamp-2 mt-1 leading-snug">
+                              {isGuideIncident
+                                ? '🚨 Guide Team SOS Triggered. Immediate rescue dispatched for tour team...'
                                 : (isActiveSOS ? '🚨 SOS Triggered. Immediate assistance requested...' : inc.description)}
                             </p>
 
                             {inc.mediaUrl && inc.status !== 'RESOLVED' && (
                               <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
-                                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                                <span className="text-sm font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1">
                                   📷 Photo Evidence
                                 </span>
                                 <button
@@ -1682,7 +1694,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                     e.stopPropagation();
                                     setPreviewImage({ url: inc.mediaUrl!, title: `Evidence: Incident #${inc.id} (${inc.touristName})` });
                                   }}
-                                  className="flex items-center gap-1 px-2 py-0.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded text-[10px] font-bold transition-colors cursor-pointer"
+                                  className="flex items-center gap-1 px-2 py-0.5 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 rounded text-sm font-bold transition-colors cursor-pointer"
                                   title="View Evidence Image"
                                 >
                                   <Eye className="w-3 h-3" />
@@ -1739,21 +1751,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <div
                             key={t.id}
                             onClick={() => { setSelectedChatTourist(t); setSelectedIncident(null); setSelectedChatGuide(null); }}
-                            className={`p-3.5 cursor-pointer transition-all hover:bg-slate-50 flex flex-col space-y-1 relative border-l-4 ${
-                              isSelected ? 'bg-slate-50 border-l-[#061E34]' : 'border-l-transparent'
-                            }`}
+                            className={`p-3.5 cursor-pointer transition-all hover:bg-slate-50 flex flex-col space-y-1 relative border-l-4 ${isSelected ? 'bg-slate-50 border-l-[#061E34]' : 'border-l-transparent'
+                              }`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-xs text-slate-800 truncate max-w-[140px]">{t.name}</span>
+                              <span className="font-bold text-base text-slate-800 truncate max-w-[140px]">{t.name}</span>
                               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${badgeColor}`}>
                                 {t.safetyStatus || 'SAFE'}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                            <div className="flex items-center justify-between text-sm text-slate-400 font-mono">
                               <span>ID: {t.id}</span>
                               <span>{lastMsg ? lastMsg.time : (t.lastUpdated || 'Active')}</span>
                             </div>
-                            <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                            <p className="text-base text-slate-500 line-clamp-1 mt-0.5">
                               {lastMsg ? lastMsg.text : 'Safety monitoring active. Tap to chat.'}
                             </p>
                           </div>
@@ -1762,8 +1773,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     })()
                   ) : (
                     (() => {
-                      const displayGuides = guideList.length > 0 
-                        ? guideList 
+                      const displayGuides = guideList.length > 0
+                        ? guideList
                         : [{ guide_id: 'G-1001', full_name: 'Vishal Kadam', mobile_number: '+91 94111 12985', status: 'ACTIVE', languages: 'Hindi, English' }];
 
                       return displayGuides.map((g) => {
@@ -1779,12 +1790,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <div
                             key={g.guide_id}
                             onClick={() => { setSelectedChatGuide(g); setSelectedIncident(null); setSelectedChatTourist(null); }}
-                            className={`p-3.5 cursor-pointer transition-all hover:bg-slate-50 flex flex-col space-y-1 relative border-l-4 ${
-                              isSelected ? 'bg-slate-50 border-l-amber-500' : 'border-l-transparent'
-                            }`}
+                            className={`p-3.5 cursor-pointer transition-all hover:bg-slate-50 flex flex-col space-y-1 relative border-l-4 ${isSelected ? 'bg-slate-50 border-l-amber-500' : 'border-l-transparent'
+                              }`}
                           >
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-xs text-slate-800 flex items-center gap-1.5 truncate max-w-[140px]">
+                              <span className="font-bold text-base text-slate-800 flex items-center gap-1.5 truncate max-w-[140px]">
                                 <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#061E34] text-amber-400 font-mono font-bold">GUIDE</span>
                                 <span className="truncate">{g.full_name}</span>
                               </span>
@@ -1792,11 +1802,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 {g.status || 'ACTIVE'}
                               </span>
                             </div>
-                            <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                            <div className="flex items-center justify-between text-sm text-slate-400 font-mono">
                               <span>ID: {g.guide_id}</span>
                               <span>{lastMsg ? lastMsg.time : 'Live'}</span>
                             </div>
-                            <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                            <p className="text-base text-slate-500 line-clamp-1 mt-0.5">
                               {lastMsg ? lastMsg.text : 'Official guide channel. Tap to communicate.'}
                             </p>
                           </div>
@@ -1846,7 +1856,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 if (!activeSubjectTourist) {
                   return (
-                    <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold text-xs">
+                    <div className="flex-1 flex items-center justify-center text-slate-400 font-semibold text-base">
                       Select a tourist, guide, or incident from the left feed to open communication channel
                     </div>
                   );
@@ -1859,23 +1869,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 return (
                   <div className="flex-1 flex flex-col overflow-hidden h-full p-6 space-y-5">
-                    
+
                     {/* Header Bar */}
                     <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex items-center justify-between flex-shrink-0">
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h2 className="text-sm font-bold text-slate-800 uppercase tracking-tight">
+                          <h2 className="text-base font-bold text-slate-800 uppercase tracking-tight">
                             {selectedIncident ? (isSelectedGuideSOS ? `Incident #${selectedIncident.id} (Guide Group SOS)` : `Incident #${selectedIncident.id}`) : `Direct Safety Link: ${activeSubjectTourist.name}`}
                           </h2>
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${
-                            activeSubjectTourist.safetyStatus === 'EMERGENCY_SOS' || activeSubjectTourist.safetyStatus === 'AT_RISK' || selectedIncident?.severity === 'CRITICAL'
-                              ? 'bg-red-50 border-red-200 text-red-700 animate-pulse'
-                              : 'bg-emerald-50 border-emerald-200 text-emerald-700'
-                          }`}>
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide border ${activeSubjectTourist.safetyStatus === 'EMERGENCY_SOS' || activeSubjectTourist.safetyStatus === 'AT_RISK' || selectedIncident?.severity === 'CRITICAL'
+                            ? 'bg-red-50 border-red-200 text-red-700 animate-pulse'
+                            : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                            }`}>
                             {selectedIncident?.severity || activeSubjectTourist.safetyStatus || 'ACTIVE'}
                           </span>
                         </div>
-                        <div className="text-[10px] font-mono text-slate-400 mt-1 flex space-x-3">
+                        <div className="text-sm font-mono text-slate-400 mt-1 flex space-x-3">
                           <span>{isSelectedGuideSOS ? `Guide ID: ${activeSubjectTourist.id}` : `Tourist ID: ${activeSubjectTourist.id}`}</span>
                           <span>•</span>
                           <span>
@@ -1894,16 +1903,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         <div className="flex items-center space-x-2">
                           <select
                             onChange={(e) => onDispatchUnit(selectedIncident.id, e.target.value, `Rescue Squad Unit`)}
-                            className="bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold px-3 py-1.5 text-slate-700 focus:outline-none hover:bg-slate-100 cursor-pointer"
+                            className="bg-slate-50 border border-slate-300 rounded-lg text-base font-semibold px-3 py-1.5 text-slate-700 focus:outline-none hover:bg-slate-100 cursor-pointer"
                           >
                             <option>Assign Unit: Unassigned</option>
                             <option value="MOUNTAIN_RESCUE">Dispatch SDRF Mountain Unit</option>
                             <option value="AMBULANCE">Dispatch Emergency Medical</option>
                             <option value="POLICE">Dispatch Tourism Police</option>
                           </select>
-                          <button 
+                          <button
                             onClick={() => handleResolveIncident(selectedIncident.id)}
-                            className="bg-[#061E34] hover:bg-[#0D2E4D] text-white text-xs font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-xs cursor-pointer uppercase tracking-wider"
+                            className="bg-[#061E34] hover:bg-[#0D2E4D] text-white text-base font-bold px-3.5 py-1.5 rounded-lg transition-all shadow-xs cursor-pointer uppercase tracking-wider"
                           >
                             {selectedIncident.status === 'RESOLVED' ? 'Resolved ✓' : 'Resolve'}
                           </button>
@@ -1914,19 +1923,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {/* Single-line Photo Evidence Banner with Eye Button */}
                     {selectedIncident?.mediaUrl && selectedIncident?.status !== 'RESOLVED' && (
                       <div className="bg-gradient-to-r from-sky-50 to-blue-50 border border-sky-200 rounded-xl p-3 flex items-center justify-between shadow-xs flex-shrink-0">
-                        <div className="flex items-center gap-2.5 text-xs text-sky-950">
-                          <span className="w-7 h-7 rounded-lg bg-sky-600 text-white flex items-center justify-center text-xs shadow-xs">
+                        <div className="flex items-center gap-2.5 text-base text-sky-950">
+                          <span className="w-7 h-7 rounded-lg bg-sky-600 text-white flex items-center justify-center text-base shadow-xs">
                             📷
                           </span>
                           <div>
                             <span className="font-bold text-slate-800">Live Photo Evidence Attached</span>
-                            <p className="text-[10px] text-sky-700 font-medium">Uploaded by traveler during incident report submission</p>
+                            <p className="text-sm text-sky-700 font-medium">Uploaded by traveler during incident report submission</p>
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={() => setPreviewImage({ url: selectedIncident.mediaUrl!, title: `Incident #${selectedIncident.id} Evidence - ${selectedIncident.touristName}` })}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-xs font-bold shadow-xs transition-all cursor-pointer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white rounded-lg text-base font-bold shadow-xs transition-all cursor-pointer"
                         >
                           <Eye className="w-4 h-4" />
                           <span>View Full Photo</span>
@@ -1939,7 +1948,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {/* A. Subject ID Card */}
                       <div className="col-span-6 bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col space-y-3">
                         <div className="flex items-center justify-between border-b border-slate-100 pb-1.5">
-                          <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                          <h3 className="text-base font-extrabold uppercase tracking-wider text-slate-500">
                             {isSelectedGuideSOS ? '🛡️ Tour Guide & Team Identity' : 'Traveler Identity'}
                           </h3>
                           <span className="text-[9px] font-mono text-slate-400">{activeSubjectTourist.blockchainDid?.slice(0, 22) || activeSubjectTourist.id}</span>
@@ -1950,14 +1959,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             {touristInitials}
                           </div>
                           <div className="space-y-0.5 overflow-hidden">
-                            <h4 className="font-extrabold text-sm text-slate-800 leading-tight truncate">{activeSubjectTourist.name}</h4>
-                            <span className="text-[10px] text-slate-400 font-semibold font-mono">
+                            <h4 className="font-extrabold text-base text-slate-800 leading-tight truncate">{activeSubjectTourist.name}</h4>
+                            <span className="text-sm text-slate-400 font-semibold font-mono">
                               {isSelectedGuideSOS ? `Guide ID: ${activeSubjectTourist.id}` : `ID: ${activeSubjectTourist.id}`}
                             </span>
-                            
-                            <div className="flex items-center space-x-3 pt-0.5 text-[11px] font-semibold text-slate-500">
+
+                            <div className="flex items-center space-x-3 pt-0.5 text-base font-semibold text-slate-500">
                               {isSelectedGuideSOS ? (
-                                <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[10px] font-bold">
+                                <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-sm font-bold">
                                   Official Tour Guide
                                 </span>
                               ) : (
@@ -1974,14 +1983,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           </div>
                         </div>
 
-                        <div className="text-[11px] font-medium text-slate-500 pt-1.5 border-t border-slate-100 flex items-center justify-between">
+                        <div className="text-base font-medium text-slate-500 pt-1.5 border-t border-slate-100 flex items-center justify-between">
                           <div>
                             <span className="text-[9px] uppercase font-bold text-slate-400 block">Emergency Contact</span>
-                            <div className="text-slate-800 font-bold text-xs">{activeSubjectTourist.emergencyContact || activeSubjectTourist.mobile || '+91 94111 12985'}</div>
+                            <div className="text-slate-800 font-bold text-base">{activeSubjectTourist.emergencyContact || activeSubjectTourist.mobile || '+91 94111 12985'}</div>
                           </div>
                           <div className="text-right">
                             <span className="text-[9px] uppercase font-bold text-slate-400 block">{isSelectedGuideSOS ? 'Team Status' : 'Risk Score'}</span>
-                            <span className={`text-xs font-mono font-bold ${isSelectedGuideSOS ? 'text-red-600' : 'text-slate-700'}`}>
+                            <span className={`text-base font-mono font-bold ${isSelectedGuideSOS ? 'text-red-600' : 'text-slate-700'}`}>
                               {isSelectedGuideSOS ? 'CRITICAL RESCUE' : `${activeSubjectTourist.currentRiskScore ?? 15}/100`}
                             </span>
                           </div>
@@ -1992,7 +2001,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <div className="col-span-6 bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col space-y-2.5">
                         <div className="flex items-center justify-between">
                           <div>
-                            <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">Live GPS Coordinates</h3>
+                            <h3 className="text-base font-extrabold uppercase tracking-wider text-slate-500">Live GPS Coordinates</h3>
                             <span className="text-[9px] font-mono text-slate-400 block">
                               Lat: {lat.toFixed(4)}° N, Lng: {lng.toFixed(4)}° E
                             </span>
@@ -2023,7 +2032,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <div className="flex-1 bg-white border border-slate-200 rounded-xl shadow-xs flex flex-col overflow-hidden min-h-0">
                       {/* Communication header status */}
                       <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex items-center justify-between flex-shrink-0">
-                        <h3 className="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <h3 className="text-base font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
                           <span>🛡️</span>
                           <span>Direct Real-Time Message Channel ({activeSubjectTourist.name})</span>
                         </h3>
@@ -2032,13 +2041,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                             onClick={() => handleClearAdminChat(activeSubjectTourist.id, selectedIncident?.id, activeSubjectTourist.name)}
                             disabled={isAdminClearing}
                             title="Clear Chat History for this traveler"
-                            className="text-[11px] font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
+                            className="text-base font-bold text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1 rounded-md transition-colors flex items-center gap-1 cursor-pointer"
                           >
                             <Trash2 className="w-3 h-3" />
                             <span>{isAdminClearing ? 'Clearing...' : 'Clear Chat'}</span>
                           </button>
 
-                          <span className="text-[10px] text-emerald-600 font-bold flex items-center uppercase font-mono">
+                          <span className="text-sm text-emerald-600 font-bold flex items-center uppercase font-mono">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse inline-block"></span>
                             Channel Live
                           </span>
@@ -2102,7 +2111,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                           if (uniqueMsgs.length === 0) {
                             return (
-                              <div className="text-center py-6 text-slate-400 text-xs font-semibold">
+                              <div className="text-center py-6 text-slate-400 text-base font-semibold">
                                 No messages yet. Send a broadcast or direct inquiry below.
                               </div>
                             );
@@ -2117,35 +2126,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 className={`flex ${isOperator ? 'justify-end' : 'justify-start'} items-start space-x-2.5`}
                               >
                                 {!isOperator && (
-                                  <div className="w-7 h-7 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-xs font-bold text-red-600 shrink-0">
+                                  <div className="w-7 h-7 rounded-full bg-red-100 border border-red-200 flex items-center justify-center text-base font-bold text-red-600 shrink-0">
                                     {(msg.sender || 'T').slice(0, 2).toUpperCase()}
                                   </div>
                                 )}
 
                                 <div className="max-w-[75%] space-y-1">
-                                  <div className={`p-3 rounded-2xl shadow-xs text-xs leading-relaxed border ${
-                                    isOperator
-                                      ? 'bg-[#061E34] text-white border-[#0A2640] rounded-tr-none'
-                                      : 'bg-white text-slate-700 border-slate-200 rounded-tl-none'
-                                  }`}>
+                                  <div className={`p-3 rounded-2xl shadow-xs text-lg leading-relaxed border ${isOperator
+                                    ? 'bg-[#061E34] text-white border-[#0A2640] rounded-tr-none'
+                                    : 'bg-white text-slate-700 border-slate-200 rounded-tl-none'
+                                    }`}>
                                     <p>{msg.text}</p>
                                     {msg.mediaUrl && (
-                                      <div className={`mt-2 pt-2 border-t flex items-center justify-between gap-2 ${
-                                        isOperator ? 'border-white/20' : 'border-slate-200'
-                                      }`}>
-                                        <span className={`text-[10px] font-medium flex items-center gap-1 ${
-                                          isOperator ? 'text-slate-300' : 'text-slate-500'
+                                      <div className={`mt-2 pt-2 border-t flex items-center justify-between gap-2 ${isOperator ? 'border-white/20' : 'border-slate-200'
                                         }`}>
+                                        <span className={`text-sm font-medium flex items-center gap-1 ${isOperator ? 'text-slate-300' : 'text-slate-500'
+                                          }`}>
                                           📷 Photo Evidence
                                         </span>
                                         <button
                                           type="button"
                                           onClick={() => setPreviewImage({ url: msg.mediaUrl, title: `Evidence from ${msg.sender || 'Traveler'}` })}
-                                          className={`flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold transition-colors cursor-pointer ${
-                                            isOperator
-                                              ? 'bg-white/20 hover:bg-white/30 text-white'
-                                              : 'bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200'
-                                          }`}
+                                          className={`flex items-center gap-1 px-2 py-0.5 rounded text-sm font-bold transition-colors cursor-pointer ${isOperator
+                                            ? 'bg-white/20 hover:bg-white/30 text-white'
+                                            : 'bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200'
+                                            }`}
                                         >
                                           <Eye className="w-3 h-3" />
                                           <span>View Photo</span>
@@ -2153,7 +2158,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       </div>
                                     )}
                                   </div>
-                                  <div className={`text-[9px] text-slate-400 font-mono flex items-center ${isOperator ? 'justify-end' : 'justify-start'} space-x-2`}>
+                                  <div className={`text-sm text-slate-400 font-mono flex items-center ${isOperator ? 'justify-end' : 'justify-start'} space-x-2`}>
                                     <span>{msg.sender || 'User'}</span>
                                     <span>•</span>
                                     <span>{msg.time}</span>
@@ -2174,7 +2179,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       {/* Chat Footer: Suggestion chips & input box */}
                       <div className="p-3.5 border-t border-slate-200 space-y-2.5 flex-shrink-0 bg-white">
                         {/* Suggestion Chips */}
-                        <div className="flex space-x-2 text-[10px] font-bold uppercase tracking-wider overflow-x-auto pb-1">
+                        <div className="flex space-x-2 text-sm font-bold uppercase tracking-wider overflow-x-auto pb-1">
                           {['Help is on the way', 'Stay where you are', 'Are you injured?', 'Please acknowledge safety check'].map((chip) => (
                             <button
                               key={chip}
@@ -2198,7 +2203,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               }
                             }}
                             placeholder={`Type a message to ${activeSubjectTourist.name}...`}
-                            className="flex-1 bg-transparent resize-none h-9 max-h-16 text-xs text-slate-700 placeholder-slate-400 focus:outline-none px-2 py-1"
+                            className="flex-1 bg-transparent resize-none h-9 max-h-16 text-base text-slate-700 placeholder-slate-400 focus:outline-none px-2 py-1"
                           />
                           <button
                             onClick={() => handleSendChat(chatMessage)}
@@ -2231,11 +2236,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <span>Create a Guide</span>
                     </button>
                   </div>
-                  
+
                   <div className="bg-white border border-slate-200 shadow-sm rounded-xl overflow-hidden">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+                        <tr className="bg-slate-50 border-b border-slate-200 text-sm uppercase tracking-widest text-slate-500 font-bold">
                           <th className="px-6 py-4">Guide ID</th>
                           <th className="px-6 py-4">Name</th>
                           <th className="px-6 py-4">Mobile</th>
@@ -2244,7 +2249,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                           <th className="px-6 py-4 text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="text-sm divide-y divide-slate-100">
+                      <tbody className="text-base divide-y divide-slate-100">
                         {guideList.length === 0 ? (
                           <tr>
                             <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
@@ -2260,7 +2265,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   className="text-sky-700 hover:text-sky-900 font-bold underline cursor-pointer flex items-center gap-1"
                                   title="Click to view full registration details"
                                 >
-                                  <span className="material-symbols-outlined text-sm">badge</span>
+                                  <span className="material-symbols-outlined text-base">badge</span>
                                   <span>{g.guide_id}</span>
                                 </button>
                               </td>
@@ -2268,7 +2273,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               <td className="px-6 py-4 text-slate-600">{g.mobile_number}</td>
                               <td className="px-6 py-4 text-slate-600">{g.guide_license_no}</td>
                               <td className="px-6 py-4">
-                                <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${g.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
+                                <span className={`px-2.5 py-1 rounded-full text-sm font-bold uppercase tracking-wider ${g.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}`}>
                                   {g.status || 'Active'}
                                 </span>
                               </td>
@@ -2276,7 +2281,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 <div className="flex items-center justify-end space-x-2">
                                   <button
                                     onClick={(e) => { e.stopPropagation(); setSelectedGuideDetails(g); }}
-                                    className="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer shadow-2xs"
+                                    className="bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 px-3 py-1.5 rounded-lg text-base font-bold transition-colors cursor-pointer shadow-2xs"
                                   >
                                     View Details
                                   </button>
@@ -2306,86 +2311,86 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       </h2>
                       <button
                         onClick={() => setShowCreateGuideForm(false)}
-                        className="text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors"
+                        className="text-base font-semibold text-slate-500 hover:text-slate-800 transition-colors"
                       >
                         Back to List
                       </button>
                     </div>
-                    
+
                     {createdGuide ? (
                       <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6 space-y-4">
                         <div className="flex items-center space-x-2 text-emerald-700 font-bold text-lg mb-2">
                           <CheckCircle className="w-5 h-5" />
                           <span>Guide Account Created Successfully</span>
                         </div>
-                        <div className="space-y-2 text-sm text-slate-700">
-                          <div className="flex"><span className="w-32 font-bold uppercase text-xs text-slate-500 tracking-wider">Guide ID:</span> <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-100">{createdGuide.id}</span></div>
-                          <div className="flex"><span className="w-32 font-bold uppercase text-xs text-slate-500 tracking-wider">Name:</span> <span className="font-semibold">{createdGuide.fullName}</span></div>
-                          <div className="flex"><span className="w-32 font-bold uppercase text-xs text-slate-500 tracking-wider">Password:</span> <span className="font-mono bg-white px-2 py-0.5 rounded border border-emerald-100">{createdGuide.password}</span></div>
-                          <div className="flex"><span className="w-32 font-bold uppercase text-xs text-slate-500 tracking-wider">Status:</span> <span className="text-emerald-600 font-bold uppercase">{createdGuide.status}</span></div>
+                        <div className="space-y-2 text-base text-slate-700">
+                          <div className="flex"><span className="w-32 font-bold uppercase text-base text-slate-500 tracking-wider">Guide ID:</span> <span className="font-mono font-bold bg-white px-2 py-0.5 rounded border border-emerald-100">{createdGuide.id}</span></div>
+                          <div className="flex"><span className="w-32 font-bold uppercase text-base text-slate-500 tracking-wider">Name:</span> <span className="font-semibold">{createdGuide.fullName}</span></div>
+                          <div className="flex"><span className="w-32 font-bold uppercase text-base text-slate-500 tracking-wider">Password:</span> <span className="font-mono bg-white px-2 py-0.5 rounded border border-emerald-100">{createdGuide.password}</span></div>
+                          <div className="flex"><span className="w-32 font-bold uppercase text-base text-slate-500 tracking-wider">Status:</span> <span className="text-emerald-600 font-bold uppercase">{createdGuide.status}</span></div>
                         </div>
                         <div className="mt-6 flex space-x-3">
                           <button
                             onClick={() => setCreatedGuide(null)}
-                            className="bg-[#061E34] hover:bg-[#0D2E4D] text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-all"
+                            className="bg-[#061E34] hover:bg-[#0D2E4D] text-white text-base font-bold px-4 py-2 rounded-lg cursor-pointer transition-all"
                           >
                             Create Another Guide
                           </button>
                           <button
                             onClick={() => setShowCreateGuideForm(false)}
-                            className="bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-all"
+                            className="bg-slate-200 hover:bg-slate-300 text-slate-800 text-base font-bold px-4 py-2 rounded-lg cursor-pointer transition-all"
                           >
                             Back to List
                           </button>
                         </div>
                       </div>
                     ) : (
-                      <form onSubmit={handleCreateGuide} className="space-y-5 text-sm">
+                      <form onSubmit={handleCreateGuide} className="space-y-5 text-base">
                         <div className="grid grid-cols-2 gap-5">
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Full Name</label>
-                            <input required type="text" value={guideForm.fullName} onChange={e => setGuideForm({...guideForm, fullName: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. Rahul Patil" />
+                            <label className="text-sm font-bold uppercase tracking-wider text-slate-500">Full Name</label>
+                            <input required type="text" value={guideForm.fullName} onChange={e => setGuideForm({ ...guideForm, fullName: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. Rahul Patil" />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Mobile Number</label>
-                            <input required type="text" value={guideForm.mobileNumber} onChange={e => setGuideForm({...guideForm, mobileNumber: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. 9876543210" />
+                            <label className="text-sm font-bold uppercase tracking-wider text-slate-500">Mobile Number</label>
+                            <input required type="text" value={guideForm.mobileNumber} onChange={e => setGuideForm({ ...guideForm, mobileNumber: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. 9876543210" />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-5">
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Guide License No</label>
-                            <input required type="text" value={guideForm.licenseNo} onChange={e => setGuideForm({...guideForm, licenseNo: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. GL-45821" />
+                            <label className="text-sm font-bold uppercase tracking-wider text-slate-500">Guide License No</label>
+                            <input required type="text" value={guideForm.licenseNo} onChange={e => setGuideForm({ ...guideForm, licenseNo: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. GL-45821" />
                           </div>
                           <div className="space-y-1.5">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Years Experience</label>
-                            <input required type="number" min="0" value={guideForm.yearsExperience} onChange={e => setGuideForm({...guideForm, yearsExperience: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. 5" />
+                            <label className="text-sm font-bold uppercase tracking-wider text-slate-500">Years Experience</label>
+                            <input required type="number" min="0" value={guideForm.yearsExperience} onChange={e => setGuideForm({ ...guideForm, yearsExperience: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. 5" />
                           </div>
                         </div>
 
                         <div className="space-y-1.5">
-                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Languages Known</label>
-                          <input required type="text" value={guideForm.languages} onChange={e => setGuideForm({...guideForm, languages: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. Marathi, Hindi, English" />
+                          <label className="text-sm font-bold uppercase tracking-wider text-slate-500">Languages Known</label>
+                          <input required type="text" value={guideForm.languages} onChange={e => setGuideForm({ ...guideForm, languages: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500" placeholder="e.g. Marathi, Hindi, English" />
                         </div>
 
                         <div className="space-y-1.5">
                           <div className="flex justify-between items-center">
-                            <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Password</label>
+                            <label className="text-sm font-bold uppercase tracking-wider text-slate-500">Password</label>
                             <button
                               type="button"
                               onClick={() => setShowGuidePassword(!showGuidePassword)}
-                              className="text-[10px] font-semibold text-sky-600 hover:text-sky-700"
+                              className="text-sm font-semibold text-sky-600 hover:text-sky-700"
                             >
                               {showGuidePassword ? 'Hide' : 'Show'}
                             </button>
                           </div>
-                          <input 
-                            required 
-                            type={showGuidePassword ? 'text' : 'password'} 
-                            value={guideForm.password} 
-                            onChange={e => setGuideForm({...guideForm, password: e.target.value})} 
-                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500 font-mono" 
-                            placeholder="Set Password" 
+                          <input
+                            required
+                            type={showGuidePassword ? 'text' : 'password'}
+                            value={guideForm.password}
+                            onChange={e => setGuideForm({ ...guideForm, password: e.target.value })}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-sky-500 font-mono"
+                            placeholder="Set Password"
                           />
                         </div>
 
@@ -2426,16 +2431,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       {selectedInspectorTourist && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden flex flex-col animate-in fade-in zoom-in duration-205">
-            
+
             {/* Header */}
             <div className="bg-slate-50 border-b border-slate-100 px-5 py-4 flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-xs uppercase tracking-widest text-slate-800">Tourist Profile Inspector</span>
+                <span className="font-extrabold text-base uppercase tracking-widest text-slate-800">Tourist Profile Inspector</span>
                 <span className="text-[9px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded border border-orange-200 font-mono font-bold uppercase">
                   {selectedInspectorTourist.safetyStatus}
                 </span>
               </div>
-              <button 
+              <button
                 onClick={() => setSelectedInspectorTourist(null)}
                 className="text-slate-400 hover:text-slate-600 transition-colors text-lg font-bold cursor-pointer"
               >
@@ -2445,7 +2450,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             {/* Profile Grid */}
             <div className="p-6 space-y-5 max-h-[80vh] overflow-y-auto">
-              
+
               {/* Profile Avatar Card */}
               <div className="flex items-center space-x-4 border-b border-slate-100 pb-4">
                 <div className="w-16 h-16 rounded-full bg-slate-50 border-2 border-orange-500 flex items-center justify-center text-orange-600 font-bold text-2xl shadow-sm">
@@ -2453,22 +2458,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-800 leading-tight">{selectedInspectorTourist.name}</h3>
-                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 font-mono font-bold mt-1 inline-block uppercase">
+                  <span className="text-sm bg-slate-100 text-slate-600 px-2 py-0.5 rounded border border-slate-200 font-mono font-bold mt-1 inline-block uppercase">
                     {selectedInspectorTourist.id}
                   </span>
                 </div>
               </div>
 
               {/* Grid 1: Personal info */}
-              <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 text-xs">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 text-base">
                 <div>
                   <span className="block text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Email Address</span>
-                  <span className="font-mono text-[11px] text-slate-600 break-all">{selectedInspectorTourist.email || 'not provided'}</span>
+                  <span className="font-mono text-base text-slate-600 break-all">{selectedInspectorTourist.email || 'not provided'}</span>
                 </div>
-                
+
                 <div>
                   <span className="block text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Mobile No</span>
-                  <span className="font-mono text-[11px] text-slate-600">{selectedInspectorTourist.mobile || selectedInspectorTourist.emergencyContact || 'not provided'}</span>
+                  <span className="font-mono text-base text-slate-600">{selectedInspectorTourist.mobile || selectedInspectorTourist.emergencyContact || 'not provided'}</span>
                 </div>
 
                 <div>
@@ -2488,14 +2493,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                 <div>
                   <span className="block text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Blood Group</span>
-                  <span className="font-bold text-red-600 bg-red-50 border border-red-100 px-2.5 py-0.5 rounded inline-block text-[10px]">{selectedInspectorTourist.bloodType || 'O+'}</span>
+                  <span className="font-bold text-red-600 bg-red-50 border border-red-100 px-2.5 py-0.5 rounded inline-block text-sm">{selectedInspectorTourist.bloodType || 'O+'}</span>
                 </div>
               </div>
 
               {/* Grid 2: Device metrics */}
               <div className="border-t border-slate-100 pt-4 space-y-3">
-                <h4 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Device & Risk Metrics</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 text-xs">
+                <h4 className="text-sm uppercase font-bold text-slate-400 tracking-wider">Device & Risk Metrics</h4>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 text-base">
                   <div>
                     <span className="block text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Battery Level</span>
                     <span className="text-slate-600 font-semibold flex items-center space-x-1.5">
@@ -2514,9 +2519,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   <div className="col-span-2">
                     <span className="block text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Current GPS Location</span>
-                    <span className="font-mono text-[10px] text-slate-600">
+                    <span className="font-mono text-sm text-slate-600">
                       Latitude: {selectedInspectorTourist.currentLocation?.lat.toFixed(6)}, Longitude: {selectedInspectorTourist.currentLocation?.lng.toFixed(6)}
-                      <span className="block text-[10px] text-slate-400 font-sans mt-0.5">({selectedInspectorTourist.currentLocation?.address || 'Unknown Location'})</span>
+                      <span className="block text-sm text-slate-400 font-sans mt-0.5">({selectedInspectorTourist.currentLocation?.address || 'Unknown Location'})</span>
                     </span>
                   </div>
                 </div>
@@ -2525,16 +2530,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {/* Grid 3: AI Behavioral Anomaly Metrics */}
               <div className="border-t border-slate-100 pt-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Phase 3 AI Behavioral Anomaly</h4>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                    selectedInspectorTourist.anomaly?.anomaly_detected
-                      ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
-                      : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                  }`}>
+                  <h4 className="text-sm uppercase font-bold text-slate-400 tracking-wider">Phase 3 AI Behavioral Anomaly</h4>
+                  <span className={`text-sm font-bold px-2 py-0.5 rounded-full border ${selectedInspectorTourist.anomaly?.anomaly_detected
+                    ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
+                    : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    }`}>
                     {selectedInspectorTourist.anomaly?.anomaly_detected ? 'ANOMALY DETECTED' : 'NORMAL BEHAVIOR'}
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 text-xs bg-slate-50 p-3 rounded-lg border border-slate-200">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 text-base bg-slate-50 p-3 rounded-lg border border-slate-200">
                   <div>
                     <span className="block text-[9px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">Anomaly Score</span>
                     <span className="font-mono font-semibold text-slate-700">
@@ -2566,7 +2570,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </div>
 
                   {selectedInspectorTourist.safetyDetails?.decision_summary?.action_recommendation && (
-                    <div className="col-span-2 text-[10px] text-slate-600 bg-white p-2 rounded border border-slate-200">
+                    <div className="col-span-2 text-sm text-slate-600 bg-white p-2 rounded border border-slate-200">
                       <span className="font-bold text-slate-700">Action: </span>
                       {selectedInspectorTourist.safetyDetails.decision_summary.action_recommendation}
                     </div>
@@ -2575,7 +2579,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </div>
 
               {/* Blockchain info */}
-              <div className="col-span-2 border-t border-slate-100 pt-4 space-y-2 font-mono text-[10px] text-slate-500">
+              <div className="col-span-2 border-t border-slate-100 pt-4 space-y-2 font-mono text-sm text-slate-500">
                 <div>
                   <span className="block text-[9px] font-sans uppercase font-bold text-slate-400 tracking-wider mb-0.5">Decentralized DID</span>
                   <span className="text-slate-400 text-[9px] break-all select-all">{selectedInspectorTourist.blockchainDid}</span>
@@ -2596,7 +2600,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setFocusedTouristId(tId);
                     navigate('/admin/dashboard');
                   }}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-base font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
                 >
                   <MapPin className="w-3.5 h-3.5" />
                   <span>View on Live Map</span>
@@ -2604,7 +2608,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedInspectorTourist(null)}
-                  className="bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer"
+                  className="bg-slate-800 hover:bg-slate-900 text-white text-base font-bold px-4 py-2 rounded-lg transition-colors cursor-pointer"
                 >
                   Close Inspector
                 </button>
@@ -2622,7 +2626,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
             <div className="flex items-center space-x-2">
               <Bell className="w-4 h-4 text-[#061E34]" />
-              <span className="font-extrabold text-xs uppercase tracking-widest text-slate-700">Live Notifications</span>
+              <span className="font-extrabold text-base uppercase tracking-widest text-slate-700">Live Notifications</span>
             </div>
             <button onClick={() => setShowNotifications(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-4 h-4" />
@@ -2631,7 +2635,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           <div className="overflow-y-auto flex-1 divide-y divide-slate-100">
             {notifications.length === 0 ? (
-              <div className="py-12 text-center text-slate-400 text-xs font-semibold">No active notifications</div>
+              <div className="py-12 text-center text-slate-400 text-base font-semibold">No active notifications</div>
             ) : (
               notifications.map(n => {
                 const iconMap = { SOS: '🆘', INCIDENT: '⚠️', MESSAGE: '💬', SAFETY: '🚧' };
@@ -2654,10 +2658,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       <span className="text-base mt-0.5">{iconMap[n.type]}</span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-800 truncate">{n.title}</span>
+                          <span className="text-base font-bold text-slate-800 truncate">{n.title}</span>
                           <span className="text-[9px] text-slate-400 font-mono ml-2 flex-shrink-0">{n.time}</span>
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5 leading-snug line-clamp-2">{n.body}</p>
+                        <p className="text-base text-slate-500 mt-0.5 leading-snug line-clamp-2">{n.body}</p>
                       </div>
                     </div>
                   </div>
@@ -2670,7 +2674,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="px-5 py-3 bg-slate-50 border-t border-slate-100 text-center">
               <button
                 onClick={() => { setShowNotifications(false); navigate('/admin/inbox'); }}
-                className="text-xs font-bold text-[#061E34] hover:text-[#0A2640] uppercase tracking-wider cursor-pointer"
+                className="text-base font-bold text-[#061E34] hover:text-[#0A2640] uppercase tracking-wider cursor-pointer"
               >
                 View Incident Inbox →
               </button>
@@ -2685,7 +2689,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
             <div className="flex items-center space-x-2">
               <SlidersHorizontal className="w-4 h-4 text-slate-600" />
-              <span className="font-extrabold text-xs uppercase tracking-widest text-slate-700">Admin Settings</span>
+              <span className="font-extrabold text-base uppercase tracking-widest text-slate-700">Admin Settings</span>
             </div>
             <button onClick={() => setShowSettings(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-4 h-4" />
@@ -2704,7 +2708,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   { label: 'AI Anomaly Feeds', value: settingsNotifSafety, setter: setSettingsNotifSafety },
                 ].map(item => (
                   <label key={item.label} className="flex items-center justify-between cursor-pointer group">
-                    <span className="text-xs font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">{item.label}</span>
+                    <span className="text-base font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">{item.label}</span>
                     <button
                       type="button"
                       onClick={() => item.setter(v => !v)}
@@ -2724,7 +2728,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </p>
               <LanguageSelector
                 role="admin"
-                selectClassName="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 focus:outline-none focus:border-[#061E34]/40 cursor-pointer"
+                selectClassName="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-base text-slate-700 focus:outline-none focus:border-[#061E34]/40 cursor-pointer"
                 showLabel={false}
               />
             </div>
@@ -2732,7 +2736,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* System Info */}
             <div className="border-t border-slate-100 pt-4">
               <p className="text-[9px] uppercase font-bold text-slate-400 tracking-widest mb-2">Authority Node</p>
-              <div className="space-y-1.5 text-[11px] text-slate-500 font-mono">
+              <div className="space-y-1.5 text-base text-slate-500 font-mono">
                 <div className="flex justify-between"><span className="font-sans font-semibold text-slate-600">Platform:</span><span>SafeYatra v2.5</span></div>
                 <div className="flex justify-between"><span className="font-sans font-semibold text-slate-600">Role:</span><span>System Administrator</span></div>
                 <div className="flex justify-between"><span className="font-sans font-semibold text-slate-600">Security:</span><span className="text-emerald-600 font-bold">Encrypted TLS</span></div>
@@ -2742,7 +2746,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <button
               type="button"
               onClick={() => { setSettingsSaved(true); setTimeout(() => setSettingsSaved(false), 2000); }}
-              className="w-full bg-[#061E34] hover:bg-[#0D2E4D] text-white text-xs font-bold py-2.5 rounded-lg transition-all flex items-center justify-center space-x-2 mt-2 cursor-pointer shadow-md"
+              className="w-full bg-[#061E34] hover:bg-[#0D2E4D] text-white text-base font-bold py-2.5 rounded-lg transition-all flex items-center justify-center space-x-2 mt-2 cursor-pointer shadow-md"
             >
               {settingsSaved ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Save className="w-4 h-4" />}
               <span>{settingsSaved ? 'Settings Saved' : 'Save Preferences'}</span>
@@ -2757,7 +2761,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
             <div className="flex items-center space-x-2">
               <User className="w-4 h-4 text-slate-600" />
-              <span className="font-extrabold text-xs uppercase tracking-widest text-slate-700">Admin Profile</span>
+              <span className="font-extrabold text-base uppercase tracking-widest text-slate-700">Admin Profile</span>
             </div>
             <button onClick={() => setShowProfile(false)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-4 h-4" />
@@ -2771,7 +2775,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {adminDisplayName ? adminDisplayName.slice(0, 2).toUpperCase() : 'AD'}
               </div>
               <div className="text-center">
-                <p className="font-bold text-slate-800 text-sm">{adminDisplayName || 'System Administrator'}</p>
+                <p className="font-bold text-slate-800 text-base">{adminDisplayName || 'System Administrator'}</p>
                 <span className="inline-flex items-center space-x-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider mt-1">
                   <ShieldCheck className="w-2.5 h-2.5" />
                   <span>Authority Command Node</span>
@@ -2782,7 +2786,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* Account Info */}
             <div>
               <p className="text-[9px] uppercase font-bold text-slate-400 tracking-widest mb-3">Officer Credentials</p>
-              <div className="space-y-2 text-[11px]">
+              <div className="space-y-2 text-base">
                 <div className="flex items-center space-x-2">
                   <KeyRound className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                   <span className="text-slate-500 font-semibold">User:</span>
@@ -2803,7 +2807,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 type="text"
                 value={adminDisplayNameEdit}
                 onChange={e => setAdminDisplayNameEdit(e.target.value)}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-700 focus:outline-none focus:border-[#061E34]/40 bg-slate-50"
+                className="w-full border border-slate-200 rounded-lg px-3 py-2 text-base text-slate-700 focus:outline-none focus:border-[#061E34]/40 bg-slate-50"
                 placeholder="Enter display name..."
                 maxLength={40}
               />
@@ -2818,7 +2822,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     setTimeout(() => setProfileSaved(false), 2000);
                   }
                 }}
-                className="w-full mt-2 bg-[#061E34] hover:bg-[#0D2E4D] text-white text-xs font-bold py-2.5 rounded-lg transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-md"
+                className="w-full mt-2 bg-[#061E34] hover:bg-[#0D2E4D] text-white text-base font-bold py-2.5 rounded-lg transition-all flex items-center justify-center space-x-2 cursor-pointer shadow-md"
               >
                 {profileSaved ? <CheckCircle className="w-4 h-4 text-emerald-400" /> : <Save className="w-4 h-4" />}
                 <span>{profileSaved ? 'Saved!' : 'Save Display Name'}</span>
@@ -2832,7 +2836,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 onClick={async () => {
                   const token = sessionStorage.getItem('adminToken') || localStorage.getItem('adminToken');
                   if (token) {
-                    try { await fetch('/api/admin/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }); } catch {}
+                    try { await fetch('/api/admin/logout', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } }); } catch { }
                   }
                   sessionStorage.removeItem('adminToken');
                   localStorage.removeItem('adminToken');
@@ -2840,7 +2844,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   setShowProfile(false);
                   onExitAdmin();
                 }}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 border border-red-200 transition-all cursor-pointer"
+                className="w-full flex items-center justify-center space-x-2 py-2.5 rounded-lg text-base font-bold uppercase tracking-wider text-red-600 hover:bg-red-50 border border-red-200 transition-all cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>
@@ -2862,11 +2866,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div>
                   <div className="flex items-center space-x-2">
                     <h2 className="text-lg font-bold text-white">{selectedGuideDetails.full_name}</h2>
-                    <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase border border-emerald-400/30">
+                    <span className="bg-emerald-500/20 text-emerald-300 text-sm font-extrabold px-2.5 py-0.5 rounded-full uppercase border border-emerald-400/30">
                       {selectedGuideDetails.status || 'Active'}
                     </span>
                   </div>
-                  <p className="text-xs text-[#8FA5C0] font-mono mt-0.5">
+                  <p className="text-base text-[#8FA5C0] font-mono mt-0.5">
                     Guide ID: <span className="text-[#2CD3C3] font-bold">{selectedGuideDetails.guide_id}</span>
                   </p>
                 </div>
@@ -2883,44 +2887,44 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-700">
               <div>
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-sm text-sky-600">badge</span>
+                <h3 className="text-base font-extrabold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-base text-sky-600">badge</span>
                   Registration & Identity Profile
                 </h3>
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 grid grid-cols-2 gap-4 text-xs">
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 grid grid-cols-2 gap-4 text-base">
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Full Registered Name</span>
-                    <span className="font-bold text-slate-800 text-sm">{selectedGuideDetails.full_name}</span>
+                    <span className="text-sm font-bold uppercase text-slate-400 block mb-1">Full Registered Name</span>
+                    <span className="font-bold text-slate-800 text-base">{selectedGuideDetails.full_name}</span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Official Guide ID</span>
-                    <span className="font-mono font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded inline-block text-xs">
+                    <span className="text-sm font-bold uppercase text-slate-400 block mb-1">Official Guide ID</span>
+                    <span className="font-mono font-bold text-sky-700 bg-sky-50 border border-sky-200 px-2 py-0.5 rounded inline-block text-base">
                       {selectedGuideDetails.guide_id}
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Mobile Number</span>
+                    <span className="text-sm font-bold uppercase text-slate-400 block mb-1">Mobile Number</span>
                     <span className="font-semibold text-slate-800">📞 {selectedGuideDetails.mobile_number || selectedGuideDetails.mobileNumber || 'N/A'}</span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Guide License No</span>
-                    <span className="font-mono font-semibold text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded inline-block text-xs">
+                    <span className="text-sm font-bold uppercase text-slate-400 block mb-1">Guide License No</span>
+                    <span className="font-mono font-semibold text-slate-800 bg-white border border-slate-200 px-2 py-0.5 rounded inline-block text-base">
                       🪪 {selectedGuideDetails.guide_license_no || selectedGuideDetails.licenseNo || 'N/A'}
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Years of Experience</span>
+                    <span className="text-sm font-bold uppercase text-slate-400 block mb-1">Years of Experience</span>
                     <span className="font-semibold text-slate-800">
                       ⏳ {selectedGuideDetails.years_of_experience || selectedGuideDetails.yearsExperience || 5} Years
                     </span>
                   </div>
 
                   <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Languages Known</span>
+                    <span className="text-sm font-bold uppercase text-slate-400 block mb-1">Languages Known</span>
                     <span className="font-semibold text-slate-800">
                       🗣️ {selectedGuideDetails.languages_known || selectedGuideDetails.languages || 'Marathi, Hindi, English'}
                     </span>
@@ -2930,8 +2934,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* Assigned Tourists Summary */}
               <div>
-                <h3 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-sm text-emerald-600">groups</span>
+                <h3 className="text-base font-extrabold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <span className="material-symbols-outlined text-base text-emerald-600">groups</span>
                   Assigned Tourists ({localTourists.filter(t => t.guide_id === selectedGuideDetails.guide_id || t.assignedGuide?.guide_id === selectedGuideDetails.guide_id || t.assignedGuide?.full_name === selectedGuideDetails.full_name).length})
                 </h3>
                 <div className="space-y-2">
@@ -2941,22 +2945,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     );
                     if (assigned.length === 0) {
                       return (
-                        <div className="text-center py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-400 text-xs font-semibold">
+                        <div className="text-center py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-400 text-base font-semibold">
                           No active tourists assigned currently
                         </div>
                       );
                     }
                     return assigned.map(t => (
-                      <div key={t.id} className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-xs">
+                      <div key={t.id} className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between text-base">
                         <div>
                           <span className="font-bold text-slate-800">{t.name}</span>
-                          <span className="text-[10px] text-slate-400 ml-2 font-mono">({t.id})</span>
+                          <span className="text-sm text-slate-400 ml-2 font-mono">({t.id})</span>
                         </div>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          t.safetyStatus === 'EMERGENCY_SOS'
-                            ? 'bg-red-100 text-red-700 animate-pulse'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}>
+                        <span className={`px-2 py-0.5 rounded-full text-sm font-bold ${t.safetyStatus === 'EMERGENCY_SOS'
+                          ? 'bg-red-100 text-red-700 animate-pulse'
+                          : 'bg-emerald-100 text-emerald-700'
+                          }`}>
                           {t.safetyStatus || 'SAFE'}
                         </span>
                       </div>
@@ -2970,7 +2973,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="bg-slate-50 border-t border-slate-200 p-4 flex justify-end">
               <button
                 onClick={() => setSelectedGuideDetails(null)}
-                className="bg-[#061E34] hover:bg-[#0D2E4D] text-white font-bold text-xs px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
+                className="bg-[#061E34] hover:bg-[#0D2E4D] text-white font-bold text-base px-5 py-2.5 rounded-xl transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 Close Details
               </button>
@@ -2993,7 +2996,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <div className="px-5 py-3.5 bg-slate-800 border-b border-slate-700 flex items-center justify-between text-white">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="text-base">📸</span>
-                <h3 className="font-bold text-sm text-slate-100 truncate">{previewImage.title || 'Incident Photo Evidence'}</h3>
+                <h3 className="font-bold text-base text-slate-100 truncate">{previewImage.title || 'Incident Photo Evidence'}</h3>
               </div>
               <button
                 type="button"
@@ -3015,7 +3018,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-2.5 bg-slate-800 border-t border-slate-700 flex items-center justify-between text-xs text-slate-400">
+            <div className="px-5 py-2.5 bg-slate-800 border-t border-slate-700 flex items-center justify-between text-base text-slate-400">
               <span className="flex items-center gap-1.5 text-slate-400">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Protected evidentiary photo attached by tourist. Deleted automatically upon resolving.</span>
@@ -3023,7 +3026,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <button
                 type="button"
                 onClick={() => setPreviewImage(null)}
-                className="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-bold text-xs transition-colors cursor-pointer"
+                className="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-bold text-base transition-colors cursor-pointer"
               >
                 Close Preview
               </button>

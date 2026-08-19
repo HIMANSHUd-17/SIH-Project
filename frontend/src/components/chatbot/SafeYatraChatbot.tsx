@@ -148,40 +148,39 @@ export const SafeYatraChatbot: React.FC<SafeYatraChatbotProps> = ({
         {!isOpen && !hasInteracted && (
           <div
             onClick={() => setIsOpen(true)}
-            className="hidden sm:flex items-center gap-2 bg-slate-900/95 text-white text-xs font-semibold px-4 py-2.5 rounded-full shadow-2xl border border-emerald-500/30 backdrop-blur-xl cursor-pointer hover:border-emerald-400 hover:scale-105 transition-all duration-300 animate-fade-in group"
+            className="hidden sm:flex items-center gap-2 bg-white text-[#001a4d] text-sm font-bold px-4 py-3 rounded-full shadow-xl border border-blue-100 cursor-pointer hover:border-blue-300 hover:scale-105 transition-all duration-300 animate-fade-in group"
           >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-spin-slow" />
-            <span className="bg-gradient-to-r from-emerald-300 to-teal-200 bg-clip-text text-transparent">
+            <Sparkles className="w-4 h-4 text-blue-500 animate-pulse" />
+            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
               Ask SafeYatra AI
             </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
           </div>
         )}
 
         {/* Main Floating Bot Button */}
         <button
           onClick={() => setIsOpen(prev => !prev)}
-          className={`relative group w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all duration-300 active:scale-95 cursor-pointer ${
-            isOpen
+          className={`relative group w-16 h-16 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 active:scale-95 cursor-pointer ${isOpen
               ? 'bg-slate-800 text-slate-300 hover:bg-slate-700 rotate-90'
-              : 'bg-gradient-to-tr from-emerald-600 via-teal-600 to-sky-600 text-white hover:shadow-emerald-500/25 hover:scale-105'
-          }`}
+              : 'bg-gradient-to-tr from-[#003d9b] to-[#407eff] text-white hover:shadow-blue-500/30 hover:scale-105'
+            }`}
           aria-label={isOpen ? 'Close SafeYatra Chatbot' : 'Open SafeYatra Chatbot'}
         >
           {/* Subtle Outer Glow Ring */}
           {!isOpen && (
             <>
-              <span className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 opacity-60 blur-sm group-hover:opacity-100 transition duration-500 -z-10 animate-pulse"></span>
-              <span className="absolute top-1 right-1 w-3 h-3 bg-emerald-400 border-2 border-slate-900 rounded-full animate-ping"></span>
+              <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#003d9b] to-[#407eff] opacity-40 blur-md group-hover:opacity-80 transition duration-500 -z-10 animate-pulse"></span>
+              <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-[#407eff] border-2 border-white rounded-full animate-bounce"></span>
             </>
           )}
 
           {isOpen ? (
-            <X className="w-6 h-6" />
+            <X className="w-7 h-7" />
           ) : (
-            <div className="flex items-center justify-center">
-              <Shield className="w-7 h-7 text-white drop-shadow-md" />
-              <Bot className="w-3.5 h-3.5 text-emerald-200 absolute -bottom-0.5 -right-0.5 bg-slate-900 p-0.5 rounded-full border border-emerald-400" />
+            <div className="flex items-center justify-center relative">
+              <Bot className="w-8 h-8 text-white drop-shadow-md" />
+              <Sparkles className="w-4 h-4 text-amber-300 absolute -bottom-1 -right-1" />
             </div>
           )}
         </button>
@@ -192,7 +191,7 @@ export const SafeYatraChatbot: React.FC<SafeYatraChatbotProps> = ({
       {/* ═══════════════════════════════════════════════════════════════════════ */}
       {isOpen && (
         <div className="fixed inset-x-4 bottom-24 sm:inset-auto sm:right-6 sm:bottom-24 sm:w-[420px] h-[590px] max-h-[calc(100vh-120px)] z-50 flex flex-col rounded-3xl bg-slate-950/92 backdrop-blur-2xl border border-white/15 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] text-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-300 font-sans">
-          
+
           {/* ═══ Header ═══ */}
           <div className="px-4 py-3.5 bg-slate-900/80 border-b border-white/10 flex items-center justify-between backdrop-blur-md shrink-0">
             <div className="flex items-center gap-3">
@@ -261,13 +260,12 @@ export const SafeYatraChatbot: React.FC<SafeYatraChatbotProps> = ({
 
                   <div className={`max-w-[85%] flex flex-col ${isBot ? 'items-start' : 'items-end'}`}>
                     <div
-                      className={`p-3.5 rounded-2xl text-xs leading-relaxed shadow-md ${
-                        isBot
+                      className={`p-3.5 rounded-2xl text-xs leading-relaxed shadow-md ${isBot
                           ? msg.isEmergency
                             ? 'bg-red-950/80 border border-red-500/50 text-red-100 rounded-tl-sm'
                             : 'bg-slate-900/90 border border-white/10 text-slate-100 rounded-tl-sm backdrop-blur-md'
                           : 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-tr-sm'
-                      }`}
+                        }`}
                     >
                       {renderFormattedText(msg.text)}
 

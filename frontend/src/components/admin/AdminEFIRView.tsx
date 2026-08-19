@@ -118,14 +118,18 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
   const fetchEFIRs = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/efir');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const res = await fetch('/api/efir', { signal: controller.signal });
+      clearTimeout(timeoutId);
+
       if (res.ok) {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
           setEfirList(data);
           try {
             localStorage.setItem('safeyatra_efir_records', JSON.stringify(data));
-          } catch (e) {}
+          } catch (e) { }
           setIsLoading(false);
           return;
         }
@@ -145,7 +149,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
           return;
         }
       }
-    } catch (e) {}
+    } catch (e) { }
 
     setEfirList(INITIAL_SAMPLE_EFIRS);
     setIsLoading(false);
@@ -175,20 +179,91 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
   const handleOpenCreate = () => {
     setEditingRecord(null);
     setFormError(null);
+
+    const nextEFIR = generateNextEFIRNumber();
+    const defaultDate = new Date().toISOString().split('T')[0];
+
+    // Set a default while waiting for location based data
     setFormData({
-      efirNumber: generateNextEFIRNumber(),
-      policeStation: 'Central Police Station',
-      jurisdiction: 'Uttarakhand State Tourism & Police Zone 4',
+      efirNumber: nextEFIR,
+      policeStation: 'Locating nearby station...',
+      jurisdiction: 'Determining jurisdiction...',
       complainantName: '',
       complainantMobile: '',
       complainantAddress: '',
       caseType: 'Theft / Loss of Property',
-      occurrenceDate: new Date().toISOString().split('T')[0],
+      occurrenceDate: defaultDate,
       occurrencePlace: '',
       description: '',
-      additionalInfo: ''
+      additionalInfo: 'Locating nearest facilities...'
     });
     setShowCreateModal(true);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          try {
+            // Fetch nearest police station
+            const policeQuery = `[out:json];node["amenity"="police"](around:50000,${lat},${lng});out 1;`;
+            const policeRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(policeQuery)}`);
+            const policeData = await policeRes.json();
+
+            // Fetch nearest hospital
+            const hospitalQuery = `[out:json];node["amenity"="hospital"](around:50000,${lat},${lng});out 1;`;
+            const hospitalRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(hospitalQuery)}`);
+            const hospitalData = await hospitalRes.json();
+
+            // Reverse geocode for jurisdiction (city/state)
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const geoData = await geoRes.json();
+            const city = geoData.address?.city || geoData.address?.town || geoData.address?.county || 'Local Area';
+            const state = geoData.address?.state || 'Command';
+
+            let psName = 'Central Police Station';
+            if (policeData.elements && policeData.elements.length > 0 && policeData.elements[0].tags) {
+              psName = policeData.elements[0].tags.name || `${city} City Police Station`;
+            } else {
+              psName = `${city} Police Station`;
+            }
+
+            let hospName = 'General Hospital';
+            if (hospitalData.elements && hospitalData.elements.length > 0 && hospitalData.elements[0].tags) {
+              hospName = hospitalData.elements[0].tags.name || `${city} General Hospital`;
+            } else {
+              hospName = `${city} General Hospital`;
+            }
+
+            setFormData(prev => ({
+              ...prev,
+              policeStation: psName,
+              jurisdiction: `${state} Police Command Zone`,
+              additionalInfo: `Nearest Hospital Identified: ${hospName}\n\nTelemetry: ${lat.toFixed(4)} N, ${lng.toFixed(4)} E`
+            }));
+
+          } catch (err) {
+            console.error("Error fetching map details", err);
+            setFormData(prev => ({
+              ...prev,
+              policeStation: 'Local Police Station (Offline Mode)',
+              jurisdiction: 'Standard Command Zone',
+              additionalInfo: `Telemetry: ${lat.toFixed(4)} N, ${lng.toFixed(4)} E`
+            }));
+          }
+        },
+        (err) => {
+          console.warn("Geolocation denied or unavailable.", err);
+          setFormData(prev => ({
+            ...prev,
+            policeStation: 'Central Police Station',
+            jurisdiction: 'Default Tourism Command Zone',
+            additionalInfo: 'Location not provided.'
+          }));
+        }
+      );
+    }
   };
 
   // Open Edit Draft Modal
@@ -287,11 +362,23 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
       const endpoint = editingRecord ? `/api/efir/${editingRecord.id}` : '/api/efir';
       const method = editingRecord ? 'PUT' : 'POST';
 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const res = await fetch(endpoint, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newOrUpdatedRecord)
+        body: JSON.stringify(newOrUpdatedRecord),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        alert(`Backend Save Error: ${errorText}`);
+        setIsSaving(false);
+        return;
+      }
 
       if (res.ok) {
         const savedData = await res.json();
@@ -301,7 +388,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
           const updated = exists ? prev.map(r => r.id === finalItem.id ? finalItem : r) : [finalItem, ...prev];
           try {
             localStorage.setItem('safeyatra_efir_records', JSON.stringify(updated));
-          } catch (e) {}
+          } catch (e) { }
           return updated;
         });
 
@@ -314,6 +401,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
       }
     } catch (err) {
       console.warn('Backend /api/efir save failed, persisting locally:', err);
+      alert('Save operation encountered a network error. Persisting Draft locally.');
     }
 
     // Local fallback persistence
@@ -322,7 +410,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
       const updated = exists ? prev.map(r => r.id === newOrUpdatedRecord.id ? newOrUpdatedRecord : r) : [newOrUpdatedRecord, ...prev];
       try {
         localStorage.setItem('safeyatra_efir_records', JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
       return updated;
     });
 
@@ -337,12 +425,12 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
     if (!window.confirm('Are you sure you want to delete this E-FIR record?')) return;
     try {
       await fetch(`/api/efir/${id}`, { method: 'DELETE' });
-    } catch (e) {}
+    } catch (e) { }
     setEfirList(prev => {
       const updated = prev.filter(r => r.id !== id);
       try {
         localStorage.setItem('safeyatra_efir_records', JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
       return updated;
     });
     if (viewingRecord?.id === id) setViewingRecord(null);
@@ -527,11 +615,11 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                 <h1 className="text-xl md:text-2xl font-black tracking-tight text-white uppercase">
                   SafeYatra E-FIR Record
                 </h1>
-                <span className="bg-[#2CD3C3]/20 text-[#2CD3C3] border border-[#2CD3C3]/40 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="bg-[#2CD3C3]/20 text-[#2CD3C3] border border-[#2CD3C3]/40 text-xs font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Command Center Record
                 </span>
               </div>
-              <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+              <p className="text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
                 Generate, manage, and dispatch official electronic reference records (E-FIR) for tourist incidents, lost property, safety breaches, and police liaison coordination.
               </p>
             </div>
@@ -540,7 +628,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
           <div className="flex items-center gap-3">
             <button
               onClick={handleOpenCreate}
-              className="px-5 py-2.5 bg-[#2CD3C3] hover:bg-[#20b8a9] text-[#061E34] font-black rounded-xl text-xs flex items-center gap-2 shadow-lg hover:shadow-[#2CD3C3]/20 transition-all cursor-pointer uppercase tracking-wider"
+              className="px-5 py-2.5 bg-[#2CD3C3] hover:bg-[#20b8a9] text-[#061E34] font-black rounded-xl text-sm flex items-center gap-2 shadow-lg hover:shadow-[#2CD3C3]/20 transition-all cursor-pointer uppercase tracking-wider"
             >
               <Plus className="w-4 h-4" />
               <span>Create New E-FIR</span>
@@ -554,7 +642,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
         {/* Total E-FIRs */}
         <div className="bg-white rounded-xl p-5 shadow-xs border border-slate-200 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider block mb-1">
               Total E-FIR Records
             </span>
             <span className="text-2xl font-black text-slate-800">{totalCount}</span>
@@ -567,7 +655,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
         {/* Generated E-FIRs */}
         <div className="bg-white rounded-xl p-5 shadow-xs border border-slate-200 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block mb-1">
+            <span className="text-sm font-bold text-emerald-600 uppercase tracking-wider block mb-1">
               Generated Records
             </span>
             <span className="text-2xl font-black text-emerald-700">{generatedCount}</span>
@@ -580,7 +668,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
         {/* Draft E-FIRs */}
         <div className="bg-white rounded-xl p-5 shadow-xs border border-slate-200 flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-bold text-amber-600 uppercase tracking-wider block mb-1">
+            <span className="text-sm font-bold text-amber-600 uppercase tracking-wider block mb-1">
               Draft Records
             </span>
             <span className="text-2xl font-black text-amber-700">{draftCount}</span>
@@ -601,7 +689,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search by E-FIR #, Complainant Name, Mobile..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#061E34] focus:bg-white transition-all"
+            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#061E34] focus:bg-white transition-all"
           />
         </div>
 
@@ -610,25 +698,22 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
             <button
               onClick={() => setStatusFilter('ALL')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                statusFilter === 'ALL' ? 'bg-[#061E34] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${statusFilter === 'ALL' ? 'bg-[#061E34] text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               All ({totalCount})
             </button>
             <button
               onClick={() => setStatusFilter('GENERATED')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                statusFilter === 'GENERATED' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${statusFilter === 'GENERATED' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               Generated ({generatedCount})
             </button>
             <button
               onClick={() => setStatusFilter('DRAFT')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                statusFilter === 'DRAFT' ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${statusFilter === 'DRAFT' ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                }`}
             >
               Drafts ({draftCount})
             </button>
@@ -637,7 +722,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
           <select
             value={caseTypeFilter}
             onChange={e => setCaseTypeFilter(e.target.value)}
-            className="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#061E34] cursor-pointer"
+            className="bg-slate-50 border border-slate-200 text-slate-700 text-sm font-bold px-3 py-2 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#061E34] cursor-pointer"
           >
             <option value="ALL">All Case Types</option>
             {CASE_TYPES.map(ct => (
@@ -652,11 +737,11 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2">
             <FileCheck className="w-4 h-4 text-[#061E34]" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+            <h3 className="text-sm font-black uppercase tracking-wider text-slate-800">
               E-FIR Log Records ({filteredList.length})
             </h3>
           </div>
-          <span className="text-[11px] text-slate-400 font-mono">
+          <span className="text-sm text-slate-400 font-mono">
             Encrypted Law Enforcement Ledger
           </span>
         </div>
@@ -664,15 +749,15 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
         {isLoading ? (
           <div className="p-12 text-center text-slate-400 flex flex-col items-center justify-center gap-3">
             <Loader2 className="w-8 h-8 animate-spin text-[#061E34]" />
-            <span className="text-xs font-bold">Loading E-FIR records...</span>
+            <span className="text-sm font-bold">Loading E-FIR records...</span>
           </div>
         ) : filteredList.length === 0 ? (
           <div className="p-12 text-center text-slate-400 space-y-3">
             <FileText className="w-10 h-10 mx-auto text-slate-300" />
-            <p className="text-xs font-bold text-slate-600">No E-FIR records matching the criteria.</p>
+            <p className="text-sm font-bold text-slate-600">No E-FIR records matching the criteria.</p>
             <button
               onClick={handleOpenCreate}
-              className="px-4 py-2 bg-[#061E34] text-white rounded-xl text-xs font-bold hover:bg-[#0A2640] transition-colors"
+              className="px-4 py-2 bg-[#061E34] text-white rounded-xl text-sm font-bold hover:bg-[#0A2640] transition-colors"
             >
               Create New E-FIR
             </button>
@@ -681,7 +766,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse min-w-[850px]">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                <tr className="bg-slate-50 border-b border-slate-200 text-sm uppercase tracking-wider font-bold text-slate-500">
                   <th className="p-4 pl-6">E-FIR Number</th>
                   <th className="p-4">Complainant</th>
                   <th className="p-4">Case Type</th>
@@ -691,7 +776,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   <th className="p-4 text-right pr-6">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs">
+              <tbody className="divide-y divide-slate-100 text-sm">
                 {filteredList.map(record => (
                   <tr key={record.id} className="hover:bg-slate-50/80 transition-colors">
                     {/* Number */}
@@ -702,7 +787,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                     {/* Complainant */}
                     <td className="p-4">
                       <div className="font-bold text-slate-800">{record.complainantName}</div>
-                      <div className="text-[11px] text-slate-400 font-mono">{record.complainantMobile}</div>
+                      <div className="text-sm text-slate-400 font-mono">{record.complainantMobile}</div>
                     </td>
 
                     {/* Case Type */}
@@ -723,12 +808,12 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                     {/* Status */}
                     <td className="p-4">
                       {record.status === 'GENERATED' ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-[10px] font-black uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black uppercase tracking-wider">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" />
                           <span>Generated</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-[10px] font-black uppercase tracking-wider">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black uppercase tracking-wider">
                           <Clock className="w-3 h-3 text-amber-600" />
                           <span>Draft</span>
                         </span>
@@ -787,7 +872,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
-            
+
             {/* Header */}
             <div className="bg-[#061E34] px-6 py-4 border-b border-slate-700 flex items-center justify-between text-white">
               <div className="flex items-center gap-3">
@@ -798,7 +883,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   <h3 className="text-base font-bold text-white">
                     {editingRecord ? 'Edit E-FIR Record' : 'Create New E-FIR Record'}
                   </h3>
-                  <p className="text-xs text-slate-300">SafeYatra Smart Identity & Safety Profile</p>
+                  <p className="text-sm text-slate-300">SafeYatra Smart Identity & Safety Profile</p>
                 </div>
               </div>
               <button
@@ -813,7 +898,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
 
               {formError && (
-                <div className="p-3.5 bg-red-50 text-red-800 rounded-xl text-xs font-semibold border border-red-200 flex items-center gap-2.5">
+                <div className="p-3.5 bg-red-50 text-red-800 rounded-xl text-sm font-semibold border border-red-200 flex items-center gap-2.5">
                   <AlertTriangle className="w-4 h-4 text-red-600 shrink-0" />
                   <span>{formError}</span>
                 </div>
@@ -822,42 +907,42 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               {/* ── Section 1: FIR Details ── */}
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-[#061E34]" />
                     <span>FIR Details</span>
                   </h4>
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
+                  <span className="text-xs font-mono font-bold px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
                     {formData.efirNumber}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       E-FIR Number (System Assigned)
                     </label>
                     <input
                       type="text"
                       disabled
                       value={formData.efirNumber}
-                      className="w-full bg-slate-200/80 border border-slate-300 rounded-lg px-3 py-2 text-xs font-mono font-bold text-slate-700 cursor-not-allowed"
+                      className="w-full bg-slate-200/80 border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono font-bold text-slate-700 cursor-not-allowed"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Date & Time of Filing
                     </label>
                     <input
                       type="text"
                       disabled
                       value={new Date().toLocaleString()}
-                      className="w-full bg-slate-200/80 border border-slate-300 rounded-lg px-3 py-2 text-xs font-medium text-slate-700 cursor-not-allowed"
+                      className="w-full bg-slate-200/80 border border-slate-300 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 cursor-not-allowed"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Police Station
                     </label>
                     <input
@@ -865,12 +950,12 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                       value={formData.policeStation}
                       onChange={e => setFormData({ ...formData, policeStation: e.target.value })}
                       placeholder="e.g. Muni Ki Reti Police Station"
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Jurisdiction
                     </label>
                     <input
@@ -878,7 +963,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                       value={formData.jurisdiction}
                       onChange={e => setFormData({ ...formData, jurisdiction: e.target.value })}
                       placeholder="e.g. Uttarakhand State Tourism & Police Zone 4"
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
                     />
                   </div>
                 </div>
@@ -887,7 +972,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               {/* ── Section 2: Complainant Details ── */}
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <div className="border-b border-slate-200 pb-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                     <User className="w-4 h-4 text-[#061E34]" />
                     <span>Complainant Details</span>
                   </h4>
@@ -895,7 +980,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -904,12 +989,12 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                       value={formData.complainantName}
                       onChange={e => setFormData({ ...formData, complainantName: e.target.value })}
                       placeholder="e.g. Elena Rostova"
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Mobile Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -918,12 +1003,12 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                       value={formData.complainantMobile}
                       onChange={e => setFormData({ ...formData, complainantMobile: e.target.value })}
                       placeholder="e.g. +91 99887 76655"
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Address / Hotel Location
                     </label>
                     <input
@@ -931,7 +1016,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                       value={formData.complainantAddress}
                       onChange={e => setFormData({ ...formData, complainantAddress: e.target.value })}
                       placeholder="e.g. Central Resort, Main Road"
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
                     />
                   </div>
                 </div>
@@ -940,7 +1025,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               {/* ── Section 3: Case Details ── */}
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                 <div className="border-b border-slate-200 pb-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-red-600" />
                     <span>Case Details</span>
                   </h4>
@@ -948,13 +1033,13 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Case Type <span className="text-red-500">*</span>
                     </label>
                     <select
                       value={formData.caseType}
                       onChange={e => setFormData({ ...formData, caseType: e.target.value })}
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] cursor-pointer"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] cursor-pointer"
                     >
                       {CASE_TYPES.map(ct => (
                         <option key={ct} value={ct}>{ct}</option>
@@ -963,7 +1048,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Date of Occurrence <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -971,12 +1056,12 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                       required
                       value={formData.occurrenceDate}
                       onChange={e => setFormData({ ...formData, occurrenceDate: e.target.value })}
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] cursor-pointer"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] cursor-pointer"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    <label className="block text-sm font-bold text-slate-600 mb-1">
                       Place of Occurrence <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -985,7 +1070,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                       value={formData.occurrencePlace}
                       onChange={e => setFormData({ ...formData, occurrencePlace: e.target.value })}
                       placeholder="e.g. River Bank Ghat"
-                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
+                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34]"
                     />
                   </div>
                 </div>
@@ -993,7 +1078,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
 
               {/* ── Section 4: Detailed Description ── */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Incident Detailed Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -1002,13 +1087,13 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   value={formData.description}
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Provide chronological description of the occurrence, suspects involved, items lost, and immediate action taken..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] focus:bg-white transition-all leading-relaxed"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] focus:bg-white transition-all leading-relaxed"
                 />
               </div>
 
               {/* ── Section 5: Additional Information ── */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                <label className="block text-sm font-bold text-slate-700 uppercase tracking-wider mb-1">
                   Additional Information / Evidence Notes
                 </label>
                 <textarea
@@ -1016,7 +1101,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   value={formData.additionalInfo}
                   onChange={e => setFormData({ ...formData, additionalInfo: e.target.value })}
                   placeholder="Witness names, CCTV camera numbers, vehicle plate numbers, initial triage notes..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] focus:bg-white transition-all leading-relaxed"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#061E34] focus:bg-white transition-all leading-relaxed"
                 />
               </div>
 
@@ -1027,7 +1112,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="px-5 py-2.5 rounded-xl font-bold text-xs text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-xl font-bold text-sm text-slate-600 hover:bg-slate-200 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -1037,7 +1122,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   type="button"
                   disabled={isSaving}
                   onClick={() => handleSaveRecord('DRAFT')}
-                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs transition-colors shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm transition-colors shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   Save Draft
                 </button>
@@ -1046,7 +1131,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   type="button"
                   disabled={isSaving}
                   onClick={() => handleSaveRecord('GENERATED')}
-                  className="px-6 py-2.5 bg-[#061E34] hover:bg-[#0A2640] text-white rounded-xl font-bold text-xs transition-colors shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
+                  className="px-6 py-2.5 bg-[#061E34] hover:bg-[#0A2640] text-white rounded-xl font-bold text-sm transition-colors shadow-md cursor-pointer disabled:opacity-50 flex items-center gap-2"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileCheck className="w-4 h-4 text-[#2CD3C3]" />}
                   <span>Generate e-FIR</span>
@@ -1064,7 +1149,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
       {viewingRecord && (
         <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-300 max-w-3xl w-full overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[92vh]">
-            
+
             {/* Top Modal Header */}
             <div className="bg-[#061E34] text-white px-6 py-4 flex items-center justify-between border-b border-slate-700 flex-shrink-0">
               <div className="flex items-center gap-3">
@@ -1072,13 +1157,13 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
                     <span>SafeYatra E-FIR Record</span>
-                    <span className="text-[10px] font-mono bg-[#2CD3C3]/20 text-[#2CD3C3] border border-[#2CD3C3]/40 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-mono bg-[#2CD3C3]/20 text-[#2CD3C3] border border-[#2CD3C3]/40 px-2 py-0.5 rounded-full">
                       {viewingRecord.efirNumber}
                     </span>
                   </h4>
-                  <p className="text-[11px] text-slate-300">Command Center Digital Reference Record</p>
+                  <p className="text-sm text-slate-300">Command Center Digital Reference Record</p>
                 </div>
               </div>
 
@@ -1086,7 +1171,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handlePrintRecord(viewingRecord)}
-                  className="px-3 py-1.5 bg-[#2CD3C3] hover:bg-[#20b8a9] text-[#061E34] font-black rounded-lg text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
+                  className="px-3 py-1.5 bg-[#2CD3C3] hover:bg-[#20b8a9] text-[#061E34] font-black rounded-lg text-sm flex items-center gap-1.5 transition-colors cursor-pointer shadow-sm"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download PDF</span>
@@ -1113,11 +1198,11 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
 
             {/* Read-Only Document Body */}
             <div className="p-6 md:p-8 overflow-y-auto flex-1 space-y-6 bg-slate-50/40 font-sans">
-              
+
               {/* Document Official Header */}
               <div className="text-center border-b-2 border-[#061E34] pb-4 space-y-1">
                 <h2 className="text-xl font-black tracking-widest text-[#061E34] uppercase">SAFEYATRA</h2>
-                <p className="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
+                <p className="text-sm font-bold tracking-wider text-slate-500 uppercase">
                   GOVERNMENT OF UTTARAKHAND • TOURIST SAFETY COMMAND CENTER
                 </p>
                 <h3 className="text-base font-extrabold text-[#061E34] uppercase underline pt-1">
@@ -1125,12 +1210,12 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                 </h3>
                 <div className="pt-1">
                   {viewingRecord.status === 'GENERATED' ? (
-                    <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black uppercase">
+                    <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-sm font-black uppercase">
                       <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
                       <span>GENERATED</span>
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-xs font-black uppercase">
+                    <span className="inline-flex items-center gap-1 px-3 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 text-sm font-black uppercase">
                       <Clock className="w-3.5 h-3.5 text-amber-600" />
                       <span>DRAFT</span>
                     </span>
@@ -1139,42 +1224,42 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               </div>
 
               {/* Metadata Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                 <div className="p-3 bg-white rounded-xl border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">E-FIR Number</span>
-                  <span className="font-mono font-bold text-[#0369a1] text-sm">{viewingRecord.efirNumber}</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">E-FIR Number</span>
+                  <span className="font-mono font-bold text-[#0369a1] text-base">{viewingRecord.efirNumber}</span>
                 </div>
                 <div className="p-3 bg-white rounded-xl border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Generated Date & Time</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Generated Date & Time</span>
                   <span className="font-bold text-slate-800">{viewingRecord.generatedAt || new Date(viewingRecord.createdAt).toLocaleString()}</span>
                 </div>
                 <div className="p-3 bg-white rounded-xl border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Police Station</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Police Station</span>
                   <span className="font-bold text-slate-800 truncate block">{viewingRecord.policeStation}</span>
                 </div>
                 <div className="p-3 bg-white rounded-xl border border-slate-200">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Jurisdiction</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Jurisdiction</span>
                   <span className="font-bold text-slate-800 truncate block">{viewingRecord.jurisdiction}</span>
                 </div>
               </div>
 
               {/* Complainant Details */}
               <div className="bg-white rounded-xl p-4 border border-slate-200 space-y-2">
-                <h4 className="text-xs font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5 flex items-center gap-2">
+                <h4 className="text-sm font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5 flex items-center gap-2">
                   <User className="w-3.5 h-3.5 text-blue-600" />
                   <span>Complainant Details</span>
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm pt-1">
                   <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">Full Name</span>
+                    <span className="text-slate-400 block text-xs font-bold uppercase">Full Name</span>
                     <span className="font-bold text-slate-800">{viewingRecord.complainantName}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">Mobile Number</span>
+                    <span className="text-slate-400 block text-xs font-bold uppercase">Mobile Number</span>
                     <span className="font-mono font-bold text-slate-800">{viewingRecord.complainantMobile}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">Address</span>
+                    <span className="text-slate-400 block text-xs font-bold uppercase">Address</span>
                     <span className="font-medium text-slate-700">{viewingRecord.complainantAddress || 'Not specified'}</span>
                   </div>
                 </div>
@@ -1182,21 +1267,21 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
 
               {/* Case Details */}
               <div className="bg-white rounded-xl p-4 border border-slate-200 space-y-2">
-                <h4 className="text-xs font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5 flex items-center gap-2">
+                <h4 className="text-sm font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5 flex items-center gap-2">
                   <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
                   <span>Case & Occurrence Details</span>
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm pt-1">
                   <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">Case Type</span>
+                    <span className="text-slate-400 block text-xs font-bold uppercase">Case Type</span>
                     <span className="font-bold text-red-700">{viewingRecord.caseType}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">Date of Occurrence</span>
+                    <span className="text-slate-400 block text-xs font-bold uppercase">Date of Occurrence</span>
                     <span className="font-semibold text-slate-800">{viewingRecord.occurrenceDate}</span>
                   </div>
                   <div>
-                    <span className="text-slate-400 block text-[10px] font-bold uppercase">Place of Occurrence</span>
+                    <span className="text-slate-400 block text-xs font-bold uppercase">Place of Occurrence</span>
                     <span className="font-semibold text-slate-800">{viewingRecord.occurrencePlace}</span>
                   </div>
                 </div>
@@ -1204,10 +1289,10 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
 
               {/* Description */}
               <div className="bg-white rounded-xl p-4 border border-slate-200 space-y-2">
-                <h4 className="text-xs font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5">
+                <h4 className="text-sm font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5">
                   Detailed Description
                 </h4>
-                <p className="text-xs text-slate-800 font-medium whitespace-pre-wrap leading-relaxed pt-1">
+                <p className="text-sm text-slate-800 font-medium whitespace-pre-wrap leading-relaxed pt-1">
                   {viewingRecord.description}
                 </p>
               </div>
@@ -1215,19 +1300,19 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               {/* Additional Information */}
               {viewingRecord.additionalInfo && (
                 <div className="bg-white rounded-xl p-4 border border-slate-200 space-y-2">
-                  <h4 className="text-xs font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5">
+                  <h4 className="text-sm font-black uppercase tracking-wider text-[#061E34] border-b border-slate-100 pb-1.5">
                     Additional Information / Telemetry References
                   </h4>
-                  <p className="text-xs text-slate-700 font-medium whitespace-pre-wrap leading-relaxed pt-1">
+                  <p className="text-sm text-slate-700 font-medium whitespace-pre-wrap leading-relaxed pt-1">
                     {viewingRecord.additionalInfo}
                   </p>
                 </div>
               )}
 
               {/* Blockchain & Digital Seal */}
-              <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 text-[11px] font-mono text-slate-600">
+              <div className="bg-slate-100 p-3.5 rounded-xl border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-3 text-sm font-mono text-slate-600">
                 <div>
-                  <span className="font-bold text-slate-700 block text-[10px]">SHA-256 Record Hash:</span>
+                  <span className="font-bold text-slate-700 block text-xs">SHA-256 Record Hash:</span>
                   <span className="break-all">{viewingRecord.recordHash || '0x71c7656ec7ab88b098defb751b7401b5f6d8976f00'}</span>
                 </div>
                 <span className="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200 shrink-0">
@@ -1236,7 +1321,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               </div>
 
               {/* Generation Details Footer */}
-              <div className="pt-2 text-xs text-slate-500 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-200">
+              <div className="pt-2 text-sm text-slate-500 flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-200">
                 <div>
                   <span className="font-bold text-slate-700">Generated By: </span>
                   <span>{viewingRecord.generatedBy || 'SafeYatra Command Center'}</span>
@@ -1248,7 +1333,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               </div>
 
               {/* Legal Note */}
-              <div className="text-[10px] text-slate-400 text-center border-t border-slate-200 pt-3">
+              <div className="text-xs text-slate-400 text-center border-t border-slate-200 pt-3">
                 SafeYatra E-FIR Record: This electronic reference record is generated by the SafeYatra Command Center for incident tracking and law enforcement liaison coordination.
               </div>
 
@@ -1259,7 +1344,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
               <button
                 type="button"
                 onClick={() => setViewingRecord(null)}
-                className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-sm font-bold transition-colors cursor-pointer"
               >
                 Close Record
               </button>
@@ -1268,7 +1353,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handlePrintRecord(viewingRecord)}
-                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-2 border border-slate-300"
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-sm font-bold transition-colors cursor-pointer flex items-center gap-2 border border-slate-300"
                 >
                   <Printer className="w-4 h-4" />
                   <span>Print</span>
@@ -1277,7 +1362,7 @@ export const AdminEFIRView: React.FC<AdminEFIRViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handlePrintRecord(viewingRecord)}
-                  className="px-6 py-2.5 bg-[#061E34] hover:bg-[#0A2640] text-white rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center gap-2 shadow-md"
+                  className="px-6 py-2.5 bg-[#061E34] hover:bg-[#0A2640] text-white rounded-xl text-sm font-bold transition-colors cursor-pointer flex items-center gap-2 shadow-md"
                 >
                   <Download className="w-4 h-4 text-[#2CD3C3]" />
                   <span>Download PDF</span>

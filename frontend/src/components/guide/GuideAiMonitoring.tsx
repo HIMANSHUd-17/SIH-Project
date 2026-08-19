@@ -55,7 +55,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
               <h2 className="text-[28px] leading-[36px] font-bold tracking-tight text-gd-on-bg">
                 AI Safety & Risk Monitoring
               </h2>
-              <p className="text-sm text-gd-on-surface-var">
+              <p className="text-base text-gd-on-surface-var">
                 Live automated safety monitoring for <span className="font-bold text-gd-primary">Group {guide_id || '—'}</span> ({guide_name || 'Guide'})
               </p>
             </div>
@@ -65,7 +65,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <div className="flex items-center gap-2 bg-gd-surface px-3 py-1.5 rounded-lg border border-gd-outline-var shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-xs font-semibold text-gd-primary uppercase tracking-wider">Live AI Stream</span>
+            <span className="text-base font-semibold text-gd-primary uppercase tracking-wider">Live AI Stream</span>
           </div>
         </div>
       </div>
@@ -74,25 +74,25 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Assigned */}
         <div className="bg-gd-surface p-4 rounded-xl border border-gd-outline-var shadow-2xs flex flex-col justify-between">
-          <span className="text-xs font-bold text-gd-on-surface-var uppercase tracking-wider">Assigned Members</span>
+          <span className="text-base font-bold text-gd-on-surface-var uppercase tracking-wider">Assigned Members</span>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="text-3xl font-bold text-gd-primary font-mono">{tourists.length}</span>
-            <span className="text-xs text-gd-on-surface-var">Tourists</span>
+            <span className="text-base text-gd-on-surface-var">Tourists</span>
           </div>
-          <div className="text-[11px] text-gd-on-surface-var mt-1">Group {guide_id || 'Active'}</div>
+          <div className="text-base text-gd-on-surface-var mt-1">Group {guide_id || 'Active'}</div>
         </div>
 
         {/* Nominal Safe */}
         <div className="bg-emerald-50/80 p-4 rounded-xl border border-emerald-200/80 shadow-2xs flex flex-col justify-between">
           <div className="flex justify-between items-start">
-            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Normal / Safe</span>
+            <span className="text-base font-bold text-emerald-800 uppercase tracking-wider">Normal / Safe</span>
             <CheckCircle className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="mt-2 flex items-baseline gap-1.5">
             <span className="text-3xl font-bold text-emerald-900 font-mono">{nominalCount}</span>
-            <span className="text-xs text-emerald-700">In Zone</span>
+            <span className="text-base text-emerald-700">In Zone</span>
           </div>
-          <div className="text-[11px] text-emerald-700 mt-1">Nominal risk & normal movement</div>
+          <div className="text-base text-emerald-700 mt-1">Nominal risk & normal movement</div>
         </div>
 
         {/* Behavioral Anomalies Flagged */}
@@ -102,7 +102,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
             : 'bg-gd-surface border-gd-outline-var'
         }`}>
           <div className="flex justify-between items-start">
-            <span className={`text-xs font-bold uppercase tracking-wider ${
+            <span className={`text-base font-bold uppercase tracking-wider ${
               anomalyCount > 0 ? 'text-amber-900' : 'text-gd-on-surface-var'
             }`}>
               Anomalies Flagged
@@ -117,9 +117,9 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
             }`}>
               {anomalyCount}
             </span>
-            <span className="text-xs text-gd-on-surface-var">Detected</span>
+            <span className="text-base text-gd-on-surface-var">Detected</span>
           </div>
-          <div className={`text-[11px] mt-1 ${anomalyCount > 0 ? 'text-amber-800 font-semibold' : 'text-gd-on-surface-var'}`}>
+          <div className={`text-base mt-1 ${anomalyCount > 0 ? 'text-amber-800 font-semibold' : 'text-gd-on-surface-var'}`}>
             {anomalyCount > 0 ? 'Route deviation or stillness' : 'No behavioral outliers'}
           </div>
         </div>
@@ -131,7 +131,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
             : 'bg-gd-surface border-gd-outline-var'
         }`}>
           <div className="flex justify-between items-start">
-            <span className={`text-xs font-bold uppercase tracking-wider ${
+            <span className={`text-base font-bold uppercase tracking-wider ${
               activeSosCount > 0 ? 'text-red-900' : 'text-gd-on-surface-var'
             }`}>
               Active Emergency / SOS
@@ -146,9 +146,9 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
             }`}>
               {activeSosCount}
             </span>
-            <span className="text-xs text-gd-on-surface-var">Alerts</span>
+            <span className="text-base text-gd-on-surface-var">Alerts</span>
           </div>
-          <div className={`text-[11px] mt-1 ${activeSosCount > 0 ? 'text-red-700 font-bold' : 'text-gd-on-surface-var'}`}>
+          <div className={`text-base mt-1 ${activeSosCount > 0 ? 'text-red-700 font-bold' : 'text-gd-on-surface-var'}`}>
             {activeSosCount > 0 ? 'Immediate assistance needed' : 'All members responsive'}
           </div>
         </div>
@@ -167,12 +167,12 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                 placeholder="Search group members..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="bg-gd-surface pl-9 pr-3 py-1.5 rounded-lg border border-gd-outline-var text-xs text-gd-on-surface placeholder:text-gd-on-surface-var focus:outline-none focus:ring-1 focus:ring-gd-secondary w-52"
+                className="bg-gd-surface pl-9 pr-3 py-1.5 rounded-lg border border-gd-outline-var text-base text-gd-on-surface placeholder:text-gd-on-surface-var focus:outline-none focus:ring-1 focus:ring-gd-secondary w-52"
               />
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center bg-gd-surface p-1 rounded-lg border border-gd-outline-var text-xs font-semibold">
+            <div className="flex items-center bg-gd-surface p-1 rounded-lg border border-gd-outline-var text-base font-semibold">
               <button
                 onClick={() => setFilter('ALL')}
                 className={`px-3 py-1 rounded-md transition-all ${
@@ -216,16 +216,16 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
             </div>
           </div>
 
-          <div className="text-xs font-semibold text-gd-on-surface-var">
+          <div className="text-base font-semibold text-gd-on-surface-var">
             Showing {filteredTourists.length} of {tourists.length} Assigned Tourists
           </div>
         </div>
 
         {/* Table */}
         <div className="overflow-x-auto min-h-0">
-          <table className="w-full text-left text-xs font-medium border-collapse">
+          <table className="w-full text-left text-base font-medium border-collapse">
             <thead>
-              <tr className="bg-gd-surface-bright border-b border-gd-outline-var text-gd-on-surface-var text-[11px] uppercase font-bold tracking-wider">
+              <tr className="bg-gd-surface-bright border-b border-gd-outline-var text-gd-on-surface-var text-base uppercase font-bold tracking-wider">
                 <th className="px-4 py-3.5">Tourist / ID</th>
                 <th className="px-4 py-3.5">Live Location</th>
                 <th className="px-4 py-3.5">Risk Score</th>
@@ -294,7 +294,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" title="Active SOS"></span>
                           )}
                         </div>
-                        <div className="text-[10px] font-mono text-gd-on-surface-var mt-0.5">
+                        <div className="text-sm font-mono text-gd-on-surface-var mt-0.5">
                           ID: {t.id}
                         </div>
                       </td>
@@ -308,7 +308,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                           </span>
                         </div>
                         {t.currentLocation?.lat && (
-                          <div className="text-[10px] font-mono text-gd-on-surface-var ml-4.5">
+                          <div className="text-sm font-mono text-gd-on-surface-var ml-4.5">
                             {t.currentLocation.lat.toFixed(4)}°, {t.currentLocation.lng.toFixed(4)}°
                           </div>
                         )}
@@ -317,7 +317,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                       {/* Risk Score */}
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-gd-primary text-xs w-12">
+                          <span className="font-mono font-bold text-gd-primary text-base w-12">
                             {score.toFixed(1)}/100
                           </span>
                           <div className="w-14 bg-slate-100 h-1.5 rounded-full overflow-hidden border border-slate-200">
@@ -331,7 +331,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
 
                       {/* Risk Level */}
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${riskBadgeStyle}`}>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-sm font-bold border ${riskBadgeStyle}`}>
                           {riskLevel}
                         </span>
                       </td>
@@ -339,7 +339,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                       {/* Anomaly Status */}
                       <td className="px-4 py-3.5">
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-sm font-bold border ${
                             isAnomaly
                               ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
                               : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -354,7 +354,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                       <td className="px-4 py-3.5">
                         {isAnomaly ? (
                           <div>
-                            <span className="text-[10px] font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200 block max-w-[130px] truncate">
+                            <span className="text-sm font-bold text-amber-900 bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200 block max-w-[130px] truncate">
                               {anomalyType}
                             </span>
                             <span className="text-[9px] font-semibold text-amber-700 block mt-0.5">
@@ -362,13 +362,13 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                             </span>
                           </div>
                         ) : (
-                          <span className="text-gd-on-surface-var text-[11px]">Nominal</span>
+                          <span className="text-gd-on-surface-var text-base">Nominal</span>
                         )}
                       </td>
 
                       {/* Safety Status */}
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${safetyStyle}`}>
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-sm font-bold border ${safetyStyle}`}>
                           {safetyStatus}
                         </span>
                       </td>
@@ -381,14 +381,14 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                             ACTIVE SOS
                           </span>
                         ) : (
-                          <span className="text-gd-on-surface-var text-[10px] bg-slate-100 px-2 py-0.5 rounded-full font-medium border border-slate-200">
+                          <span className="text-gd-on-surface-var text-sm bg-slate-100 px-2 py-0.5 rounded-full font-medium border border-slate-200">
                             OFF
                           </span>
                         )}
                       </td>
 
                       {/* Last Updated */}
-                      <td className="px-4 py-3.5 text-gd-on-surface-var font-mono text-[10px] whitespace-nowrap">
+                      <td className="px-4 py-3.5 text-gd-on-surface-var font-mono text-sm whitespace-nowrap">
                         <div className="flex items-center gap-1">
                           <Clock className="w-3 h-3 text-gd-outline" />
                           <span>{t.lastUpdated || 'Live'}</span>
@@ -400,7 +400,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => navigate('/guide/chat')}
-                            className="bg-gd-surface hover:bg-gd-surface-variant text-gd-primary border border-gd-outline-var px-2 py-1 rounded text-[11px] font-bold transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
+                            className="bg-gd-surface hover:bg-gd-surface-variant text-gd-primary border border-gd-outline-var px-2 py-1 rounded text-base font-bold transition-colors flex items-center gap-1 shadow-2xs cursor-pointer"
                             title="Message Tourist"
                           >
                             <MessageSquare className="w-3 h-3 text-gd-secondary" />
@@ -417,7 +417,7 @@ export const GuideAiMonitoring: React.FC<GuideAiMonitoringProps> = ({
         </div>
 
         {/* Footer info note */}
-        <div className="p-3 bg-gd-surface-bright border-t border-gd-outline-var flex items-center justify-between text-[11px] text-gd-on-surface-var">
+        <div className="p-3 bg-gd-surface-bright border-t border-gd-outline-var flex items-center justify-between text-base text-gd-on-surface-var">
           <span className="font-mono">
             Safety Fusion Status: Continuous live AI surveillance active for Group {guide_id || '—'}
           </span>

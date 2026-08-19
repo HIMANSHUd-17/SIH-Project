@@ -167,18 +167,18 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
             <div className="flex items-center gap-2.5">
               <h2 className="text-2xl font-extrabold text-st-on-surface">{tourist.name || 'Traveler'}</h2>
               {isTeamAccount ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-bold border border-purple-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-800 text-sm font-bold border border-purple-200">
                   <Users className="w-3.5 h-3.5" />
                   {t('profile.teamTourist')}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-bold border border-blue-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm font-bold border border-blue-200">
                   <User className="w-3.5 h-3.5" />
                   {t('profile.soloTourist')}
                 </span>
               )}
             </div>
-            <p className="text-xs text-st-on-surface-variant mt-1 font-mono">
+            <p className="text-sm text-st-on-surface-variant mt-1 font-mono">
               Tourist ID: <span className="font-bold text-st-primary">{tourist.id}</span>
               {isTeamAccount || tourist.guide_id ? (
                 <> • {t('profile.guideLabel')} {tourist.guide_id || 'G-1001'}</>
@@ -194,7 +194,7 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
           {!isEditing ? (
             <button
               onClick={() => { setIsEditing(true); setError(null); setSuccessMsg(null); }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-st-primary text-white hover:bg-st-primary-fixed transition-colors rounded-xl font-bold text-xs shadow-md cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-st-primary text-white hover:bg-st-primary-fixed transition-colors rounded-xl font-bold text-sm shadow-md cursor-pointer"
             >
               <Edit3 className="w-4 h-4" />
               <span>{t('profile.editBtn')}</span>
@@ -202,7 +202,7 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
           ) : (
             <button
               onClick={() => { setIsEditing(false); setError(null); }}
-              className="flex items-center gap-2 px-5 py-2.5 bg-st-surface-container text-st-on-surface-variant hover:bg-st-outline-variant/30 transition-colors rounded-xl font-bold text-xs cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2.5 bg-st-surface-container text-st-on-surface-variant hover:bg-st-outline-variant/30 transition-colors rounded-xl font-bold text-sm cursor-pointer"
             >
               <X className="w-4 h-4" />
               <span>{t('profile.cancelEdit')}</span>
@@ -213,14 +213,14 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
 
       {/* Notifications */}
       {successMsg && (
-        <div className="p-4 bg-green-50 text-green-800 rounded-xl text-xs font-semibold border border-green-200 flex items-center gap-2.5">
+        <div className="p-4 bg-green-50 text-green-800 rounded-xl text-sm font-semibold border border-green-200 flex items-center gap-2.5">
           <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
           <span>{t('profile.updateSuccess')}</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 bg-st-error-container text-st-on-error-container rounded-xl text-xs font-semibold border border-st-error/30 flex items-center gap-2.5">
+        <div className="p-4 bg-st-error-container text-st-on-error-container rounded-xl text-sm font-semibold border border-st-error/30 flex items-center gap-2.5">
           <AlertCircle className="w-5 h-5 text-st-error shrink-0" />
           <span>{error}</span>
         </div>
@@ -236,7 +236,7 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
               <User className="w-5 h-5 text-st-primary" />
               <span>{t('profile.title')}</span>
             </h3>
-            <span className="text-xs text-st-on-surface-variant">
+            <span className="text-sm text-st-on-surface-variant">
               {isEditing ? t('profile.editingMode') : t('profile.verifiedRecord')}
             </span>
           </div>
@@ -247,78 +247,78 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
               
               {/* Full Name */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   {t('profile.fullName')}
                 </span>
-                <span className="text-sm font-bold text-st-on-surface">{tourist.name || 'N/A'}</span>
+                <span className="text-base font-bold text-st-on-surface">{tourist.name || 'N/A'}</span>
               </div>
 
               {/* Email */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   {t('profile.emailAddress')}
                 </span>
-                <span className="text-sm font-bold text-st-on-surface">{tourist.email || 'N/A'}</span>
+                <span className="text-base font-bold text-st-on-surface">{tourist.email || 'N/A'}</span>
               </div>
 
               {/* Mobile */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   {t('profile.mobileNumber')}
                 </span>
-                <span className="text-sm font-bold text-st-on-surface">{tourist.mobile || 'N/A'}</span>
+                <span className="text-base font-bold text-st-on-surface">{tourist.mobile || 'N/A'}</span>
               </div>
 
               {/* Emergency Contact */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-error uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-error uppercase tracking-wider block mb-1">
                   {t('common.emergencyContact')}
                 </span>
-                <span className="text-sm font-bold text-st-on-surface">{tourist.emergencyContact || 'N/A'}</span>
+                <span className="text-base font-bold text-st-on-surface">{tourist.emergencyContact || 'N/A'}</span>
               </div>
 
               {/* Country */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   {t('profile.country')}
                 </span>
-                <span className="text-sm font-bold text-st-on-surface">{tourist.nationality || 'Indian'}</span>
+                <span className="text-base font-bold text-st-on-surface">{tourist.nationality || 'Indian'}</span>
               </div>
 
               {/* City */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   {t('common.city')}
                 </span>
-                <span className="text-sm font-bold text-st-on-surface">{tourist.city || 'Not Specified'}</span>
+                <span className="text-base font-bold text-st-on-surface">{tourist.city || 'Not Specified'}</span>
               </div>
 
               {/* Age */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   {t('common.age')}
                 </span>
-                <span className="text-sm font-bold text-st-on-surface">{tourist.age ? `${tourist.age} yrs` : 'N/A'}</span>
+                <span className="text-base font-bold text-st-on-surface">{tourist.age ? `${tourist.age} yrs` : 'N/A'}</span>
               </div>
 
               {/* Blood Group */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   {t('profile.bloodGroupLabel')}
                 </span>
-                <span className="text-sm font-bold text-red-600">{tourist.bloodType || 'O+'}</span>
+                <span className="text-base font-bold text-red-600">{tourist.bloodType || 'O+'}</span>
               </div>
 
               {/* Pre-Existing Medical Conditions */}
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30 md:col-span-2">
-                <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                   🏥 Medical & Health Conditions
                 </span>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-bold text-st-on-surface">
+                  <span className="text-base font-bold text-st-on-surface">
                     {tourist.medicalConditions || 'None / Healthy'}
                   </span>
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                  <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                     tourist.medicalConditions && tourist.medicalConditions !== 'None / Healthy'
                       ? 'bg-amber-100 text-amber-800 border border-amber-300'
                       : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
@@ -332,14 +332,14 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
               <div className="p-3.5 bg-st-surface-container rounded-xl border border-st-outline-variant/30 md:col-span-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
+                    <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider block mb-1">
                       🛡️ Gov ID Proof ({tourist.idProofType || 'AADHAAR'})
                     </span>
-                    <p className="text-xs text-st-on-surface-variant font-mono">
+                    <p className="text-sm text-st-on-surface-variant font-mono">
                       {tourist.idProofHash ? `Proof Hash: ${tourist.idProofHash.slice(0, 22)}...` : 'AES-256 Encrypted & Stored'}
                     </p>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                  <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
                     <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                     <span>Encrypted & Verified</span>
                   </span>
@@ -354,7 +354,7 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
 
                 {/* Full Name */}
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
                     {t('profile.fullName')} <span className="text-st-error">*</span>
                   </label>
                   <input
@@ -362,13 +362,13 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                     required
                     value={form.name}
                     onChange={e => updateField('name', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
                     {t('profile.emailAddress')} <span className="text-st-error">*</span>
                   </label>
                   <input
@@ -376,13 +376,13 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                     required
                     value={form.email}
                     onChange={e => updateField('email', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   />
                 </div>
 
                 {/* Mobile */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
                     {t('profile.mobileNumber')} <span className="text-st-error">*</span>
                   </label>
                   <input
@@ -390,13 +390,13 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                     required
                     value={form.mobile}
                     onChange={e => updateField('mobile', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   />
                 </div>
 
                 {/* Emergency Contact */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-error mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-error mb-1">
                     {t('common.emergencyContact')} <span className="text-st-error">*</span>
                   </label>
                   <input
@@ -404,13 +404,13 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                     required
                     value={form.emergencyContact}
                     onChange={e => updateField('emergencyContact', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   />
                 </div>
 
                 {/* Country */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
                     {t('profile.country')} <span className="text-st-error">*</span>
                   </label>
                   <input
@@ -418,13 +418,13 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                     required
                     value={form.nationality}
                     onChange={e => updateField('nationality', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   />
                 </div>
 
                 {/* City */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
                     {t('common.city')} <span className="text-st-error">*</span>
                   </label>
                   <input
@@ -432,13 +432,13 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                     required
                     value={form.city}
                     onChange={e => updateField('city', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   />
                 </div>
 
                 {/* Age */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
                     {t('common.age')} <span className="text-st-error">*</span>
                   </label>
                   <input
@@ -448,19 +448,19 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                     max="120"
                     value={form.age}
                     onChange={e => updateField('age', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   />
                 </div>
 
                 {/* Blood Group */}
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
+                  <label className="block text-sm font-bold uppercase tracking-wider text-st-on-surface-variant mb-1">
                     {t('profile.bloodGroupLabel')} <span className="text-st-error">*</span>
                   </label>
                   <select
                     value={form.bloodType}
                     onChange={e => updateField('bloodType', e.target.value)}
-                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-sm font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
+                    className="w-full bg-st-surface-container border border-st-outline-variant/60 rounded-xl px-3.5 py-2.5 text-st-on-surface text-base font-medium focus:outline-none focus:ring-2 focus:ring-st-primary"
                   >
                     {BLOOD_GROUPS.map(bg => (
                       <option key={bg} value={bg}>{bg}</option>
@@ -474,14 +474,14 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
                 <button
                   type="button"
                   onClick={() => setIsEditing(false)}
-                  className="px-5 py-2.5 rounded-xl font-bold text-xs text-st-on-surface-variant hover:bg-st-surface-container transition-colors cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl font-bold text-sm text-st-on-surface-variant hover:bg-st-surface-container transition-colors cursor-pointer"
                 >
                   {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-6 py-2.5 bg-st-primary text-white rounded-xl font-bold text-xs hover:bg-st-primary-fixed transition-colors shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                  className="px-6 py-2.5 bg-st-primary text-white rounded-xl font-bold text-sm hover:bg-st-primary-fixed transition-colors shadow-md disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
                   {isSaving ? (
                     <>
@@ -503,19 +503,19 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
           {isTeamAccount && (
             <div className="pt-4 border-t border-st-outline-variant/30 space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
+                <h4 className="text-sm font-bold uppercase tracking-wider text-purple-700 flex items-center gap-1.5">
                   <Users className="w-4 h-4" />
                   <span>{t('profile.teamMembership')}</span>
                 </h4>
-                <span className="text-xs font-mono font-bold text-purple-900 bg-purple-100 px-2.5 py-0.5 rounded-full">
+                <span className="text-sm font-mono font-bold text-purple-900 bg-purple-100 px-2.5 py-0.5 rounded-full">
                   Group ID: {tourist.groupId || 'GRP-N/A'}
                 </span>
               </div>
 
-              <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 text-xs text-purple-900 space-y-2">
+              <div className="p-4 bg-purple-50 rounded-xl border border-purple-200 text-sm text-purple-900 space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-sm">{tourist.groupName || 'Tour Group Squad'}</span>
-                  <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-800 font-bold uppercase text-[10px]">
+                  <span className="font-bold text-base">{tourist.groupName || 'Tour Group Squad'}</span>
+                  <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-800 font-bold uppercase text-xs">
                     {tourist.isLeader ? 'Leader' : 'Member'}
                   </span>
                 </div>
@@ -524,17 +524,17 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
               {/* Fellow Members List */}
               {teamMembers.length > 0 && (
                 <div className="space-y-2">
-                  <span className="text-[11px] font-bold text-st-on-surface-variant uppercase tracking-wider">
+                  <span className="text-sm font-bold text-st-on-surface-variant uppercase tracking-wider">
                     Fellow Team Members ({teamMembers.length})
                   </span>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {teamMembers.map(m => (
-                      <div key={m.id} className="p-3 bg-st-surface-container rounded-xl border border-st-outline-variant/40 flex justify-between items-center text-xs">
+                      <div key={m.id} className="p-3 bg-st-surface-container rounded-xl border border-st-outline-variant/40 flex justify-between items-center text-sm">
                         <div>
                           <p className="font-bold text-st-on-surface">{m.name}</p>
-                          <p className="text-[11px] text-st-on-surface-variant">{m.mobile || 'No Mobile'} • Blood: {m.bloodType || 'N/A'}</p>
+                          <p className="text-sm text-st-on-surface-variant">{m.mobile || 'No Mobile'} • Blood: {m.bloodType || 'N/A'}</p>
                         </div>
-                        <span className="font-mono text-[10px] font-bold bg-white px-2 py-1 rounded border border-st-outline-variant/40">
+                        <span className="font-mono text-xs font-bold bg-white px-2 py-1 rounded border border-st-outline-variant/40">
                           {m.id}
                         </span>
                       </div>
@@ -557,11 +557,11 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
               <span>{t('profile.safetyTelemetry')}</span>
             </h3>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-3 text-sm">
               {/* Safety Status */}
               <div className="flex justify-between items-center p-3 bg-st-surface-container rounded-xl">
                 <span className="font-semibold text-st-on-surface-variant">{t('profile.safetyStatusLabel')}</span>
-                <span className={`font-bold px-2.5 py-1 rounded-full text-[11px] ${
+                <span className={`font-bold px-2.5 py-1 rounded-full text-sm ${
                   tourist.safetyStatus === 'EMERGENCY_SOS'
                     ? 'bg-red-100 text-red-800 border border-red-300'
                     : tourist.safetyStatus === 'AT_RISK'
@@ -591,7 +591,7 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
               <div className="p-3.5 bg-st-surface-container rounded-xl space-y-1">
                 <span className="font-semibold text-st-on-surface-variant block">{t('profile.currentGps')}</span>
                 <p className="font-bold text-st-on-surface">{tourist.currentLocation?.address || (tourist.currentLocation?.lat ? `${tourist.currentLocation.lat.toFixed(4)}°N, ${tourist.currentLocation.lng.toFixed(4)}°E` : 'Live Location')}</p>
-                <p className="font-mono text-[10px] text-st-on-surface-variant">
+                <p className="font-mono text-xs text-st-on-surface-variant">
                   {tourist.currentLocation?.lat ? `${tourist.currentLocation.lat.toFixed(4)}°N, ${tourist.currentLocation.lng?.toFixed(4)}°E` : 'Coordinates Pending'}
                 </p>
               </div>
@@ -600,21 +600,21 @@ export const TouristProfileView: React.FC<TouristProfileViewProps> = ({ tourist,
 
           {/* Blockchain Anchor Details */}
           <div className="bg-white rounded-2xl p-6 shadow-md border border-st-outline-variant/40 space-y-3">
-            <h3 className="text-sm font-bold text-st-on-surface flex items-center gap-2 border-b border-st-outline-variant/30 pb-2">
+            <h3 className="text-base font-bold text-st-on-surface flex items-center gap-2 border-b border-st-outline-variant/30 pb-2">
               <Shield className="w-4 h-4 text-st-primary" />
               <span>{t('profile.blockchainAnchoring')}</span>
             </h3>
 
-            <div className="text-[11px] space-y-2 text-st-on-surface-variant">
+            <div className="text-sm space-y-2 text-st-on-surface-variant">
               <div>
                 <span className="font-semibold block text-st-on-surface">{t('profile.polygonDid')}</span>
-                <span className="font-mono text-[10px] break-all bg-st-surface-container p-1.5 rounded block mt-0.5 text-st-primary font-bold">
+                <span className="font-mono text-xs break-all bg-st-surface-container p-1.5 rounded block mt-0.5 text-st-primary font-bold">
                   {maskDid(tourist.blockchainDid)}
                 </span>
               </div>
               <div>
                 <span className="font-semibold block text-st-on-surface">{t('profile.zkpHash')}</span>
-                <span className="font-mono text-[10px] break-all bg-st-surface-container p-1.5 rounded block mt-0.5">
+                <span className="font-mono text-xs break-all bg-st-surface-container p-1.5 rounded block mt-0.5">
                   {tourist.identityHash || '0xa498f3214b72ef31890cd123490aafe782'}
                 </span>
               </div>

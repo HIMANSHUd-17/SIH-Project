@@ -39,7 +39,7 @@ const GuideLiveMap: React.FC<{
 
     let centerLat = 30.1250;
     let centerLng = 78.3180;
-    
+
     if (tourists.length > 0 && tourists[0].currentLocation?.lat) {
       centerLat = tourists[0].currentLocation.lat;
       centerLng = tourists[0].currentLocation.lng;
@@ -142,14 +142,14 @@ const GuideLiveMap: React.FC<{
       });
 
       const popupContent = `
-        <div style="font-family: sans-serif; font-size: 12px; min-width: 200px; line-height: 1.4; color: #1e293b;">
-          <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px;">${t.name}</div>
-          <div style="margin-bottom: 4px;">Status: <b style="color: ${pinColor}">${hasActiveIncident ? '🚨 ACTIVE INCIDENT' : t.safetyStatus}</b> (Risk: ${t.currentRiskScore}/100)</div>
-          <div style="margin-bottom: 4px; color: #475569;">📍 ${t.currentLocation.address || 'Live Telemetry'}</div>
-          <div style="font-size: 10px; color: #64748b; font-family: monospace; background: #f1f5f9; padding: 2px 4px; border-radius: 4px; margin-bottom: 4px;">
+        <div style="font-family: sans-serif; font-size: 12px; min-width: 200px; line-height: 1.4; color: #f1f5f9;">
+          <div style="font-weight: bold; font-size: 13px; margin-bottom: 4px; color: #ffffff;">${t.name}</div>
+          <div style="margin-bottom: 4px;">Status: <b style="color: ${pinColor}">${hasActiveIncident ? '🚨 ACTIVE INCIDENT' : t.safetyStatus}</b> <span style="color: #94a3b8;">(Risk: ${t.currentRiskScore}/100)</span></div>
+          <div style="margin-bottom: 4px; color: #cbd5e1;">📍 ${t.currentLocation.address || 'Live Telemetry'}</div>
+          <div style="font-size: 10px; color: #94a3b8; font-family: monospace; background: #0f172a; border: 1px solid #1e293b; padding: 2px 4px; border-radius: 4px; margin-bottom: 4px;">
             GPS: ${t.currentLocation.lat.toFixed(5)}° N, ${t.currentLocation.lng.toFixed(5)}° E
           </div>
-          <div style="font-size: 10px; color: #94a3b8;">Battery: ${t.batteryLevel ?? 100}% • Updated: ${t.lastUpdated || 'Just now'}</div>
+          <div style="font-size: 10px; color: #cbd5e1;">Battery: <span style="color: #ffffff;">${t.batteryLevel ?? 100}%</span> • Updated: ${t.lastUpdated || 'Just now'}</div>
         </div>
       `;
 
@@ -173,18 +173,18 @@ const GuideLiveMap: React.FC<{
         <select
           value={selectedId}
           onChange={(e) => focusTourist(e.target.value)}
-          className="bg-white/95 border border-gd-outline-var text-gd-primary text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm focus:outline-none cursor-pointer"
+          className="bg-white/95 border border-gd-outline-var text-gd-primary text-base font-semibold px-2.5 py-1 rounded-lg shadow-sm focus:outline-none cursor-pointer"
         >
           <option value="">🎯 Focus Member...</option>
           {tourists.map(t => (
             <option key={t.id} value={t.id}>
-              {t.name} ({t.currentLocation.address ? t.currentLocation.address.split(',')[0] : `${t.currentLocation.lat.toFixed(2)}, ${t.currentLocation.lng.toFixed(2)}`})
+              {t.name} {t.currentLocation ? `(${t.currentLocation.address ? t.currentLocation.address.split(',')[0] : `${(t.currentLocation.lat || 0).toFixed(2)}, ${(t.currentLocation.lng || 0).toFixed(2)}`})` : '(No Signal)'}
             </option>
           ))}
         </select>
         <button
           onClick={fitAllTourists}
-          className="bg-gd-primary hover:opacity-90 text-white text-xs font-bold px-2.5 py-1 rounded-lg shadow-sm transition-all cursor-pointer"
+          className="bg-gd-primary hover:opacity-90 text-white text-base font-bold px-2.5 py-1 rounded-lg shadow-sm transition-all cursor-pointer"
         >
           Fit Group
         </button>
@@ -245,7 +245,7 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
               <h3 className="font-bold text-base uppercase tracking-wide flex items-center gap-2">
                 <span>Critical Alert ({activeGroupIncidents.length} Active Incident{activeGroupIncidents.length > 1 ? 's' : ''})</span>
               </h3>
-              <p className="text-xs text-red-100 mt-0.5">
+              <p className="text-base text-red-100 mt-0.5">
                 {activeGroupIncidents.map(i => `${i.touristName}: "${i.description}"`).join(' | ')}
               </p>
             </div>
@@ -253,7 +253,7 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
           <div className="flex items-center gap-2 w-full md:w-auto">
             <button
               onClick={() => navigate('/guide/chat')}
-              className="bg-white text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 shadow"
+              className="bg-white text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg text-base font-bold transition-colors flex items-center gap-1.5 shadow"
             >
               <MessageSquare className="w-4 h-4" /> Open Group Chat
             </button>
@@ -293,7 +293,7 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
             </div>
             <div className="mt-2 flex items-baseline gap-1">
               <span className="text-[28px] leading-[36px] font-bold text-gd-primary">{tourists.length}</span>
-              <span className="text-xs text-gd-on-surface-var">Tourists</span>
+              <span className="text-base text-gd-on-surface-var">Tourists</span>
             </div>
           </div>
 
@@ -308,59 +308,51 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
             </div>
             <div className="mt-2 flex items-baseline gap-1 pl-2">
               <span className="text-[28px] leading-[36px] font-bold text-gd-secondary">{safeCount}</span>
-              <span className="text-xs text-gd-on-surface-var">In Zone</span>
+              <span className="text-base text-gd-on-surface-var">In Zone</span>
             </div>
           </div>
 
           {/* AI Anomalies Flagged */}
-          <div className={`p-4 rounded-xl border flex flex-col justify-between min-h-[110px] ${
-            tourists.some(t => t.anomaly?.anomaly_detected)
-              ? 'bg-amber-50 border-amber-300'
-              : 'bg-gd-surface border-gd-outline-var'
-          }`}>
+          <div className={`p-4 rounded-xl border flex flex-col justify-between min-h-[110px] ${tourists.some(t => t.anomaly?.anomaly_detected)
+            ? 'bg-amber-50 border-amber-300'
+            : 'bg-gd-surface border-gd-outline-var'
+            }`}>
             <div className="flex justify-between items-start">
-              <span className={`text-[12px] font-bold uppercase tracking-wide ${
-                tourists.some(t => t.anomaly?.anomaly_detected) ? 'text-amber-900' : 'text-gd-on-surface-var'
-              }`}>
+              <span className={`text-[12px] font-bold uppercase tracking-wide ${tourists.some(t => t.anomaly?.anomaly_detected) ? 'text-amber-900' : 'text-gd-on-surface-var'
+                }`}>
                 Anomalies
               </span>
-              <Activity className={`w-4 h-4 ${
-                tourists.some(t => t.anomaly?.anomaly_detected) ? 'text-amber-600 animate-pulse' : 'text-gd-outline'
-              }`} />
+              <Activity className={`w-4 h-4 ${tourists.some(t => t.anomaly?.anomaly_detected) ? 'text-amber-600 animate-pulse' : 'text-gd-outline'
+                }`} />
             </div>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className={`text-[28px] leading-[36px] font-bold ${
-                tourists.some(t => t.anomaly?.anomaly_detected) ? 'text-amber-900' : 'text-gd-primary'
-              }`}>
+              <span className={`text-[28px] leading-[36px] font-bold ${tourists.some(t => t.anomaly?.anomaly_detected) ? 'text-amber-900' : 'text-gd-primary'
+                }`}>
                 {tourists.filter(t => t.anomaly?.anomaly_detected).length}
               </span>
-              <span className="text-xs text-gd-on-surface-var">Flagged</span>
+              <span className="text-base text-gd-on-surface-var">Flagged</span>
             </div>
           </div>
 
           {/* Caution / Incident Status */}
-          <div className={`p-4 rounded-xl border flex flex-col justify-between relative shadow-sm min-h-[110px] ${
-            activeGroupIncidents.length > 0
-              ? 'bg-red-50 border-red-300'
-              : 'bg-gd-warn border-gd-warn-dim'
-          }`}>
+          <div className={`p-4 rounded-xl border flex flex-col justify-between relative shadow-sm min-h-[110px] ${activeGroupIncidents.length > 0
+            ? 'bg-red-50 border-red-300'
+            : 'bg-gd-warn border-gd-warn-dim'
+            }`}>
             <div className="flex justify-between items-start">
-              <span className={`text-[12px] font-bold uppercase tracking-wide ${
-                activeGroupIncidents.length > 0 ? 'text-red-700' : 'text-gd-warn-ctr'
-              }`}>
+              <span className={`text-[12px] font-bold uppercase tracking-wide ${activeGroupIncidents.length > 0 ? 'text-red-700' : 'text-gd-warn-ctr'
+                }`}>
                 {activeGroupIncidents.length > 0 ? 'Incidents' : 'Caution'}
               </span>
-              <AlertTriangle className={`w-4 h-4 fill-current ${
-                activeGroupIncidents.length > 0 ? 'text-red-600' : 'text-gd-warn-ctr'
-              }`} />
+              <AlertTriangle className={`w-4 h-4 fill-current ${activeGroupIncidents.length > 0 ? 'text-red-600' : 'text-gd-warn-ctr'
+                }`} />
             </div>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className={`text-[28px] leading-[36px] font-bold ${
-                activeGroupIncidents.length > 0 ? 'text-red-700' : 'text-gd-warn-ctr'
-              }`}>
+              <span className={`text-[28px] leading-[36px] font-bold ${activeGroupIncidents.length > 0 ? 'text-red-700' : 'text-gd-warn-ctr'
+                }`}>
                 {activeGroupIncidents.length > 0 ? activeGroupIncidents.length : cautionCount}
               </span>
-              <span className="text-xs text-gd-on-warn-ctr font-semibold">
+              <span className="text-base text-gd-on-warn-ctr font-semibold">
                 {activeGroupIncidents.length > 0 ? 'Urgent' : 'Lagging'}
               </span>
             </div>
@@ -374,14 +366,12 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
             <h3 className="text-xl font-semibold text-gd-primary flex items-center gap-2 font-guide">
               <Map className="w-5 h-5" /> Live Group Map
             </h3>
-            <span className={`px-2 py-1 rounded-full text-[13px] font-guide-mono font-medium flex items-center gap-1.5 ${
-              activeGroupIncidents.length > 0
-                ? 'bg-red-100 text-red-800'
-                : 'bg-gd-secondary-ctr text-gd-on-secondary-ctr'
-            }`}>
-              <div className={`w-2 h-2 rounded-full ${
-                activeGroupIncidents.length > 0 ? 'bg-red-600 animate-ping' : 'bg-gd-secondary'
-              }`} />
+            <span className={`px-2 py-1 rounded-full text-[13px] font-guide-mono font-medium flex items-center gap-1.5 ${activeGroupIncidents.length > 0
+              ? 'bg-red-100 text-red-800'
+              : 'bg-gd-secondary-ctr text-gd-on-secondary-ctr'
+              }`}>
+              <div className={`w-2 h-2 rounded-full ${activeGroupIncidents.length > 0 ? 'bg-red-600 animate-ping' : 'bg-gd-secondary'
+                }`} />
               {activeGroupIncidents.length > 0 ? 'Alert Active' : 'Safe Zone Active'}
             </span>
           </div>
@@ -402,7 +392,7 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
               <BellRing className="w-5 h-5" /> Recent Alerts
             </h3>
             {activeGroupIncidents.length > 0 && (
-              <span className="bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+              <span className="bg-red-600 text-white text-sm font-bold px-2 py-0.5 rounded-full uppercase">
                 {activeGroupIncidents.length} Urgent
               </span>
             )}
@@ -414,15 +404,14 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
               <button
                 key={filter}
                 onClick={() => setAlertFilter(filter)}
-                className={`px-2 py-1 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                  alertFilter === filter
-                    ? 'bg-gd-primary text-gd-on-primary'
-                    : 'border border-gd-outline-var text-gd-on-surface-var hover:bg-gd-surface-variant'
-                }`}
+                className={`px-2 py-1 rounded-full text-[13px] font-medium whitespace-nowrap transition-colors cursor-pointer ${alertFilter === filter
+                  ? 'bg-gd-primary text-gd-on-primary'
+                  : 'border border-gd-outline-var text-gd-on-surface-var hover:bg-gd-surface-variant'
+                  }`}
               >
                 {filter === 'all' ? `All (${allAlerts.length})` :
-                 filter === 'caution' ? `Caution (${allAlerts.filter(a => a.type === 'caution').length})` :
-                 `System (${allAlerts.filter(a => a.type === 'system' || (a as any).type === 'info').length})`}
+                  filter === 'caution' ? `Caution (${allAlerts.filter(a => a.type === 'caution').length})` :
+                    `System (${allAlerts.filter(a => a.type === 'system' || (a as any).type === 'info').length})`}
               </button>
             ))}
           </div>
@@ -434,19 +423,17 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
               return (
                 <div
                   key={alert.id}
-                  className={`p-4 transition-colors flex gap-3 ${
-                    isDynamic
-                      ? 'bg-red-50/80 hover:bg-red-100/80 border-l-4 border-l-red-600'
-                      : 'hover:bg-gd-surface-low'
-                  }`}
+                  className={`p-4 transition-colors flex gap-3 ${isDynamic
+                    ? 'bg-red-50/80 hover:bg-red-100/80 border-l-4 border-l-red-600'
+                    : 'hover:bg-gd-surface-low'
+                    }`}
                 >
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-                    isDynamic
-                      ? 'bg-red-600 text-white shadow-sm'
-                      : alert.type === 'caution'
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isDynamic
+                    ? 'bg-red-600 text-white shadow-sm'
+                    : alert.type === 'caution'
                       ? 'bg-gd-warn text-gd-warn-ctr'
                       : 'bg-gd-surface-dim text-gd-on-surface'
-                  }`}>
+                    }`}>
                     {isDynamic ? <Flame className="w-5 h-5" /> : alertIconMap[alert.icon]}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -454,11 +441,11 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
                       <span className={`text-[13px] font-bold ${isDynamic ? 'text-red-700' : 'text-gd-on-surface'}`}>
                         {alert.title}
                       </span>
-                      <span className="text-[11px] font-guide-mono text-gd-on-surface-var ml-2 shrink-0">
+                      <span className="text-base font-guide-mono text-gd-on-surface-var ml-2 shrink-0">
                         {alert.time}
                       </span>
                     </div>
-                    <p className="text-sm text-gd-on-surface-var line-clamp-2">{alert.description}</p>
+                    <p className="text-base text-gd-on-surface-var line-clamp-2">{alert.description}</p>
                     {alert.hasAction && (
                       <div className="mt-2 flex items-center gap-2">
                         <button
@@ -485,13 +472,13 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
             <h3 className="text-xl font-semibold text-gd-primary font-guide">
               AI Risk & Behavioral Anomaly Monitor
             </h3>
-            <span className="text-xs text-gd-on-surface-var hidden sm:inline font-mono">
+            <span className="text-base text-gd-on-surface-var hidden sm:inline font-mono">
               (Live XGBoost & Isolation Forest telemetry)
             </span>
           </div>
           <button
             onClick={() => navigate('/guide/safety')}
-            className="bg-gd-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-2xs hover:opacity-95 transition-all cursor-pointer flex items-center gap-1 font-guide"
+            className="bg-gd-primary text-white text-base font-bold px-3 py-1.5 rounded-lg shadow-2xs hover:opacity-95 transition-all cursor-pointer flex items-center gap-1 font-guide"
           >
             <span>Full Safety View</span>
             <span>&rarr;</span>
@@ -499,9 +486,9 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
         </div>
 
         <div className="overflow-x-auto min-h-0">
-          <table className="w-full text-left text-xs font-medium border-collapse">
+          <table className="w-full text-left text-base font-medium border-collapse">
             <thead>
-              <tr className="bg-gd-surface-bright border-b border-gd-outline-var text-gd-on-surface-var text-[11px] uppercase font-bold tracking-wider">
+              <tr className="bg-gd-surface-bright border-b border-gd-outline-var text-gd-on-surface-var text-base uppercase font-bold tracking-wider">
                 <th className="px-4 py-3">Tourist / ID</th>
                 <th className="px-4 py-3">Live Location</th>
                 <th className="px-4 py-3">Risk Score</th>
@@ -552,7 +539,7 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
                           <span>{t.name}</span>
                           {isSos && <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>}
                         </div>
-                        <div className="text-[10px] font-mono text-gd-on-surface-var">ID: {t.id}</div>
+                        <div className="text-sm font-mono text-gd-on-surface-var">ID: {t.id}</div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="truncate max-w-[150px] font-medium" title={t.currentLocation?.address || 'Live Location'}>
@@ -563,24 +550,23 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
                         {score.toFixed(1)}/100
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold border ${riskBadgeStyle}`}>
+                        <span className={`inline-flex px-2 py-0.5 rounded-full text-sm font-bold border ${riskBadgeStyle}`}>
                           {riskLevel}
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                          isAnomaly
-                            ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
-                            : 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        }`}>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-sm font-bold border ${isAnomaly
+                          ? 'bg-amber-100 text-amber-800 border-amber-300 animate-pulse'
+                          : 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                          }`}>
                           {isAnomaly ? 'DETECTED' : 'NORMAL'}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[11px] font-medium text-gd-on-surface">
+                      <td className="px-4 py-3 text-base font-medium text-gd-on-surface">
                         {anomalyType}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${safetyStyle}`}>
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-sm font-bold border ${safetyStyle}`}>
                           {safetyStatus}
                         </span>
                       </td>
@@ -591,12 +577,12 @@ export const GuideOverview: React.FC<GuideOverviewProps> = ({ tourists, incident
                             ACTIVE SOS
                           </span>
                         ) : (
-                          <span className="text-gd-on-surface-var text-[10px] bg-slate-100 px-2 py-0.5 rounded-full font-medium border border-slate-200">
+                          <span className="text-gd-on-surface-var text-sm bg-slate-100 px-2 py-0.5 rounded-full font-medium border border-slate-200">
                             OFF
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-gd-on-surface-var font-mono text-[10px] whitespace-nowrap">
+                      <td className="px-4 py-3 text-gd-on-surface-var font-mono text-sm whitespace-nowrap">
                         {t.lastUpdated || 'Live'}
                       </td>
                     </tr>

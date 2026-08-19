@@ -48,7 +48,7 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
       setMode(initialMode);
     }
   }, [isOpen, initialMode]);
-  
+
   // Solo / Leader Form State (no hardcoded location defaults)
   const [form, setForm] = useState({
     name: '',
@@ -85,7 +85,7 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
 
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Registered Result Payload
   const [registeredResult, setRegisteredResult] = useState<{
     mode: 'SOLO' | 'TEAM';
@@ -217,7 +217,7 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
       })));
       setLocationDetected(true);
     }
-    
+
     // Always request live GPS coordinates when registration opens
     detectLiveLocation(false);
   }, [isOpen]);
@@ -447,7 +447,7 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
             if (data.tourist.blockchainDid) {
               localStorage.setItem(`safeyatra_doc_${data.tourist.blockchainDid}`, idProofImage);
             }
-          } catch (e) {}
+          } catch (e) { }
         }
 
         setRegisteredResult({
@@ -511,7 +511,7 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
             if (data.leader.blockchainDid) {
               localStorage.setItem(`safeyatra_doc_${data.leader.blockchainDid}`, idProofImage);
             }
-          } catch (e) {}
+          } catch (e) { }
         }
 
         setRegisteredResult({
@@ -555,8 +555,8 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4 font-[Inter,sans-serif]">
-      <div className="bg-white rounded-2xl shadow-2xl border border-st-outline-variant/40 max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-        
+      <div className="bg-white rounded-2xl shadow-2xl border border-st-outline-variant/40 max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-pop-in">
+
         {/* Header */}
         <div className="bg-st-surface-container px-6 py-4 border-b border-st-outline-variant/30 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -706,7 +706,7 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
               <div className="pt-3 flex justify-end gap-3 border-t border-st-outline-variant/30">
                 <button
                   onClick={handleFinish}
-                  className="w-full bg-st-primary text-white py-3 rounded-xl font-bold hover:bg-st-primary-fixed transition-colors shadow-md flex items-center justify-center gap-2 text-sm cursor-pointer"
+                  className="w-full bg-st-primary text-white py-3 rounded-xl font-bold hover:bg-st-primary-fixed transition-colors shadow-md flex items-center justify-center gap-2 text-sm cursor-pointer hover-scale ripple-target"
                 >
                   <span>Proceed to Sign In</span>
                   <CheckCircle className="w-4 h-4" />
@@ -716,7 +716,7 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
           ) : (
             /* ── REGISTRATION FORM ── */
             <form onSubmit={handleSubmit} className="space-y-5">
-              
+
               {/* MODE SELECTION TOGGLE */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-st-on-surface-variant mb-2">
@@ -726,11 +726,10 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
                   <button
                     type="button"
                     onClick={() => { setMode('SOLO'); setError(null); }}
-                    className={`flex items-center justify-center gap-2 py-2.5 rounded-lg font-bold text-xs transition-all cursor-pointer ${
-                      mode === 'SOLO'
+                    className={`flex items-center justify-center gap-2 py-2.5 rounded-lg font-bold text-xs transition-all cursor-pointer ${mode === 'SOLO'
                         ? 'bg-st-primary text-white shadow-md'
                         : 'text-st-on-surface-variant hover:text-st-on-surface'
-                    }`}
+                      }`}
                   >
                     <User className="w-4 h-4" />
                     <span>SOLO TOURIST</span>
@@ -738,11 +737,10 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
                   <button
                     type="button"
                     onClick={() => { setMode('TEAM'); setError(null); }}
-                    className={`flex items-center justify-center gap-2 py-2.5 rounded-lg font-bold text-xs transition-all cursor-pointer ${
-                      mode === 'TEAM'
+                    className={`flex items-center justify-center gap-2 py-2.5 rounded-lg font-bold text-xs transition-all cursor-pointer ${mode === 'TEAM'
                         ? 'bg-st-primary text-white shadow-md'
                         : 'text-st-on-surface-variant hover:text-st-on-surface'
-                    }`}
+                      }`}
                   >
                     <Users className="w-4 h-4" />
                     <span>TEAM / GROUP TOURIST</span>
@@ -916,13 +914,13 @@ export const TouristRegistrationModal: React.FC<TouristRegistrationModalProps> =
                       <p className="text-xs font-bold text-slate-800 flex items-center gap-1">
                         <Crosshair className="w-3.5 h-3.5 text-blue-600" />
                         <span>
-                          {locationDetected 
+                          {locationDetected
                             ? `Live Browser GPS Assigned (${form.city || (form.lat ? `${form.lat}°N, ${form.lng}°E` : 'Detected')})`
                             : (isDetectingLocation ? 'Detecting Live Browser Coordinates...' : 'GPS Live Location Pending (Manual Entry Active)')}
                         </span>
                       </p>
                       <p className="text-[10px] text-slate-500">
-                        {locationDetected 
+                        {locationDetected
                           ? `Lat: ${form.lat}, Lng: ${form.lng}${form.city ? ` • Detected City: ${form.city}` : ''}`
                           : (isDetectingLocation ? 'Requesting device GPS coordinates...' : 'Click "Refresh GPS Location" or enter city and coordinates below.')}
                       </p>

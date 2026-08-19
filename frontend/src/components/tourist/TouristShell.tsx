@@ -98,15 +98,15 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
       />
 
       {/* ═══════ SideNavBar — Desktop Only ═══════ */}
-      <nav className="hidden md:flex h-screen w-[180px] fixed left-0 top-0 border-r border-st-outline-variant bg-st-surface-white flex-col py-6 px-4 z-40">
+      <nav className="hidden md:flex h-screen w-64 fixed left-0 top-0 border-r border-st-outline-variant bg-st-surface-white flex-col py-4 px-2 gap-4 z-40">
         {/* Brand */}
-        <div className="mb-8 px-3">
-          <span className="text-xl font-bold text-st-primary leading-7">SafeYatra</span>
-          <div className="text-xs font-medium text-st-on-surface-variant leading-4 mt-0.5">Tourist Safety</div>
+        <div className="flex flex-col gap-2 px-4 mt-2 mb-4">
+          <span className="text-xl font-black text-st-primary uppercase tracking-wider">🛡️ SAFEYATRA</span>
+          <div className="text-base font-bold text-st-on-surface-variant uppercase tracking-widest mt-0.5">Tourist Safety</div>
         </div>
 
         {/* Nav Links */}
-        <div className="flex flex-col gap-2 flex-grow">
+        <div className="flex flex-col gap-1 flex-grow">
           {sidebarNavItems.map((item) => {
             const getPath = (id: string) => {
               if (id === 'report') return '/tourist/report-incident';
@@ -116,40 +116,37 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
               <button
                 key={item.id}
                 onClick={() => navigate(getPath(item.id))}
-                className={`rounded-xl px-3 py-2 flex items-center gap-3 transition-colors duration-100 text-left cursor-pointer ${
-                  activePage === item.id
-                    ? 'bg-st-surface-container text-st-primary font-semibold'
-                    : 'text-st-on-surface-variant hover:bg-st-surface-container-low active:scale-95'
-                }`}
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 w-full text-left cursor-pointer ${activePage === item.id
+                  ? 'bg-st-surface-container text-st-primary font-bold scale-[0.98] shadow-sm'
+                  : 'text-st-on-surface-variant hover:bg-st-surface-container-low active:scale-95'
+                  }`}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
-                <span className="text-sm font-semibold leading-5">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             );
           })}
         </div>
 
         {/* User Card & 3-Dots Menu — Single profile access at the bottom */}
-        <div className={`relative pt-3 pb-1 border-t border-st-outline-variant flex items-center justify-between transition-colors ${
-          activePage === 'profile' ? 'bg-st-surface-container -mx-2 px-2.5 py-2 rounded-xl' : 'px-1'
-        }`} ref={userMenuRef}>
+        <div className={`relative px-2 mt-auto mb-2 border-t border-st-outline-variant/40 pt-4 flex items-center justify-between transition-colors ${activePage === 'profile' ? 'bg-st-surface-container -mx-2 px-4 py-2 rounded-xl' : ''
+          }`} ref={userMenuRef}>
           <div
             onClick={() => navigate('/tourist/profile')}
             className="flex items-center gap-2.5 overflow-hidden flex-1 cursor-pointer group hover:opacity-90 transition-opacity"
             title="View Profile"
           >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 shadow-xs transition-all ${
-              activePage === 'profile'
-                ? 'bg-st-primary text-white ring-2 ring-st-primary/30'
-                : 'bg-st-primary-fixed text-st-on-primary-fixed group-hover:ring-2 group-hover:ring-st-primary/40'
-            }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-base shrink-0 shadow-xs transition-all ${activePage === 'profile'
+              ? 'bg-st-primary text-white ring-2 ring-st-primary/30'
+              : 'bg-st-primary-fixed text-st-on-primary-fixed group-hover:ring-2 group-hover:ring-st-primary/40'
+              }`}>
               {props.tourist?.name ? props.tourist.name.charAt(0).toUpperCase() : 'T'}
             </div>
             <div className="overflow-hidden min-w-0">
-              <div className="text-xs font-bold text-st-on-surface truncate group-hover:text-st-primary transition-colors">
+              <div className="text-base font-bold text-st-on-surface truncate group-hover:text-st-primary transition-colors">
                 {props.tourist?.name || 'Tourist'}
               </div>
-              <div className="text-[10px] text-st-on-surface-variant truncate font-mono">
+              <div className="text-sm text-st-on-surface-variant truncate font-mono">
                 {props.tourist?.id ? `${props.tourist.id}` : 'ID: ...'}
               </div>
             </div>
@@ -159,9 +156,8 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
             title="User Options"
-            className={`p-1.5 rounded-lg text-st-outline hover:text-st-on-surface hover:bg-st-surface-container-high transition-colors cursor-pointer shrink-0 ml-1 ${
-              showUserMenu ? 'bg-st-surface-container-high text-st-primary' : ''
-            }`}
+            className={`p-1.5 rounded-lg text-st-outline hover:text-st-on-surface hover:bg-st-surface-container-high transition-colors cursor-pointer shrink-0 ml-1 ${showUserMenu ? 'bg-st-surface-container-high text-st-primary' : ''
+              }`}
           >
             <span className="material-symbols-outlined text-lg leading-none">more_vert</span>
           </button>
@@ -169,7 +165,7 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
           {/* Three Dots Dropdown Menu */}
           {showUserMenu && (
             <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-xl shadow-2xl border border-st-outline-variant/80 py-1.5 z-50 animate-fade-in">
-              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-st-outline border-b border-st-outline-variant/40 mb-1 flex items-center justify-between">
+              <div className="px-3 py-1 text-sm font-bold uppercase tracking-wider text-st-outline border-b border-st-outline-variant/40 mb-1 flex items-center justify-between">
                 <span>Account</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
               </div>
@@ -180,7 +176,7 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
                   setShowUserMenu(false);
                   navigate('/tourist/profile');
                 }}
-                className="w-full px-3 py-2 text-left text-xs font-semibold text-st-on-surface hover:bg-st-surface-container flex items-center gap-2.5 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 text-left text-base font-semibold text-st-on-surface hover:bg-st-surface-container flex items-center gap-2.5 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined text-base text-st-primary">account_circle</span>
                 <span>Profile</span>
@@ -192,7 +188,7 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
                   setShowUserMenu(false);
                   setShowSettingsModal(true);
                 }}
-                className="w-full px-3 py-2 text-left text-xs font-semibold text-st-on-surface hover:bg-st-surface-container flex items-center gap-2.5 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 text-left text-base font-semibold text-st-on-surface hover:bg-st-surface-container flex items-center gap-2.5 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined text-base text-st-outline">settings</span>
                 <span>Settings</span>
@@ -208,7 +204,7 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
                   localStorage.removeItem('activeTouristId');
                   navigate('/tourist/login');
                 }}
-                className="w-full px-3 py-2 text-left text-xs font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+                className="w-full px-3 py-2 text-left text-base font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
               >
                 <span className="material-symbols-outlined text-base text-red-600">logout</span>
                 <span>Log Out</span>
@@ -219,58 +215,64 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
       </nav>
 
       {/* ═══════ Main Content Container ═══════ */}
-      <div className="md:pl-[180px] flex flex-col min-h-screen">
+      <div className="md:pl-64 flex flex-col h-screen overflow-hidden pb-16 md:pb-0 relative">
         {/* Top Location Telemetry Banner */}
-        <TouristLocationBanner
-          permissionState={permissionState}
-          isTracking={isTracking}
-          coords={coords}
-          address={address}
-          error={locationError}
-          batteryLevel={batteryLevel}
-          onRequestPermission={startLiveTracking}
-          onRecenter={recenterLocation}
-        />
-
-        {/* Active Route Sub-Page */}
-        {activePage === 'dashboard' && (
-          <TouristDashboard
-            tourist={props.tourist}
-            geofences={props.geofences}
-            incidents={props.incidents}
-            onTriggerSOS={props.onTriggerSOS}
-            onStopSOS={props.onStopSOS}
+        <div className="flex-shrink-0 z-10 w-full">
+          <TouristLocationBanner
             permissionState={permissionState}
             isTracking={isTracking}
             coords={coords}
+            address={address}
+            error={locationError}
+            batteryLevel={batteryLevel}
             onRequestPermission={startLiveTracking}
             onRecenter={recenterLocation}
           />
-        )}
+        </div>
 
-        {activePage === 'messages' && (
-          <TouristMessages
-            tourist={props.tourist}
-            incidents={props.incidents}
-            chatLogs={props.chatLogs}
-            onSendMessage={props.onSendAdminMessage}
-          />
-        )}
+        {/* Dynamic Route Pages - Enforce flex-1 min-h-0 strictly for scrolling within */}
+        <main className="flex-1 min-h-0 overflow-y-auto flex flex-col w-full relative">
+          {activePage === 'dashboard' && (
+            <TouristDashboard
+              tourist={props.tourist}
+              geofences={props.geofences}
+              incidents={props.incidents}
+              onTriggerSOS={props.onTriggerSOS}
+              onStopSOS={props.onStopSOS}
+              permissionState={permissionState}
+              isTracking={isTracking}
+              coords={coords}
+              onRequestPermission={startLiveTracking}
+              onRecenter={recenterLocation}
+            />
+          )}
 
-        {activePage === 'report' && (
-          <TouristReportIncident
-            tourist={props.tourist}
-            incidents={props.incidents}
-            onTriggerSOS={props.onTriggerSOS}
-          />
-        )}
+          {activePage === 'messages' && (
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <TouristMessages
+                tourist={props.tourist}
+                incidents={props.incidents}
+                chatLogs={props.chatLogs}
+                onSendMessage={props.onSendAdminMessage}
+              />
+            </div>
+          )}
 
-        {activePage === 'profile' && (
-          <TouristProfileView
-            tourist={props.tourist}
-            setTourist={props.setTourist}
-          />
-        )}
+          {activePage === 'report' && (
+            <TouristReportIncident
+              tourist={props.tourist}
+              incidents={props.incidents}
+              onTriggerSOS={props.onTriggerSOS}
+            />
+          )}
+
+          {activePage === 'profile' && (
+            <TouristProfileView
+              tourist={props.tourist}
+              setTourist={props.setTourist}
+            />
+          )}
+        </main>
       </div>
 
       {/* ═══════ Bottom Navigation — Mobile Only ═══════ */}
@@ -285,14 +287,13 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
             <button
               key={item.id}
               onClick={() => navigate(getPath(item.id))}
-              className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${
-                activePage === item.id
-                  ? 'text-st-primary font-bold'
-                  : 'text-st-on-surface-variant'
-              }`}
+              className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${activePage === item.id
+                ? 'text-st-primary font-bold'
+                : 'text-st-on-surface-variant'
+                }`}
             >
               <span className="material-symbols-outlined text-2xl">{item.icon}</span>
-              <span className="text-[10px] font-semibold leading-3 mt-0.5">{item.labelShort || item.label}</span>
+              <span className="text-sm font-semibold leading-3 mt-0.5">{item.labelShort || item.label}</span>
             </button>
           );
         })}
