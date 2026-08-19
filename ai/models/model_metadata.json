@@ -1,0 +1,20 @@
+{
+  "system": "SafeYatra AI Safety Monitoring & Incident Response System",
+  "version": "2.4.0",
+  "risk_model": {
+    "algorithm": "XGBoost Regressor (XGBRegressor)",
+    "target": "risk_score (0.0 to 100.0)",
+    "metrics": {
+      "rmse": 2.37,
+      "mae": 1.62,
+      "r2": 0.995
+    },
+    "canonical_features_count": 9,
+    "engineered_features_count": 6
+  },
+  "anomaly_model": {
+    "algorithm": "Isolation Forest (sklearn.ensemble.IsolationForest)",
+    "contamination": 0.04,
+    "features_count": 7
+  }
+}

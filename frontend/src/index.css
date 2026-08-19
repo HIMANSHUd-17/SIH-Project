@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Guide Dashboard (MD3 Light) Color Tokens ── */
+  --color-gd-primary: #041627;
+  --color-gd-primary-ctr: #1a2b3c;
+  --color-gd-on-primary: #ffffff;
+  --color-gd-on-primary-ctr: #8192a7;
+  --color-gd-secondary: #006a61;
+  --color-gd-secondary-ctr: #86f2e4;
+  --color-gd-on-secondary: #ffffff;
+  --color-gd-on-secondary-ctr: #006f66;
+  --color-gd-bg: #f8f9ff;
+  --color-gd-surface: #ffffff;
+  --color-gd-surface-low: #eff4ff;
+  --color-gd-surface-mid: #e5eeff;
+  --color-gd-surface-high: #dce9ff;
+  --color-gd-surface-top: #d3e4fe;
+  --color-gd-surface-bright: #f8f9ff;
+  --color-gd-surface-dim: #cbdbf5;
+  --color-gd-surface-variant: #d3e4fe;
+  --color-gd-on-bg: #0b1c30;
+  --color-gd-on-surface: #0b1c30;
+  --color-gd-on-surface-var: #44474c;
+  --color-gd-outline: #74777d;
+  --color-gd-outline-var: #c4c6cd;
+  --color-gd-error: #ba1a1a;
+  --color-gd-on-error: #ffffff;
+  --color-gd-error-ctr: #ffdad6;
+  --color-gd-on-error-ctr: #93000a;
+  --color-gd-warn: #feddb5;
+  --color-gd-warn-ctr: #38260b;
+  --color-gd-on-warn-ctr: #a88c69;
+  --color-gd-warn-dim: #e1c29b;
+  --color-gd-inverse: #213145;
+  --color-gd-inverse-on: #eaf1ff;
+
+  /* Guide Dashboard font stacks */
+  --font-guide: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-guide-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+@layer base {
+  body {
+    background-color: #0A0A0B;
+    color: #E4E4E7;
+  }
+}
+
+/* ── Guide Dashboard scoped utilities ── */
+.guide-dashboard {
+  font-family: var(--font-guide);
+}
+
+.guide-dashboard ::-webkit-scrollbar {
+  width: 6px;
+}
+.guide-dashboard ::-webkit-scrollbar-track {
+  background: transparent;
+}
+.guide-dashboard ::-webkit-scrollbar-thumb {
+  background: #c4c6cd;
+  border-radius: 4px;
+}
+.guide-dashboard ::-webkit-scrollbar-thumb:hover {
+  background: #74777d;
+}
+
+/* Custom dark theme rules for Leaflet Maps */
+.leaflet-container {
+  background-color: #121214 !important;
+  font-family: inherit;
+}
+
+.dark-map-tiles .leaflet-tile-container img,
+.leaflet-tile {
+  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
+}
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background-color: #18181B !important;
+  color: #E4E4E7 !important;
+  border: 1px solid #27272A !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-control-zoom a {
+  background-color: #18181B !important;
+  color: #E4E4E7 !important;
+  border-color: #27272A !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: #27272A !important;
+}
+
+/* ══════════════════════════════════════════════════
+   SENTINEL TOURIST — Material Design 3 Light Theme
+   Scoped under .sentinel-tourist so it doesn't
+   bleed into Admin / Guide dark views.
+   ══════════════════════════════════════════════════ */
+
+@theme {
+  /* ── Sentinel MD3 Color Tokens ── */
+  --color-st-primary: #003d9b;
+  --color-st-primary-container: #0052cc;
+  --color-st-primary-fixed: #dae2ff;
+  --color-st-primary-fixed-dim: #b2c5ff;
+  --color-st-on-primary: #ffffff;
+  --color-st-on-primary-container: #c4d2ff;
+  --color-st-on-primary-fixed: #001848;
+
+  --color-st-secondary: #006e2f;
+  --color-st-secondary-container: #6bff8f;
+  --color-st-on-secondary: #ffffff;
+  --color-st-on-secondary-container: #007432;
+
+  --color-st-tertiary: #8c0012;
+  --color-st-tertiary-container: #b41521;
+  --color-st-on-tertiary: #ffffff;
+  --color-st-on-tertiary-container: #ffc5c0;
+
+  --color-st-error: #ba1a1a;
+  --color-st-error-container: #ffdad6;
+  --color-st-on-error: #ffffff;
+  --color-st-on-error-container: #93000a;
+
+  --color-st-surface: #f8f9fb;
+  --color-st-surface-white: #ffffff;
+  --color-st-surface-dim: #d9dadc;
+  --color-st-surface-bright: #f8f9fb;
+  --color-st-surface-container: #edeef0;
+  --color-st-surface-container-low: #f3f4f6;
+  --color-st-surface-container-high: #e7e8ea;
+  --color-st-surface-container-highest: #e1e2e4;
+  --color-st-surface-variant: #e1e2e4;
+  --color-st-background: #f8f9fb;
+
+  --color-st-on-surface: #191c1e;
+  --color-st-on-surface-variant: #434654;
+  --color-st-on-background: #191c1e;
+  --color-st-text-dark: #041b3c;
+
+  --color-st-outline: #737685;
+  --color-st-outline-variant: #c3c6d6;
+
+  --color-st-warning: #f59e0b;
+  --color-st-inverse-surface: #2e3132;
+  --color-st-inverse-on-surface: #f0f1f3;
+}
+
+.sentinel-tourist {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-st-surface);
+  color: var(--color-st-on-surface);
+}
+
+/* Material Symbols icon base */
+.sentinel-tourist .material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-family: 'Material Symbols Outlined';
+  font-size: 24px;
+  line-height: 1;
+  display: inline-block;
+  vertical-align: middle;
+}
+.sentinel-tourist .material-symbols-outlined.fill {
+  font-variation-settings: 'FILL' 1;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Map placeholder stripes */
+.diagonal-stripes {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #e1e2e4 0, #e1e2e4 2px,
+    transparent 2px, transparent 8px
+  );
+}
+
+/* Sentinel-scoped leaflet map overrides (light theme) */
+.sentinel-tourist .leaflet-container {
+  background-color: #f3f4f6 !important;
+}
+.sentinel-tourist .leaflet-tile-container img,
+.sentinel-tourist .leaflet-tile {
+  filter: none;
+}
+.sentinel-tourist .leaflet-popup-content-wrapper,
+.sentinel-tourist .leaflet-popup-tip {
+  background-color: #ffffff !important;
+  color: #191c1e !important;
+  border: 1px solid #c3c6d6 !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+}
+.sentinel-tourist .leaflet-control-zoom a {
+  background-color: #ffffff !important;
+  color: #191c1e !important;
+  border-color: #c3c6d6 !important;
+}
+.sentinel-tourist .leaflet-control-zoom a:hover {
+  background-color: #edeef0 !important;
+}

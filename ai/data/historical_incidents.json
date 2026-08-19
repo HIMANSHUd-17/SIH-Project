@@ -1,0 +1,142 @@
+[
+  {
+    "id": "INC-RSH-01",
+    "location_name": "Rishikesh - Neer Garh Waterfall",
+    "latitude": 30.1460,
+    "longitude": 78.3310,
+    "incident_type": "SLIP_AND_FALL",
+    "severity": "HIGH",
+    "description": "Tourist slipped on wet boulder near second waterfall drop.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-RSH-02",
+    "location_name": "Rishikesh - Shivpuri Rapids",
+    "latitude": 30.1580,
+    "longitude": 78.3520,
+    "incident_type": "RAFTING_CAPSIZE",
+    "severity": "CRITICAL",
+    "description": "Raft flipped in Grade 4 rapid; swift water rescue required.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-RSH-03",
+    "location_name": "Rishikesh - Ram Jhula Riverbank",
+    "latitude": 30.1380,
+    "longitude": 78.3180,
+    "incident_type": "STRONG_CURRENT",
+    "severity": "MODERATE",
+    "description": "Swimmer pulled into downstream current; assisted by lifeguards.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-KDR-01",
+    "location_name": "Kedarnath - Mandakini Glacial Chute",
+    "latitude": 30.7380,
+    "longitude": 79.0680,
+    "incident_type": "FLASH_FLOOD_DEBRIS",
+    "severity": "CRITICAL",
+    "description": "Heavy rainfall triggered sudden glacial sludge burst across trail.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-KDR-02",
+    "location_name": "Kedarnath - High Trek Ridge",
+    "latitude": 30.7290,
+    "longitude": 79.0620,
+    "incident_type": "HYPOTHERMIA_DISTRESS",
+    "severity": "HIGH",
+    "description": "Stranded pilgrim suffering from acute mountain sickness and cold.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-KDR-03",
+    "location_name": "Kedarnath - Base Trek Path",
+    "latitude": 30.7310,
+    "longitude": 79.0640,
+    "incident_type": "TRAIL_FALL",
+    "severity": "MODERATE",
+    "description": "Ankle injury on wet stone steps during descent.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-MUM-01",
+    "location_name": "Mumbai - Aksa Beach Undertow",
+    "latitude": 19.1760,
+    "longitude": 72.7950,
+    "incident_type": "NEAR_DROWNING",
+    "severity": "CRITICAL",
+    "description": "Tourists swept into deep trench by high tide rip current.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-MUM-02",
+    "location_name": "Mumbai - Marine Drive Tetrapods",
+    "latitude": 18.9410,
+    "longitude": 72.8220,
+    "incident_type": "WAVE_SWEEP",
+    "severity": "MODERATE",
+    "description": "Monsoon high swell wave knocked tourist off sea barrier.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-MNL-01",
+    "location_name": "Manali - Rohtang Pass Ridge",
+    "latitude": 32.3716,
+    "longitude": 77.2466,
+    "incident_type": "SNOW_DRIFT_AVALANCHE",
+    "severity": "CRITICAL",
+    "description": "Snow avalanche blocked mountain highway, trapping tourist vehicle.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-MNL-02",
+    "location_name": "Manali - Solang Valley Ravine",
+    "latitude": 32.3166,
+    "longitude": 77.1575,
+    "incident_type": "PARAGLIDING_MISHAP",
+    "severity": "HIGH",
+    "description": "Off-course landing in rocky riverbed due to sudden wind gust.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-GOA-01",
+    "location_name": "Goa - Aguada Rocky Point",
+    "latitude": 15.4920,
+    "longitude": 73.7730,
+    "incident_type": "CLIFF_FALL",
+    "severity": "HIGH",
+    "description": "Tourist fell on slippery sea rocks while taking photos.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-GOA-02",
+    "location_name": "Goa - Baga North Reef",
+    "latitude": 15.5580,
+    "longitude": 73.7490,
+    "incident_type": "JETSKI_COLLISION",
+    "severity": "MODERATE",
+    "description": "Watercraft collision in crowded shallow swim zone.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-JEU-01",
+    "location_name": "Jeur - Bhima Canal Embankment",
+    "latitude": 18.2550,
+    "longitude": 75.1600,
+    "incident_type": "CANAL_CURRENT",
+    "severity": "HIGH",
+    "description": "Person slipped into deep irrigation canal siphon.",
+    "is_synthetic": true
+  },
+  {
+    "id": "INC-JEU-02",
+    "location_name": "Jeur - Solapur Rural Crossing",
+    "latitude": 18.2620,
+    "longitude": 75.1670,
+    "incident_type": "VEHICLE_SKID",
+    "severity": "LOW",
+    "description": "Minor two-wheeler skid on gravel road during evening.",
+    "is_synthetic": true
+  }
+]
