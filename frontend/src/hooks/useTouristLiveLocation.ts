@@ -50,14 +50,8 @@ export function useTouristLiveLocation(options: UseTouristLiveLocationOptions = 
   // Reverse Geocode helper (Nominatim with local caching)
   const resolveAddress = useCallback(async (lat: number, lng: number): Promise<string> => {
     try {
-      if (lat >= 30.05 && lat <= 30.20 && lng >= 78.20 && lng <= 78.40) {
-        if (lat > 30.12) return 'Tapovan & Lakshman Jhula, Rishikesh';
-        if (lat < 30.11) return 'Triveni Ghat & Ram Jhula, Rishikesh';
-        return 'Ganga Riverfront Corridor, Rishikesh';
-      }
-
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
         {

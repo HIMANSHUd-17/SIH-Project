@@ -1,21 +1,24 @@
 @echo off
-title Stop SafeYatra Platform
+title Stopping SafeYatra Platform
+
 echo ======================================================================
-echo          STOPPING SAFEYATRA PLATFORM PROCESSES
+echo          STOPPING SAFEYATRA RUNNING PROCESSES
 echo ======================================================================
 echo.
 
-echo [*] Terminating processes on Port 5009 (Frontend/Express)...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":5009" ^| findstr "LISTENING"') do (
-    taskkill /F /PID %%a >nul 2>nul
-)
-
-echo [*] Terminating processes on Port 8000 (FastAPI Backend)...
+:: Kill processes on port 8000 (FastAPI Backend)
+echo [*] Terminating Python FastAPI Backend (Port 8000)...
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8000" ^| findstr "LISTENING"') do (
-    taskkill /F /PID %%a >nul 2>nul
+    taskkill /f /pid %%a >nul 2>nul
+)
+
+:: Kill processes on port 5009 (Frontend App & Express)
+echo [*] Terminating Node/Frontend Server (Port 5009)...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":5009" ^| findstr "LISTENING"') do (
+    taskkill /f /pid %%a >nul 2>nul
 )
 
 echo.
-echo [DONE] SafeYatra services stopped successfully.
+echo [OK] All SafeYatra server processes have been stopped.
 echo.
-pause
+timeout /t 3 >nul

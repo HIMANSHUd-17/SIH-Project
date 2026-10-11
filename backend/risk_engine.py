@@ -4,7 +4,7 @@ import math
 
 def calculate_tourist_risk(lat, lng, crowd_density, weather_factor, geofences):
     """
-    Python Risk Engine for Nagarjuna Smart Tourist Safety
+    Python Risk Engine for SafeYatra Smart Tourist Safety
     Calculates dynamic hazard score based on spatial distance to geofence boundaries,
     weather impact multipliers, and crowd density metrics.
     """
@@ -66,7 +66,6 @@ def calculate_tourist_risk(lat, lng, crowd_density, weather_factor, geofences):
 
 if __name__ == '__main__':
     try:
-        # Read payload from stdin or argument
         if len(sys.argv) > 1:
             raw_input = sys.argv[1]
         else:

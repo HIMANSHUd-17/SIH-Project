@@ -1,0 +1,20 @@
+[
+  {
+    "id": "efir-2",
+    "efirNumber": "EFIR-2026-0002",
+    "status": "DRAFT",
+    "createdAt": "2026-08-18T14:45:00Z",
+    "generatedBy": "SafeYatra Command Center (Super Admin)",
+    "policeStation": "Tapovan Tourist Police Outpost",
+    "jurisdiction": "Tehri Garhwal Tourism Command Zone",
+    "complainantName": "Marcus Vance",
+    "complainantMobile": "+91 88776 55443",
+    "complainantAddress": "High Bank Green View Cottages, Tapovan",
+    "caseType": "Geofence Violation / Trespassing",
+    "occurrenceDate": "2026-08-18",
+    "occurrencePlace": "Neer Garh Upper Waterfall Restricted Cliff Section",
+    "description": "Tourist group wandered past dangerous warning barricade into unmonitored flash-flood landslide zone. Guided back safely by AI Geofence alert beacon.",
+    "additionalInfo": "Draft under investigation for guide compliance review.",
+    "recordHash": "0x2a9103847291038472190384719203847192038471928f192b49c018274a983e"
+  }
+]

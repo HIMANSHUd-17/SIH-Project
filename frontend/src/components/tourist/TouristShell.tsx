@@ -1,21 +1,25 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DynamicGeofence, IncidentReport, TouristProfile, Location } from '../../types';
 import { TouristDashboard } from './TouristDashboard';
 import { TouristMessages } from './TouristMessages';
 import { TouristReportIncident } from './TouristReportIncident';
+import { TouristProfileView } from './TouristProfileView';
 import { TouristLocationBanner } from './TouristLocationBanner';
 import { TouristLocationModal } from './TouristLocationModal';
+import { TouristSettingsModal } from './TouristSettingsModal';
 import { useTouristLiveLocation } from '../../hooks/useTouristLiveLocation';
+import { useLanguage } from '../../utils/LanguageContext';
 
-type TouristPage = 'dashboard' | 'messages' | 'report';
+type TouristPage = 'dashboard' | 'messages' | 'report' | 'profile';
 
 interface TouristShellProps {
   tourist: TouristProfile;
   setTourist: React.Dispatch<React.SetStateAction<TouristProfile>>;
   geofences: DynamicGeofence[];
   incidents: IncidentReport[];
-  onTriggerSOS: (details?: { description?: string; mediaUrl?: string }) => void;
+  onTriggerSOS: (details?: { description?: string; mediaUrl?: string; serviceNeeded?: string }) => void;
+  onStopSOS?: (touristId?: string) => void;
   chatLogs: Record<string, { sender: string; text: string; time: string; latency?: string }[]>;
   setChatLogs: React.Dispatch<React.SetStateAction<Record<string, { sender: string; text: string; time: string; latency?: string }[]>>>;
   onSendAdminMessage: (text: string, recipient?: 'admin' | 'guide') => void;
@@ -24,6 +28,25 @@ interface TouristShellProps {
 export const TouristShell: React.FC<TouristShellProps> = (props) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t } = useLanguage('tourist');
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   // Initialize live geolocation tracking for the tourist
   const {
@@ -52,11 +75,17 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
   let activePage: TouristPage = 'dashboard';
   if (location.pathname.endsWith('/messages')) activePage = 'messages';
   else if (location.pathname.endsWith('/report-incident')) activePage = 'report';
+  else if (location.pathname.endsWith('/profile')) activePage = 'profile';
 
-  const navItems: { id: TouristPage; icon: string; label: string; labelShort?: string }[] = [
-    { id: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
-    { id: 'messages', icon: 'chat', label: 'Messages' },
-    { id: 'report', icon: 'report', label: 'Report Incident', labelShort: 'Report' },
+  const sidebarNavItems: { id: TouristPage; icon: string; label: string; labelShort?: string }[] = [
+    { id: 'dashboard', icon: 'dashboard', label: t('nav.dashboard') },
+    { id: 'messages', icon: 'chat', label: t('nav.messages') },
+    { id: 'report', icon: 'report', label: t('nav.report'), labelShort: t('report.submitBtn').split(' ')[0] }
+  ];
+
+  const mobileNavItems: { id: TouristPage; icon: string; label: string; labelShort?: string }[] = [
+    ...sidebarNavItems,
+    { id: 'profile', icon: 'account_circle', label: t('nav.profile') }
   ];
 
   return (
@@ -69,145 +98,126 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
       />
 
       {/* ═══════ SideNavBar — Desktop Only ═══════ */}
-      <nav className="hidden md:flex h-screen w-[180px] fixed left-0 top-0 border-r border-st-outline-variant bg-st-surface-white flex-col py-6 px-4 z-40">
+      <nav className="hidden md:flex h-screen w-64 fixed left-0 top-0 border-r border-st-outline-variant bg-st-surface-white flex-col py-4 px-2 gap-4 z-40">
         {/* Brand */}
-        <div className="mb-8 px-3">
-          <span className="text-xl font-bold text-st-primary leading-7">SafeYatra</span>
-          <div className="text-xs font-medium text-st-on-surface-variant leading-4 mt-0.5">Tourist Safety</div>
+        <div className="flex flex-col gap-2 px-4 mt-2 mb-4">
+          <span className="text-xl font-black text-st-primary uppercase tracking-wider">🛡️ SAFEYATRA</span>
+          <div className="text-base font-bold text-st-on-surface-variant uppercase tracking-widest mt-0.5">Tourist Safety</div>
         </div>
 
         {/* Nav Links */}
-        <div className="flex flex-col gap-2 flex-grow">
-          {navItems.map((item) => {
-            const getPath = (id: string) => id === 'report' ? '/tourist/report-incident' : `/tourist/${id}`;
+        <div className="flex flex-col gap-1 flex-grow">
+          {sidebarNavItems.map((item) => {
+            const getPath = (id: string) => {
+              if (id === 'report') return '/tourist/report-incident';
+              return `/tourist/${id}`;
+            };
             return (
               <button
                 key={item.id}
                 onClick={() => navigate(getPath(item.id))}
-                className={`rounded-xl px-3 py-2 flex items-center gap-3 transition-colors duration-100 text-left cursor-pointer ${
-                  activePage === item.id
-                    ? 'bg-st-surface-container text-st-primary font-semibold'
-                    : 'text-st-on-surface-variant hover:bg-st-surface-container-low active:scale-95'
-                }`}
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 w-full text-left cursor-pointer ${activePage === item.id
+                  ? 'bg-st-surface-container text-st-primary font-bold scale-[0.98] shadow-sm'
+                  : 'text-st-on-surface-variant hover:bg-st-surface-container-low active:scale-95'
+                  }`}
               >
                 <span className="material-symbols-outlined">{item.icon}</span>
-                <span className="text-sm font-semibold leading-5">{item.label}</span>
+                <span>{item.label}</span>
               </button>
             );
           })}
         </div>
 
-        {/* Live GPS Status Pill in Nav */}
-        <div className="mb-4 px-2">
-          {isTracking ? (
-            <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs">
-              <div className="flex items-center gap-1.5 font-bold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Live GPS Active
+        {/* User Card & 3-Dots Menu — Single profile access at the bottom */}
+        <div className={`relative px-2 mt-auto mb-2 border-t border-st-outline-variant/40 pt-4 flex items-center justify-between transition-colors ${activePage === 'profile' ? 'bg-st-surface-container -mx-2 px-4 py-2 rounded-xl' : ''
+          }`} ref={userMenuRef}>
+          <div
+            onClick={() => navigate('/tourist/profile')}
+            className="flex items-center gap-2.5 overflow-hidden flex-1 cursor-pointer group hover:opacity-90 transition-opacity"
+            title="View Profile"
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-base shrink-0 shadow-xs transition-all ${activePage === 'profile'
+              ? 'bg-st-primary text-white ring-2 ring-st-primary/30'
+              : 'bg-st-primary-fixed text-st-on-primary-fixed group-hover:ring-2 group-hover:ring-st-primary/40'
+              }`}>
+              {props.tourist?.name ? props.tourist.name.charAt(0).toUpperCase() : 'T'}
+            </div>
+            <div className="overflow-hidden min-w-0">
+              <div className="text-base font-bold text-st-on-surface truncate group-hover:text-st-primary transition-colors">
+                {props.tourist?.name || 'Tourist'}
               </div>
-              <div className="text-[10px] text-emerald-600 mt-1 truncate">
-                ±{coords?.accuracy || 10}m precision
+              <div className="text-sm text-st-on-surface-variant truncate font-mono">
+                {props.tourist?.id ? `${props.tourist.id}` : 'ID: ...'}
               </div>
             </div>
-          ) : (
-            <button
-              onClick={startLiveTracking}
-              className="w-full p-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-800 text-xs font-semibold text-left transition-colors cursor-pointer flex items-center justify-between"
-            >
-              <span>Enable GPS</span>
-              <span className="material-symbols-outlined text-sm">near_me</span>
-            </button>
+          </div>
+
+          {/* Three Dots Button */}
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            title="User Options"
+            className={`p-1.5 rounded-lg text-st-outline hover:text-st-on-surface hover:bg-st-surface-container-high transition-colors cursor-pointer shrink-0 ml-1 ${showUserMenu ? 'bg-st-surface-container-high text-st-primary' : ''
+              }`}
+          >
+            <span className="material-symbols-outlined text-lg leading-none">more_vert</span>
+          </button>
+
+          {/* Three Dots Dropdown Menu */}
+          {showUserMenu && (
+            <div className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-xl shadow-2xl border border-st-outline-variant/80 py-1.5 z-50 animate-fade-in">
+              <div className="px-3 py-1 text-sm font-bold uppercase tracking-wider text-st-outline border-b border-st-outline-variant/40 mb-1 flex items-center justify-between">
+                <span>Account</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              </div>
+
+              {/* 1. Profile */}
+              <button
+                onClick={() => {
+                  setShowUserMenu(false);
+                  navigate('/tourist/profile');
+                }}
+                className="w-full px-3 py-2 text-left text-base font-semibold text-st-on-surface hover:bg-st-surface-container flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-base text-st-primary">account_circle</span>
+                <span>Profile</span>
+              </button>
+
+              {/* 2. Settings */}
+              <button
+                onClick={() => {
+                  setShowUserMenu(false);
+                  setShowSettingsModal(true);
+                }}
+                className="w-full px-3 py-2 text-left text-base font-semibold text-st-on-surface hover:bg-st-surface-container flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-base text-st-outline">settings</span>
+                <span>Settings</span>
+              </button>
+
+              <div className="border-t border-st-outline-variant/40 my-1" />
+
+              {/* 3. Log Out */}
+              <button
+                onClick={() => {
+                  setShowUserMenu(false);
+                  sessionStorage.clear();
+                  localStorage.removeItem('activeTouristId');
+                  navigate('/tourist/login');
+                }}
+                className="w-full px-3 py-2 text-left text-base font-semibold text-red-600 hover:bg-red-50 flex items-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-base text-red-600">logout</span>
+                <span>Log Out</span>
+              </button>
+            </div>
           )}
         </div>
-
-        {/* Logout / Switch Tourist */}
-        <div className="mt-auto pt-4 border-t border-st-outline-variant/40 flex flex-col gap-1">
-          <button
-            onClick={() => {
-              stopLiveTracking();
-              localStorage.removeItem('activeTouristId');
-              navigate('/tourist/login');
-            }}
-            className="rounded-xl px-3 py-2 flex items-center gap-3 transition-colors duration-100 text-left text-st-on-surface-variant hover:bg-st-surface-container-low hover:text-st-error cursor-pointer"
-          >
-            <span className="material-symbols-outlined text-st-outline">logout</span>
-            <span className="text-sm font-semibold leading-5">Log Out</span>
-          </button>
-        </div>
       </nav>
 
-      {/* ═══════ BottomNavBar — Mobile Only ═══════ */}
-      <nav className="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 border-t border-st-outline-variant bg-st-surface-white rounded-t-xl">
-        {navItems.map((item) => {
-          const getPath = (id: string) => id === 'report' ? '/tourist/report-incident' : `/tourist/${id}`;
-          return (
-            <button
-              key={item.id}
-              onClick={() => navigate(getPath(item.id))}
-              className={`flex flex-col items-center justify-center px-4 py-1 rounded-xl transition-colors cursor-pointer ${
-                activePage === item.id
-                  ? 'bg-st-surface-container text-st-primary'
-                  : 'text-st-on-surface-variant active:bg-st-surface-container-high hover:bg-st-surface-container-low'
-              }`}
-            >
-              <span className="material-symbols-outlined">{item.icon}</span>
-              <span className="text-xs font-medium mt-1 leading-4">{item.labelShort || item.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* ═══════ Main Content Area ═══════ */}
-      <main className="md:ml-[180px] min-h-screen pb-24 md:pb-6">
-        {/* Top App Bar */}
-        <header className="sticky top-0 bg-st-surface/95 backdrop-blur-md z-30 px-5 md:px-8 h-16 flex justify-between items-center max-w-[1200px] mx-auto w-full border-b border-st-outline-variant">
-          {/* Mobile: Brand */}
-          <h1 className="text-xl font-bold text-st-primary md:hidden leading-7">SafeYatra</h1>
-          {/* Desktop: Greeting */}
-          <div className="hidden md:block text-xl font-semibold text-st-on-surface leading-7">
-            Namaskar, {props.tourist.name || 'Traveler'}
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Live GPS Chip */}
-            {isTracking ? (
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-                <span className="hidden sm:inline">Live GPS Active</span>
-                <span className="sm:hidden">GPS Live</span>
-              </div>
-            ) : (
-              <button
-                onClick={startLiveTracking}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 hover:bg-blue-200 text-blue-800 text-xs font-bold border border-blue-300 transition-colors cursor-pointer"
-              >
-                <span className="material-symbols-outlined text-sm">my_location</span>
-                <span>Enable GPS</span>
-              </button>
-            )}
-
-            {/* Safety Badge (desktop) */}
-            <div className="hidden sm:flex bg-st-secondary-container text-st-on-secondary-container px-3 py-1.5 rounded-full items-center gap-1.5 border border-st-secondary">
-              <span className="material-symbols-outlined text-sm">verified_user</span>
-              <span className="text-xs font-semibold">ID Verified</span>
-            </div>
-
-            <button
-              onClick={() => {
-                stopLiveTracking();
-                localStorage.removeItem('activeTouristId');
-                navigate('/tourist/login');
-              }}
-              title="Log Out / Switch Account"
-              className="text-st-on-surface-variant hover:bg-st-surface-container hover:text-st-error rounded-full p-2 transition-all duration-200 cursor-pointer"
-            >
-              <span className="material-symbols-outlined text-lg">logout</span>
-            </button>
-          </div>
-        </header>
-
-        {/* Top Location Status Banner */}
-        <div className="px-5 md:px-8 max-w-[1200px] mx-auto w-full pt-4">
+      {/* ═══════ Main Content Container ═══════ */}
+      <div className="md:pl-64 flex flex-col h-screen overflow-hidden pb-16 md:pb-0 relative">
+        {/* Top Location Telemetry Banner */}
+        <div className="flex-shrink-0 z-10 w-full">
           <TouristLocationBanner
             permissionState={permissionState}
             isTracking={isTracking}
@@ -220,35 +230,81 @@ export const TouristShell: React.FC<TouristShellProps> = (props) => {
           />
         </div>
 
-        {/* Page Content */}
-        {activePage === 'dashboard' && (
-          <TouristDashboard
-            tourist={props.tourist}
-            geofences={props.geofences}
-            onTriggerSOS={props.onTriggerSOS}
-            permissionState={permissionState}
-            isTracking={isTracking}
-            coords={coords}
-            onRequestPermission={startLiveTracking}
-            onRecenter={recenterLocation}
-          />
-        )}
-        {activePage === 'messages' && (
-          <TouristMessages
-            tourist={props.tourist}
-            incidents={props.incidents}
-            chatLogs={props.chatLogs}
-            onSendMessage={props.onSendAdminMessage}
-          />
-        )}
-        {activePage === 'report' && (
-          <TouristReportIncident
-            tourist={props.tourist}
-            incidents={props.incidents}
-            onTriggerSOS={props.onTriggerSOS}
-          />
-        )}
-      </main>
+        {/* Dynamic Route Pages - Enforce flex-1 min-h-0 strictly for scrolling within */}
+        <main className="flex-1 min-h-0 overflow-y-auto flex flex-col w-full relative">
+          {activePage === 'dashboard' && (
+            <TouristDashboard
+              tourist={props.tourist}
+              geofences={props.geofences}
+              incidents={props.incidents}
+              onTriggerSOS={props.onTriggerSOS}
+              onStopSOS={props.onStopSOS}
+              permissionState={permissionState}
+              isTracking={isTracking}
+              coords={coords}
+              onRequestPermission={startLiveTracking}
+              onRecenter={recenterLocation}
+            />
+          )}
+
+          {activePage === 'messages' && (
+            <div className="flex-1 flex flex-col min-h-0 w-full">
+              <TouristMessages
+                tourist={props.tourist}
+                incidents={props.incidents}
+                chatLogs={props.chatLogs}
+                onSendMessage={props.onSendAdminMessage}
+              />
+            </div>
+          )}
+
+          {activePage === 'report' && (
+            <TouristReportIncident
+              tourist={props.tourist}
+              incidents={props.incidents}
+              onTriggerSOS={props.onTriggerSOS}
+            />
+          )}
+
+          {activePage === 'profile' && (
+            <TouristProfileView
+              tourist={props.tourist}
+              setTourist={props.setTourist}
+            />
+          )}
+        </main>
+      </div>
+
+      {/* ═══════ Bottom Navigation — Mobile Only ═══════ */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-st-surface-white border-t border-st-outline-variant flex items-center justify-around h-16 px-2 shadow-lg">
+        {mobileNavItems.map((item) => {
+          const getPath = (id: string) => {
+            if (id === 'report') return '/tourist/report-incident';
+            if (id === 'profile') return '/tourist/profile';
+            return `/tourist/${id}`;
+          };
+          return (
+            <button
+              key={item.id}
+              onClick={() => navigate(getPath(item.id))}
+              className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors ${activePage === item.id
+                ? 'text-st-primary font-bold'
+                : 'text-st-on-surface-variant'
+                }`}
+            >
+              <span className="material-symbols-outlined text-2xl">{item.icon}</span>
+              <span className="text-sm font-semibold leading-3 mt-0.5">{item.labelShort || item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tourist Safety Settings Modal */}
+      <TouristSettingsModal
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        tourist={props.tourist}
+      />
     </div>
   );
 };

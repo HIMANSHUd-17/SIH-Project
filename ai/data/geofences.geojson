@@ -1,0 +1,220 @@
+{
+  "type": "FeatureCollection",
+  "name": "SafeYatra_Dynamic_Geofences",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-rsh-hazard-01",
+        "name": "Rishikesh High Rapid Riverbed Forbidden Zone",
+        "zone_type": "RESTRICTED",
+        "radius_meters": 350.0,
+        "risk_multiplier": 1.0,
+        "location_name": "Rishikesh",
+        "description": "Fast-flowing Grade 4 river current. Severe undertow hazard."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [78.3290, 30.1450]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-rsh-hazard-02",
+        "name": "Rishikesh Steep Landslide Cliff Zone",
+        "zone_type": "HIGH_RISK",
+        "radius_meters": 450.0,
+        "risk_multiplier": 0.85,
+        "location_name": "Rishikesh",
+        "description": "Active shooting stones reported from top ridge."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [78.3410, 30.1520]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-rsh-safe-01",
+        "name": "Rishikesh Laxman Jhula Safe Promenade",
+        "zone_type": "SAFE_ZONE",
+        "radius_meters": 750.0,
+        "risk_multiplier": 0.05,
+        "location_name": "Rishikesh",
+        "description": "Designated pedestrian corridor with tourist police assistance."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [78.3240, 30.1340]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-kdr-hazard-01",
+        "name": "Kedarnath Mandakini Flash Flood & Glacial Debris Cone",
+        "zone_type": "RESTRICTED",
+        "radius_meters": 500.0,
+        "risk_multiplier": 0.95,
+        "location_name": "Kedarnath",
+        "description": "High glacial moraine flood channel. Severe surge hazard during rain."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [79.0680, 30.7380]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-kdr-safe-01",
+        "name": "Kedarnath Temple Pilgrim Safe Compound",
+        "zone_type": "SAFE_ZONE",
+        "radius_meters": 400.0,
+        "risk_multiplier": 0.05,
+        "location_name": "Kedarnath",
+        "description": "Designated temple premises with SDRF medical post."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [79.0669, 30.7352]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-jeu-hazard-01",
+        "name": "Jeur Bhima Deep Irrigation Canal Siphon",
+        "zone_type": "HIGH_RISK",
+        "radius_meters": 350.0,
+        "risk_multiplier": 0.80,
+        "location_name": "Jeur",
+        "description": "Unfenced high-velocity canal water intake with steep slippery embankments."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [75.1600, 18.2550]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-jeu-safe-01",
+        "name": "Jeur Town Market & Station Hub",
+        "zone_type": "SAFE_ZONE",
+        "radius_meters": 600.0,
+        "risk_multiplier": 0.05,
+        "location_name": "Jeur",
+        "description": "Town center with police chowki and primary health center."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [75.1645, 18.2600]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-mum-hazard-01",
+        "name": "Mumbai Aksa Beach Deep Undertow Zone",
+        "zone_type": "RESTRICTED",
+        "radius_meters": 600.0,
+        "risk_multiplier": 0.90,
+        "location_name": "Mumbai",
+        "description": "Treacherous rip currents and quicksand patches during high tide."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [72.7950, 19.1760]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-mum-safe-01",
+        "name": "Mumbai Marine Drive Promenade",
+        "zone_type": "SAFE_ZONE",
+        "radius_meters": 1200.0,
+        "risk_multiplier": 0.05,
+        "location_name": "Mumbai",
+        "description": "Heavily monitored tourist boulevard with CCTV and emergency call boxes."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [72.8230, 18.9432]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-mnl-hazard-01",
+        "name": "Manali Rohtang Pass Avalanche Hazard Corridor",
+        "zone_type": "RESTRICTED",
+        "radius_meters": 800.0,
+        "risk_multiplier": 0.95,
+        "location_name": "Manali",
+        "description": "High alpine snow drift and rockslide chute at 3,978m."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.2466, 32.3716]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-mnl-safe-01",
+        "name": "Manali Mall Road & Circuit House Safe Zone",
+        "zone_type": "SAFE_ZONE",
+        "radius_meters": 600.0,
+        "risk_multiplier": 0.05,
+        "location_name": "Manali",
+        "description": "Well-lit tourist town center with local rescue headquarters."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.1887, 32.2396]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-goa-hazard-01",
+        "name": "Goa Aguada Rocky Point Tidal Surge Zone",
+        "zone_type": "HIGH_RISK",
+        "radius_meters": 400.0,
+        "risk_multiplier": 0.85,
+        "location_name": "Goa",
+        "description": "Steep rocky sea cliff with rogue breaking waves."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [73.7730, 15.4920]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "gf-goa-safe-01",
+        "name": "Goa Baga Beach Lifeguard Monitored Zone",
+        "zone_type": "SAFE_ZONE",
+        "radius_meters": 800.0,
+        "risk_multiplier": 0.05,
+        "location_name": "Goa",
+        "description": "Lifeguard patrolled safe swimming area with first aid post."
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [73.7516, 15.5553]
+      }
+    }
+  ]
+}

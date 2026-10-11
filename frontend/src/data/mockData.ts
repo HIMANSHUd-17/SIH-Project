@@ -1,67 +1,6 @@
 import { DynamicGeofence, EmergencyService, IncidentReport, RouteOption, TouristProfile } from '../types';
 
-export const INITIAL_GEOFENCES: DynamicGeofence[] = [
-  {
-    id: 'fence-1',
-    name: 'Neer Garh Waterfall Unmonitored Gorge',
-    type: 'UNMONITORED_WATERFALL',
-    baseRadiusMeters: 400,
-    currentRadiusMeters: 650,
-    center: { lat: 30.1345, lng: 78.3241, address: 'Neer Garh, Rishikesh, Uttarakhand' },
-    riskFactor: 88,
-    weatherImpact: 'HEAVY_DOWNPOUR',
-    crowdDensityFactor: 1.4,
-    timeOfDayFactor: 1.2,
-    governmentAlertActive: true,
-    description: 'Sudden flash flood surge risk during heavy rainfall. Slippery rocks and strong currents without lifeguards.',
-    recommendedAction: 'Immediate eviction recommended. Move 200m uphill to marked shelter.'
-  },
-  {
-    id: 'fence-2',
-    name: 'Badrinath Highway Landslide Zone km 42',
-    type: 'LANDSLIDE_PRONE',
-    baseRadiusMeters: 500,
-    currentRadiusMeters: 800,
-    center: { lat: 30.1891, lng: 78.3612, address: 'NH-7 Bypass, Rishikesh-Devprayag Stretch' },
-    riskFactor: 92,
-    weatherImpact: 'LANDSLIDE_WARNING',
-    crowdDensityFactor: 1.1,
-    timeOfDayFactor: 1.0,
-    governmentAlertActive: true,
-    description: 'Active shooting stones reported from top ridge following continuous rains.',
-    recommendedAction: 'Avoid stopping vehicles under overhangs. Follow state police detour.'
-  },
-  {
-    id: 'fence-3',
-    name: 'Triveni Ghat High-Density Surge Zone',
-    type: 'HIGH_CROWD_STAMPEDE',
-    baseRadiusMeters: 300,
-    currentRadiusMeters: 450,
-    center: { lat: 30.1031, lng: 78.2982, address: 'Triveni Ghat Ganga Aarti Sector' },
-    riskFactor: 65,
-    weatherImpact: 'NONE',
-    crowdDensityFactor: 1.8,
-    timeOfDayFactor: 1.4,
-    governmentAlertActive: false,
-    description: 'Extreme evening footfall during Evening Aarti. Bottlenecks near exit steps.',
-    recommendedAction: 'Maintain buffer from edge steps. Keep children close.'
-  },
-  {
-    id: 'fence-4',
-    name: 'Rajaji Border Army Ammunition Sector',
-    type: 'RESTRICTED_ARMY',
-    baseRadiusMeters: 1000,
-    currentRadiusMeters: 1000,
-    center: { lat: 30.0754, lng: 78.2415, address: 'Restricted Defense Perimeter Zone B' },
-    riskFactor: 95,
-    weatherImpact: 'NONE',
-    crowdDensityFactor: 0.8,
-    timeOfDayFactor: 1.5,
-    governmentAlertActive: true,
-    description: 'Prohibited military firing range and tactical drone testing corridor.',
-    recommendedAction: 'Strictly prohibited area. Trespassers subject to military detention.'
-  }
-];
+export const INITIAL_GEOFENCES: DynamicGeofence[] = [];
 
 export const INITIAL_TOURIST: TouristProfile = {
   id: 'tourist-101',
@@ -69,7 +8,7 @@ export const INITIAL_TOURIST: TouristProfile = {
   nationality: 'Indian',
   blockchainDid: 'did:safeyatra:polygon:0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
   identityHash: '0xa498f3214b72ef31890cd123490aafe78291039bc029384721ab',
-  emergencyContact: '+91 98765 43210',
+  emergencyContact: '1800-123-4567',
   bloodType: 'O+',
   safetyStatus: 'SAFE',
   currentLocation: { lat: 30.1250, lng: 78.3180, address: 'Tapovan, Rishikesh' },
@@ -390,35 +329,7 @@ export const SAMPLE_ROUTES: RouteOption[] = [
   }
 ];
 
-export const EMERGENCY_SERVICES: EmergencyService[] = [
-  {
-    id: 'es-1',
-    name: 'AIIMS Rishikesh Trauma & Emergency Center',
-    type: 'HOSPITAL',
-    location: { lat: 30.0768, lng: 78.2881, address: 'Virbhadra Road, Rishikesh' },
-    phone: '+91 135 246 2000',
-    availableUnits: 8,
-    distanceKm: 4.2
-  },
-  {
-    id: 'es-2',
-    name: 'Uttarakhand Tourism Police Post - Lakshman Jhula',
-    type: 'POLICE_STATION',
-    location: { lat: 30.1281, lng: 78.3275, address: 'Lakshman Jhula Bridge Chowk' },
-    phone: '+91 135 243 0212',
-    availableUnits: 14,
-    distanceKm: 1.1
-  },
-  {
-    id: 'es-3',
-    name: 'SDRF Disaster Rescue Base Camp Rishikesh',
-    type: 'RESCUE_BASE',
-    location: { lat: 30.1120, lng: 78.3050, address: 'Jolly Grant Operational Sector' },
-    phone: '112 / +91 94111 12985',
-    availableUnits: 5,
-    distanceKm: 3.8
-  }
-];
+export const INITIAL_EMERGENCY_SERVICES: EmergencyService[] = [];
 
 export const INITIAL_INCIDENTS: IncidentReport[] = [];
 
@@ -460,3 +371,7 @@ export interface GuideChatChannel {
 export const GUIDE_CHAT_CHANNELS: GuideChatChannel[] = [];
 
 export const GUIDE_CHAT_MESSAGES: GuideChatMessage[] = [];
+
+export const INITIAL_TOURISTS: TouristProfile[] = [INITIAL_TOURIST, ...SAMPLE_OTHER_TOURISTS];
+export const SAMPLE_INCIDENTS: IncidentReport[] = INITIAL_INCIDENTS;
+export const SAMPLE_CHAT_LOGS: Record<string, any[]> = {};

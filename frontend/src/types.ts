@@ -1,4 +1,4 @@
-export type SafetyStatus = 'SAFE' | 'CAUTION' | 'AT_RISK' | 'EMERGENCY_SOS';
+export type SafetyStatus = 'SAFE' | 'CAUTION' | 'AT_RISK' | 'EMERGENCY_SOS' | 'DANGER' | 'WARNING';
 
 export interface Location {
   lat: number;
@@ -30,6 +30,22 @@ export interface TouristProfile {
   mobile?: string;
   city?: string;
   age?: number;
+  groupId?: string;
+  groupName?: string;
+  isLeader?: boolean;
+  medicalConditions?: string;
+  customMedicalInfo?: string;
+  idProofType?: 'AADHAAR' | 'PASSPORT' | 'DRIVING_LICENSE' | 'OTHER';
+  idProofImage?: string;
+  idProofHash?: string;
+  idProofVerified?: boolean;
+  sosTriggered?: boolean;
+  riskLevel?: string;
+  anomaly?: any;
+  safetyDetails?: any;
+  isSolo?: boolean;
+  assignedGuide?: any;
+  aiFeatures?: any;
 }
 
 export interface DynamicGeofence {
@@ -68,7 +84,7 @@ export interface IncidentReport {
   id: string;
   touristId: string;
   touristName: string;
-  type: 'MEDICAL' | 'ACCIDENT' | 'LOST_PATH' | 'CRIME' | 'NATURAL_DISASTER' | 'HARASSMENT' | 'SOS_TRIGGERED';
+  type: 'MEDICAL' | 'ACCIDENT' | 'LOST_PATH' | 'CRIME' | 'NATURAL_DISASTER' | 'HARASSMENT' | 'SOS_TRIGGERED' | 'GUIDE_SOS_TRIGGERED';
   location: Location;
   timestamp: string;
   status: 'PENDING' | 'DISPATCHED' | 'ON_SITE' | 'RESOLVED';
@@ -82,6 +98,11 @@ export interface IncidentReport {
     contactPhone: string;
   };
   blockchainProofHash?: string;
+  blockchainIncidentId?: number;
+  isAIVerified?: boolean;
+  isGuideSOS?: boolean;
+  guideId?: string;
+  guideName?: string;
 }
 
 export interface EmergencyService {
@@ -127,13 +148,41 @@ export interface BlockchainRecord {
     accessedBy: string;
     reason: string;
     timestamp: number;
+    ipAddress?: string;
   }[];
+}
+
+export interface EFIRRecord {
+  id: string;
+  efirNumber: string; // Format: EFIR-YYYY-XXXX (e.g. EFIR-2026-0001)
+  status: 'DRAFT' | 'GENERATED';
+  createdAt: string;
+  generatedAt?: string;
+  generatedBy?: string;
+  // FIR Details
+  policeStation: string;
+  jurisdiction: string;
+  // Complainant Details
+  complainantName: string;
+  complainantMobile: string;
+  complainantAddress?: string;
+  // Case Details
+  caseType: string;
+  occurrenceDate: string;
+  occurrencePlace: string;
+  // Content
+  description: string;
+  additionalInfo?: string;
+  // Digital Signature / Hash
+  recordHash?: string;
 }
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'assistant';
+  sender: 'user' | 'assistant' | 'bot';
   text: string;
   timestamp: string;
   language?: string;
+  quickActions?: { label: string; query: string }[];
+  isEmergency?: boolean;
 }

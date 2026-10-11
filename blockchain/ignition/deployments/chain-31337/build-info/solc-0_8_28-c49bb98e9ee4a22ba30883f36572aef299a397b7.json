@@ -1,0 +1,49 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-c49bb98e9ee4a22ba30883f36572aef299a397b7",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.13.0"
+  },
+  "userSourceNameMap": {
+    "contracts/IncidentRegistry.sol": "project/contracts/IncidentRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/IncidentRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\n/**\r\n * @title IncidentRegistry\r\n * @notice Tamper-proof registry for storing tourist emergency incidents & IPFS evidence hashes\r\n */\r\ncontract IncidentRegistry {\r\n    address public owner;\r\n\r\n    struct Incident {\r\n        string touristDid;      // Jis tourist ne report kiya (DID)\r\n        string ipfsHash;        // Original Image ka IPFS CID (Evidence)\r\n        string geoCoordinates;  // Exact Latitude aur Longitude\r\n        uint256 timestamp;      // Incident kab report hua\r\n        bool isAIVerified;      // Backend AI verification status\r\n    }\r\n\r\n    // Incident ID se Incident data ka mapping\r\n    mapping(uint256 => Incident) public incidents;\r\n    uint256 public incidentCount;\r\n\r\n    // Frontend aur Backend ke liye Events\r\n    event IncidentReported(uint256 indexed incidentId, string touristDid, string ipfsHash, uint256 timestamp);\r\n    event IncidentVerified(uint256 indexed incidentId, bool status);\r\n\r\n    modifier onlyOwner() {\r\n        require(msg.sender == owner, \"Only authorized backend node can verify\");\r\n        _;\r\n    }\r\n\r\n    constructor() {\r\n        // Contract deploy karne wala (aapka backend wallet) owner ban jayega\r\n        owner = msg.sender;\r\n    }\r\n\r\n    /**\r\n     * @notice Naya incident report karne ke liye (Called via Frontend or Backend)\r\n     */\r\n    function reportIncident(\r\n        string calldata _did, \r\n        string calldata _ipfsHash, \r\n        string calldata _geoCoords\r\n    ) external {\r\n        incidentCount++;\r\n        incidents[incidentCount] = Incident({\r\n            touristDid: _did,\r\n            ipfsHash: _ipfsHash,\r\n            geoCoordinates: _geoCoords,\r\n            timestamp: block.timestamp,\r\n            isAIVerified: false\r\n        });\r\n\r\n        emit IncidentReported(incidentCount, _did, _ipfsHash, block.timestamp);\r\n    }\r\n\r\n    /**\r\n     * @notice AI/Authority dwara incident verify karne ke liye (Called by Backend)\r\n     */\r\n    function verifyIncident(uint256 _incidentId, bool _status) external onlyOwner {\r\n        require(_incidentId > 0 && _incidentId <= incidentCount, \"Invalid Incident ID\");\r\n        incidents[_incidentId].isAIVerified = _status;\r\n        \r\n        emit IncidentVerified(_incidentId, _status);\r\n    }\r\n\r\n    /**\r\n     * @notice Kisi bhi incident ki details read karne ke liye\r\n     */\r\n    function getIncident(uint256 _incidentId) \r\n        external \r\n        view \r\n        returns (\r\n            string memory touristDid, \r\n            string memory ipfsHash, \r\n            string memory geoCoordinates, \r\n            uint256 timestamp, \r\n            bool isAIVerified\r\n        ) \r\n    {\r\n        require(_incidentId > 0 && _incidentId <= incidentCount, \"Invalid Incident ID\");\r\n        Incident memory inc = incidents[_incidentId];\r\n        return (inc.touristDid, inc.ipfsHash, inc.geoCoordinates, inc.timestamp, inc.isAIVerified);\r\n    }\r\n}"
+      }
+    }
+  }
+}

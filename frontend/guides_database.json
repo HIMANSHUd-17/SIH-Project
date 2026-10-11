@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "guide_id": "G-1001",
+    "full_name": "RAMA PATILE",
+    "mobile_number": "+91 99887 76655",
+    "guide_license_no": "UK-TG-2024-889",
+    "years_of_experience": 8,
+    "languages_known": "Hindi, English, Garhwali",
+    "status": "Active"
+  },
+  {
+    "id": 2,
+    "guide_id": "G-1002",
+    "full_name": "Test Admin Guide",
+    "mobile_number": "9900112233",
+    "guide_license_no": "GL-ADM-001",
+    "years_of_experience": 4,
+    "languages_known": "English, Hindi",
+    "status": "Active"
+  },
+  {
+    "id": 3,
+    "guide_id": "G-2001",
+    "full_name": "Vishal Kate",
+    "mobile_number": "7721087400",
+    "guide_license_no": "GL-MH-24001",
+    "years_of_experience": 3,
+    "languages_known": "Marathi, Hindi",
+    "status": "Active"
+  },
+  {
+    "guide_id": "G-2003",
+    "full_name": "Amit Jadhav",
+    "mobile_number": "7901234562",
+    "guide_license_no": "GL-MH-24003",
+    "years_of_experience": 4,
+    "languages_known": "Hindi, English",
+    "status": "Active",
+    "id": 5
+  },
+  {
+    "guide_id": "G-2004",
+    "full_name": "Suresh Pawar",
+    "mobile_number": "8012345673",
+    "guide_license_no": "GL-MH-24004",
+    "years_of_experience": 7,
+    "languages_known": "Marathi, Hindi",
+    "status": "Active",
+    "id": 6
+  }
+]

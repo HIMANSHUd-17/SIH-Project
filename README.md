@@ -1,89 +1,115 @@
-# SafeYatra Tourist Safety Platform - Monorepo
+# SafeYatra — Smart Tourist Safety & AI Incident Monitoring Platform
 
-Welcome to the **SafeYatra** monorepo workspace. This platform provides real-time smart tourist safety monitoring, dynamic hazard geofencing, blockchain identity anchoring, safe route guidance, and a multi-authority admin dashboard.
-
-The project is structured into four main folders, matching the system design architecture:
-
-```
-├── ai-automation/     # Google Gemini safety agent monitoring tools
-├── backend/           # Python FastAPI geospatial risk microservice
-├── blockchain/        # Solidity smart contracts and anchoring protocols
-└── frontend/          # Vite + React UI and Express middleware server
-```
+> **Merged Production Release (`SIH-FINAL-MERGE`)**  
+> Complete unification of the SafeYatra AI Safety Engines, Multilingual Interface, Blockchain Decentralized Identity (DID), Real-Time Multi-Channel Chat, Emergency Audio SOS with Microphone Streaming, and Multi-Authority Command Center.
 
 ---
 
-## Workspace Submodules
+## 🌟 Core Feature Matrix
 
-### 1. `ai-automation`
-Hosts the AI safety monitor agent powered by Google Gemini. The agent reviews real-time coordinates, crowd density, and weather risk factors to draft hazard notifications and evacuation steps.
-- See [ai-automation/README.md](file:///C:/Users/Siddharth/Downloads/nagarjuna-tourist-safety-platform%20(1)/ai-automation/README.md) for details.
+### 1. 🧠 Preserved AI Safety & Machine Learning
+- **Situational Risk Engine (`ai/risk_engine.py`)**: XGBoost predictive risk modeling evaluating multi-factor situational hazards (0–100 score).
+- **Behavioral Anomaly Detection (`ai/anomaly_engine.py`)**: Isolation Forest model detecting route deviations, prolonged inactivity, and speed shifts.
+- **Safety Signal Fusion**: Merges situational risk and behavioral anomaly signals into fused operational tiers (`NORMAL`, `ADVISORY`, `ELEVATED`, `ESCALATED`, `CRITICAL`).
+- **AI Safety Automation Agent (`ai_automation/safety_agent.py`)**: Google Gemini 2.5 Flash safety intelligence agent for localized context.
+- **SafeYatra AI Chatbot**: Grounded floating AI assistant on the landing page connecting directly to FastAPI AI endpoints with reverse-geocoding.
+- **Guide AI Safety Monitoring (`GuideAiMonitoring.tsx`)**: Real-time anomaly visualizer and traveler risk inspector for tour guides.
 
-### 2. `backend`
-A standalone FastAPI microservice written in Python. It calculates Haversine spatial distances, crowd risk indices, and weather multipliers to evaluate localized tourist safety bounds.
-- See [backend/README.md](file:///C:/Users/Siddharth/Downloads/nagarjuna-tourist-safety-platform%20(1)/backend/README.md) for details.
+### 2. 👥 Registration & Profile Management
+- **Solo & Team Registration**: Modal in Tourist portal supporting single and group travel registration with phone/email deduplication.
+- **Tourist Profile View & Editor (`TouristProfileView.tsx`)**: In-app profile inspection and direct field editing.
+- **FastAPI Unique Tourist ID Generation**: Cryptographically secure ID creation linked to assigned guides.
 
-### 3. `blockchain`
-Contains the `SafeYatraTouristIdentity.sol` Solidity contract, designed to anchor cryptographic zero-knowledge hashes of tourist PII on-chain (Polygon/Hyperledger EVM networks) to secure records and log emergency verification queries.
-- See [blockchain/README.md](file:///C:/Users/Siddharth/Downloads/nagarjuna-tourist-safety-platform%20(1)/blockchain/README.md) for details.
+### 3. 🚨 Emergency Response & SOS Audio State Machine
+- **Microphone Permission SOS State Machine**:
+  `REQUESTING_MIC` ➔ `MIC_ACTIVE` (or `MIC_DENIED` fallback) ➔ `TRANSMITTING` (5-second cancel countdown) ➔ `SUBMITTED`.
+- **Audio Alarm Synthesizer (`audioAlarm.ts`)**: Emergency alert siren for incident confirmation.
+- **Dynamic 4-Tier Safety Status Banners**:
+  - *Level 1 (0–25)*: Nominal Safe Corridor
+  - *Level 2 (26–50)*: Advisory Notice
+  - *Level 3 (51–75)*: Elevated Caution Zone
+  - *Level 4 (76–100)*: Critical Emergency SOS Trigger
 
-### 4. `frontend`
-The core user interface (Vite + React) combined with the Node.js/Express server. The server acts as a middleware router, orchestrating requests to the python risk engine and managing server-sent event (SSE) tracking feeds.
-- See [frontend/README.md](file:///C:/Users/Siddharth/Downloads/nagarjuna-tourist-safety-platform%20(1)/frontend/README.md) (coming soon, or refer to instructions below).
+### 4. 💬 Real-Time Communications & Multi-Channel Chat
+- **Multi-Channel SSE Streaming (`chat_database.json`)**:
+  - `guide` channel (Tourist ↔ Guide direct link)
+  - `group` channel (Guide ➔ All Tourists broadcast)
+  - `admin` channel (Tourist ↔ Authority Admin)
+- Chronological ordering and persistent JSON storage.
+
+### 5. 🌐 Multilingual Accessibility (13 Indian Languages)
+- Centralized `LanguageContext.tsx` and `i18n.ts` supporting Tourist, Guide, and Admin interfaces in:
+  - English (`en`), Hindi (`hi`), Marathi (`mr`), Bengali (`bn`), Gujarati (`gu`)
+  - Tamil (`ta`), Telugu (`te`), Kannada (`kn`), Malayalam (`ml`), Punjabi (`pa`)
+  - Odia (`or`), Assamese (`as`), Urdu (`ur`)
+
+### 6. ⛓️ Blockchain & Decentralized Identity (DID)
+- **`NagarjunaTouristIdentity.sol` / `SafeYatraTouristIdentity.sol`**: DID registry with Keccak-256 hashed PII and emergency audit logging.
+- **`IncidentRegistry.sol`**: Tamper-proof on-chain incident evidence storage.
+- **Pinata IPFS Service (`ipfs_service.py`)**: Secure multimedia evidence pinning.
+- **Web3 Client (`web3_client.py` & `web3.ts`)**: MetaMask connection and smart contract transaction execution.
 
 ---
 
-## Local Execution Instructions
+## 🚀 Quick Start & Run Commands
 
-### Quick Start (Windows One-Click Launcher)
-Double-click or run:
-```bat
-run_project.bat
+### 1-Click Launch (Windows)
+Double-click `run_project.bat` or run:
+```cmd
+run.bat
 ```
-*(or simply `run.bat`)*
 
-This script automatically:
-1. Verifies **Node.js** and **Python** runtime availability.
-2. Checks and installs any missing **frontend** and **backend** dependencies.
-3. Launches the **FastAPI Backend (Port 8000)** in a dedicated console window.
-4. Launches the **Vite + React & Express Frontend (Port 5009)** in a dedicated console window.
-5. Automatically opens your default web browser to `http://localhost:5009`.
+### Manual Service Launch
 
-To terminate all running services cleanly at once, execute:
-```bat
+#### 1. Backend (FastAPI on Port 8000)
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+#### 2. Frontend & Express Middleware (Port 5009)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Stopping Services
+```cmd
 stop_project.bat
 ```
 
 ---
 
-### Manual Execution Instructions
+## 📁 Repository Structure
 
-#### 1. Running the Frontend & Express Middleware
-2. **Configure your API Keys:**
-   Create a `.env.local` inside `frontend` or set env variables in your terminal:
-   ```bash
-   GEMINI_API_KEY="your-api-key-here"
-   ```
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   Open `http://localhost:3000` to view the platform interface.
-
-### Running the Python Backend Microservice
-
-To run the FastAPI server standalone:
-
-1. Navigate to the backend directory:
-   ```bash
-   cd backend
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the service:
-   ```bash
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   API Docs will be available at `http://localhost:8000/docs`.
+```
+SIH-FINAL-MERGE/
+├── ai/                      # XGBoost, Isolation Forest, models, and preprocessors
+├── ai-automation/           # Gemini AI safety agent
+├── backend/                 # FastAPI microservice, models, SQLite DB, Web3 & IPFS
+│   ├── main.py
+│   ├── models.py
+│   ├── database.py
+│   ├── auth.py
+│   ├── risk_engine.py
+│   ├── ipfs_service.py
+│   ├── web3_client.py
+│   └── requirements.txt
+├── blockchain/              # Hardhat smart contracts (IncidentRegistry & DID)
+│   ├── contracts/
+│   └── hardhat.config.ts
+├── frontend/                # Express + React 19 + Vite + TailwindCSS
+│   ├── server.ts            # Integration middleware & SSE broadcast
+│   └── src/
+│       ├── components/      # Tourist, Guide, Admin, Chatbot, Maps, and Modals
+│       ├── hooks/           # useTouristLiveLocation.ts
+│       ├── services/        # aiChatbotService.ts
+│       ├── utils/           # LanguageContext, i18n, web3, audioAlarm
+│       └── types.ts
+├── run_project.bat          # 1-Click launcher
+├── stop_project.bat         # 1-Click shutdown
+├── .env.example             # Environment variables template
+└── README.md
+```

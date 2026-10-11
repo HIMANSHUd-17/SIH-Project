@@ -5,78 +5,95 @@ export const GuideLogin: React.FC = () => {
   const [guideId, setGuideId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     try {
-      const response = await fetch('/api/v1/guides/login', {
+      const res = await fetch('/api/v1/guides/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          guideId,
-          password
-        })
+        body: JSON.stringify({ guideId: guideId.trim().toUpperCase(), password })
       });
-
-      if (!response.ok) {
-        setError('Invalid Guide ID or Password. Please check with your Admin.');
-        return;
+      const data = await res.json();
+      if (res.ok && data.access_token) {
+        sessionStorage.setItem('guide_token', data.access_token);
+        localStorage.setItem('guide_token', data.access_token);
+        navigate('/guide/dashboard');
+      } else {
+        setError(data.detail || data.error || 'Invalid Guide ID or Password');
       }
-
-      const data = await response.json();
-      localStorage.setItem('guide_token', data.access_token);
-      navigate('/guide/dashboard');
     } catch (err) {
-      console.error('Login error:', err);
-      setError('An error occurred during login. Is the backend running?');
+      setError('Unable to reach authentication server');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0A0A0B] text-[#E4E4E7] flex items-center justify-center font-sans">
-      <div className="bg-[#18181B] p-8 rounded-2xl shadow-xl border border-[#27272A] w-full max-w-md">
+    <div className="min-h-screen bg-gd-bg text-gd-on-bg flex items-center justify-center font-guide p-4">
+      <div className="bg-gd-surface p-8 rounded-2xl shadow-xl border border-gd-outline-var w-full max-w-md">
         <div className="flex items-center gap-3 mb-6 justify-center">
-          <div className="w-12 h-12 bg-st-secondary rounded-xl flex items-center justify-center">
-            <span className="material-symbols-outlined text-white text-2xl">map</span>
+          <div className="w-12 h-12 bg-gd-primary rounded-xl flex items-center justify-center shadow-md">
+            <span className="material-symbols-outlined text-white text-2xl">badge</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">Guide Login</h2>
-        </div>
-        <form onSubmit={handleLogin} className="space-y-4">
-          {error && <div className="text-red-500 text-sm font-semibold bg-red-500/10 border border-red-500/20 p-3 rounded-lg">{error}</div>}
           <div>
-            <label className="block text-sm font-medium text-[#A1A1AA] mb-1">Guide ID (e.g. G-1001)</label>
+            <h2 className="text-2xl font-bold text-gd-primary">Guide Login</h2>
+            <p className="text-xs text-gd-on-surface-var">Tour Guide Safety Portal</p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/50 text-red-600 px-4 py-2 rounded-lg mb-4 text-xs font-semibold text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gd-on-surface-var mb-1">Guide ID</label>
             <input
               type="text"
+              placeholder="e.g. G-1001"
               value={guideId}
-              onChange={(e) => setGuideId(e.target.value.toUpperCase())}
-              className="w-full bg-[#09090B] border border-[#27272A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-st-secondary font-mono"
-              placeholder="G-1001"
+              onChange={(e) => setGuideId(e.target.value)}
+              className="w-full bg-gd-surface-low border border-gd-outline-var rounded-lg px-4 py-2.5 text-sm font-semibold text-gd-on-bg focus:outline-none focus:border-gd-primary"
               required
             />
           </div>
+
           <div>
-            <label className="block text-sm font-medium text-[#A1A1AA] mb-1">Password</label>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gd-on-surface-var mb-1">Password</label>
             <input
               type="password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-[#09090B] border border-[#27272A] rounded-lg px-4 py-2 text-white focus:outline-none focus:border-st-secondary"
+              className="w-full bg-gd-surface-low border border-gd-outline-var rounded-lg px-4 py-2.5 text-sm font-semibold text-gd-on-bg focus:outline-none focus:border-gd-primary"
               required
             />
           </div>
+
           <button
             type="submit"
-            className="w-full bg-st-secondary text-white py-3 rounded-lg font-bold hover:bg-[#005321] transition-colors mt-4"
+            disabled={isLoading}
+            className="w-full bg-gd-primary hover:bg-gd-primary-hover text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all active:scale-98 cursor-pointer mt-2"
           >
-            Login
+            {isLoading ? 'Authenticating...' : 'Sign In as Guide'}
           </button>
         </form>
-        <div className="mt-6 text-center">
-          <button onClick={() => navigate('/')} className="text-sm text-[#A1A1AA] hover:text-white transition-colors">
-            Back to Home
+
+        <div className="mt-4 pt-3 border-t border-gd-outline-var text-center">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            className="text-xs font-semibold text-gd-on-surface-var hover:text-gd-primary transition-colors cursor-pointer"
+          >
+            ← Back to Role Selection
           </button>
         </div>
       </div>

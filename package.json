@@ -2,6 +2,7 @@
   "name": "safeyatra-safety-platform-root",
   "private": true,
   "version": "1.0.0",
+  "description": "SafeYatra — Smart Tourist Safety Monitoring, AI Hazard Geofencing, Blockchain DID Anchoring, Safe Route Guidance, and Multi-Authority Admin Dashboard.",
   "scripts": {
     "postinstall": "npm install --prefix frontend",
     "dev": "npm run dev --prefix frontend",
@@ -10,5 +11,8 @@
     "preview": "npm run preview --prefix frontend",
     "clean": "npm run clean --prefix frontend",
     "lint": "npm run lint --prefix frontend"
+  },
+  "devDependencies": {
+    "hardhat": "^3.13.0"
   }
 }

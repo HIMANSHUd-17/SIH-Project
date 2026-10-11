@@ -4,13 +4,11 @@ import jwt
 import bcrypt
 import hashlib
 
-# BUG-005 fix: Load secret from environment, never hardcode
-SECRET_KEY = os.environ.get("JWT_SECRET_KEY", os.urandom(32).hex())
+SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "safeyatra_default_secure_jwt_secret_key_2026")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440  # 24 hours
 
 def get_password_hash(password: str) -> str:
-    # BUG-004 fix: Salted bcrypt password hashing
     salt = bcrypt.gensalt()
     return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
@@ -33,4 +31,3 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
-
